@@ -1,0 +1,19 @@
+{
+  "author": "Dan VerWeire <dverweire@gmail.com>",
+  "name": "object-mapper",
+  "description": "Copy properties from one object to another.",
+  "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/wankdanker/node-object-mapper.git"
+  },
+  "scripts": {
+    "test": "node test/test.js"
+  },
+  "dependencies": {},
+  "devDependencies": {},
+  "optionalDependencies": {},
+  "engines": {
+    "node": "*"
+  }
+}
