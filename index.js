@@ -26,8 +26,8 @@
 
 */
 
-var getObjectValue = exports.getObjectValue = 
-function getObjectValue(obj, key, undefined) {
+var getKeyValue = exports.getKeyValue = 
+function getKeyValue(obj, key, undefined) {
   var reg = /\./gi
     , subKey
     , keys
@@ -61,8 +61,8 @@ function getObjectValue(obj, key, undefined) {
   }
 };
 
-var setObjectValue = exports.setObjectValue = 
-function setObjectValue(obj, key, value) {
+var setKeyValue = exports.setKeyValue = 
+function setKeyValue(obj, key, value) {
   var reg = /\./gi
     , subKey
     , keys
@@ -120,9 +120,9 @@ function merge(objFrom, objTo, propMap) {
       }
       
       for(x = 0; x < toKey.length; x++) {
-        value = getObjectValue(objFrom, fromKey);
+        value = getKeyValue(objFrom, fromKey);
         
-        setObjectValue(objTo, toKey[x], value || null);
+        setKeyValue(objTo, toKey[x], value || null);
       }
     }
   }
