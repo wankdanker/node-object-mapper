@@ -12,6 +12,7 @@ var obj = {
   , "height" : 8
   , "inventory" : {
     "onHandQty" : 12
+    , "replenishQty" : null
   }
 }
 
@@ -24,6 +25,7 @@ var map = {
   , "width" : "Envelope.Request.Item.Dimensions.Width"
   , "height" : "Envelope.Request.Item.Dimensions.Height"
   , "inventory.onHandQty" : "Envelope.Request.Item.Inventory"
+  , "inventory.replenishQty" : "Envelope.Request.Item.RelpenishQuantity"
 };
 
 var expected = { 
