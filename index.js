@@ -136,7 +136,12 @@ function merge(objFrom, objTo, propMap) {
 
         value = getKeyValue(objFrom, fromKey);
         
-        setKeyValue(objTo, toKey[x], value || null);
+         if (value || value === 0) {
+           setKeyValue(objTo, key, value);
+         }
+         else if (def || def === 0) {
+           setKeyValue(objTo, key, def);
+         }
       }
     }
   }
