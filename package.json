@@ -2,7 +2,7 @@
   "author": "Dan VerWeire <dverweire@gmail.com>",
   "name": "object-mapper",
   "description": "Copy properties from one object to another.",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "repository": {
     "type": "git",
     "url": "git://github.com/wankdanker/node-object-mapper.git"
