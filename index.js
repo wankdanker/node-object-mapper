@@ -105,6 +105,7 @@ function merge(objFrom, objTo, propMap) {
     , x
     , value
     , def
+    , transform
     , key
     ;
     
@@ -123,25 +124,37 @@ function merge(objFrom, objTo, propMap) {
 
       for(x = 0; x < toKey.length; x++) {
         def = null;
+        transform = null;
         key = toKey[x]
 
         if (typeof(key) === "object") {
           def = key.default || null;
+          transform = key.transform || null;
           key = key.key;
-          
-          if (typeof(def) === "function" ) {
-            def = def(objFrom, objTo);
-          }
+        }
+        else if (Array.isArray(key)) {
+          //key[toKeyName,transform,default]
+          def = key[2] || null;
+          transform = key[1] || null;
+          key = key[0];
+        }
+        
+        if (def && typeof(def) === "function" ) {
+          def = def(objFrom, objTo);
         }
 
         value = getKeyValue(objFrom, fromKey);
         
-         if (value || value === 0) {
-           setKeyValue(objTo, key, value);
-         }
-         else if (def || def === 0) {
-           setKeyValue(objTo, key, def);
-         }
+        if (transform) {
+          value = transform(value, objFrom, objTo);
+        }
+        
+        if (value || value === 0) {
+          setKeyValue(objTo, key, value);
+        }
+        else if (def || def === 0) {
+          setKeyValue(objTo, key, def);
+        }
       }
     }
   }

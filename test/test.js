@@ -53,4 +53,20 @@ assert.deepEqual(
   , "Fail! Objects did not match as expected"
 );
 
+
+map.sku = {
+  key : "Envelope.Request.Item.SKU"
+  , transform : function (val, objFrom, objTo) {
+      return "over-ridden-sku";
+  }
+}
+
+expected.Envelope.Request.Item.SKU = "over-ridden-sku"
+
+assert.deepEqual(
+  merge(obj, {}, map)
+  , expected
+  , "Fail! Transform failed"
+);
+
 console.error("Success!");

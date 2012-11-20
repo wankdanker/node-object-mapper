@@ -26,6 +26,37 @@ mapping like:
 Objects will be automatically created where they do not exist on the destination 
 object.
 
+You may also specify defaults and transforms in two different ways:
+
+```javascript
+//with an object specifying key, transform and default
+{
+  "name" : { 
+    key : "firstName"
+    , transform : function (value, objFrom, objTo) {
+      return "this returned value will always over ride objTo.firstName";
+    }
+    , default : function (objFrom, objTo) {
+      return "this returned value will only over-ride objTo.firstName if objFrom.name is null or undefined";
+    }
+  , "address" : "emailAddress"
+}
+
+//or with an array like [key, transform, default]
+{
+  "name" : { 
+    key : ["firstName", function (value, objFrom, objTo) {
+      return "this returned value will always over ride objTo.firstName";
+    }, function (objFrom, objTo) {
+      return "this returned value will only over-ride objTo.firstName if objFrom.name is null or undefined";
+    }]
+  , "address" : "emailAddress"
+}
+```
+
+
+
+
 methods
 ------------
 
