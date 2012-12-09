@@ -204,7 +204,7 @@ var map = {
 var result = merge(obj, {}, map);
 
 // Expected
-{ 
+var expected = { 
   Result: { 
     Package: { 
       InspiredByArray: ["node", "object", "mapper"],
