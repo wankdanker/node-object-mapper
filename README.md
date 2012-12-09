@@ -54,7 +54,39 @@ You may also specify defaults and transforms in two different ways:
 }
 ```
 
+Array objects mapping is also supported, but requires the Array brackets on both sides of mapping entry.
 
+
+```javascript
+//input
+{
+  inspired_by : ["node", "object", "mapper"],
+  limited_to  : [],
+  modified_by : [
+    {name: "John", change_id: "1", files: 6, title: "Added Arrays support"},
+    {name: "Jane", change_id: "2", files: 5, title: "Fixed some bugs"},
+    {name: "Josh", change_id: "3", files: 4, title: "Removed redundant files"}
+  ]
+}
+//array mapping scenarios
+{
+  // whole array mapping
+  "inspired_by" : "Result.Package.InspiredByArray",
+  // string members to objects mapping
+  "inspired_by[i]" : "Result.Package.InspiredBy[i].module",
+  // empty array copy
+  "limited_to[i]" : "Result.Package.LimitedTo[i]",
+  // object members properties to strings array mapping
+  "modified_by[i].name" : "Result.Package.Contributors[i]",
+  // using arrays with transform function
+  "modified_by[i]" : {key: "Result.Package.ChangeSummaries[i]",
+    transform: transform: function(member, objFrom, objTo) {
+      return member.name + ': ' member.title.substr(0, 10) + '...';
+    }
+  }
+};
+
+```
 
 
 methods
@@ -142,6 +174,55 @@ var result = merge(obj, {}, map);
 };
 */
 ```
+
+arrays example
+------------
+
+```javascript
+var obj = {
+  inspired_by : ["node", "object", "mapper"],
+  limited_to  : [],
+  modified_by : [
+    {name: "John", change_id: "1", files: 6, title: "Added Arrays support"},
+    {name: "Jane", change_id: "2", files: 5, title: "Fixed some bugs"},
+    {name: "Josh", change_id: "3", files: 4, title: "Removed redundant files"}
+  ]
+};
+
+var map = {
+  "inspired_by" : "Result.Package.InspiredByArray",
+  "inspired_by[i]" : "Result.Package.InspiredBy[i].module",
+  "limited_to[i]" : "Result.Package.LimitedTo[i]",
+  "modified_by[i].name" : "Result.Package.Contributors[i]",
+  "modified_by[i]" : {key: "Result.Package.ChangeSummaries[i]",
+    transform: transform: function(member, objFrom, objTo) {
+      return member.name + ': ' member.title.substr(0, 10) + '...';
+    }
+  }
+};
+
+var result = merge(obj, {}, map);
+
+// Expected
+{ 
+  Result: { 
+    Package: { 
+      InspiredByArray: ["node", "object", "mapper"],
+      InspiredBy: [
+        { module: "node" },
+        { module: "object" },
+        { module: "mapper" }
+      ],
+      LimitedTo: [],
+      Contributors: ["John", "Jane", "Josh"],
+      ChangeSummaries: [
+        "John: Added Arra...",
+        "Jane: Fixed some...",
+        "Josh: Removed re..."
+      ]
+    } 
+  } 
+};
 
 use case
 -------------

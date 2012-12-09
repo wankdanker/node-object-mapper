@@ -114,4 +114,52 @@ assert.deepEqual(
   , "Fail! Transform failed"
 );
 
+var obj = {
+  inspired_by : ["node", "object", "mapper"],
+  limited_to  : [],
+  modified_by : [
+    {name: "John", change_id: "1", files: 6, title: "Added Arrays support"},
+    {name: "Jane", change_id: "2", files: 5, title: "Fixed some bugs"},
+    {name: "Josh", change_id: "3", files: 4, title: "Removed redundant files"}
+  ]
+};
+
+var map = {
+  "inspired_by" : "Result.Package.InspiredByArray",
+  "inspired_by[i]" : "Result.Package.InspiredBy[i].module",
+  "limited_to[i]" : "Result.Package.LimitedTo[i]",
+  "modified_by[i].name" : "Result.Package.Contributors[i]",
+  "modified_by[i]" : {key: "Result.Package.ChangeSummaries[i]",
+    transform: function(member, objFrom, objTo) {
+      return member.name + ': ' + member.title.substr(0, 10) + '...';
+    }
+  }
+};
+
+var expected = { 
+  Result: { 
+    Package: { 
+      InspiredByArray: ["node", "object", "mapper"],
+      InspiredBy: [
+        { module: "node" },
+        { module: "object" },
+        { module: "mapper" }
+      ],
+      LimitedTo: [],
+      Contributors: ["John", "Jane", "Josh"],
+      ChangeSummaries: [
+        "John: Added Arra...",
+        "Jane: Fixed some...",
+        "Josh: Removed re..."
+      ]
+    } 
+  } 
+};
+
+assert.deepEqual(
+  merge(obj, {}, map)
+  , expected
+  , "Fail! Arrays mapping failed"
+);
+
 console.error("Success!");
