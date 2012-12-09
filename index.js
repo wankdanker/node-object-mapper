@@ -110,7 +110,6 @@ function merge(objFrom, objTo, propMap) {
     , endFrom
     , startTo
     , endTo
-    , isArray
     , toArray
     , fromArray
     ;
@@ -150,12 +149,11 @@ function merge(objFrom, objTo, propMap) {
         }
 
         if (fromKey.indexOf('[') !== -1) {
-          isArray = true;
           startFrom = fromKey.substr(0, fromKey.indexOf('['));
           endFrom = fromKey.indexOf(']') + 2;
           endFrom = (endFrom < fromKey.length) ? fromKey.substr(endFrom) : null;
           fromArray = toArray = getKeyValue(objFrom, startFrom);
-          if (isArray && Array.isArray(fromArray)) {
+          if (Array.isArray(fromArray)) {
             if (key.indexOf('[') === -1) {
               throw "Target array mapping not exist!"
             }
@@ -169,7 +167,6 @@ function merge(objFrom, objTo, propMap) {
             setKeyValue(objTo, startTo, toArray);
           }
         } else {
-          isArray = false;
           _mergeSingle(objFrom, objTo, fromKey, key, transform, def);
         }
       }
