@@ -69,4 +69,67 @@ assert.deepEqual(
   , "Fail! Transform failed"
 );
 
+
+
+//test array stuff
+
+map = {
+  "items[].sku" : "sku-list[]"
+};
+
+obj = {
+  items : [
+    { sku : "00001" }
+    , { sku : "00002" }
+    , { sku : "00003" }
+  ]
+};
+
+expected = {
+  "sku-list" : ["00001", "00002", "00003"]
+}
+
+//console.log(merge(obj, {}, map))
+
+assert.deepEqual(
+  merge(obj, {}, map)
+  , expected
+);
+
+//test array source and destination notation stuff
+
+map = {
+  "items[].sku" : "sku-list[].itemNumber"
+  , "stock[]" : "sku-list[].stock"
+};
+
+obj = {
+  items : [
+    { sku : "00001" }
+    , { sku : "00002" }
+    , { sku : "00003" }
+  ]
+  , stock : [
+    300, 200, 100
+  ]
+};
+
+expected = {
+  "sku-list" : [
+    { itemNumber : "00001", stock : 300 }
+    , { itemNumber : "00002", stock : 200 }
+    , { itemNumber : "00003", stock : 100 }
+  ]
+}
+
+
+//console.log(merge(obj, {}, map));
+
+assert.deepEqual(
+  merge(obj, {}, map)
+  , expected
+  , "Fail! Array source and destination notation failed"
+);
+
+
 console.error("Success!");
