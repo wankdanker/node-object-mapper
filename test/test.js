@@ -26,7 +26,7 @@ var obj = {
 
 function shortener(shortNum) {
   return function(value, objFrom, objTo) {
-    return value.substr(0, shortNum) + '...';
+    return (value ||"").substr(0, shortNum) + '...';
   }
 }
 
@@ -91,6 +91,8 @@ var expected = {
     } 
   } 
 };
+
+console.log(inspect(merge(obj, {}, map), null, 10));
 
 assert.deepEqual(
   merge(obj, {}, map)
@@ -161,5 +163,45 @@ assert.deepEqual(
   , expected
   , "Fail! Arrays mapping failed"
 );
+
+var obj = {
+  items : [
+    { 
+      sku : "abc"
+      , name : "butterfly"
+      , locations : [ { id : 123 }, { id : 456 }, { id : 789 } ]
+    }
+    , { 
+      sku : "cde"
+      , name : "cobra commander"
+      , locations : [ { id : 123 }, { id : 456 }, { id : 789 } ]
+    }
+  ]
+  , things : ["asdf", "cvbdfg", "asdf2"]
+};
+
+map = {
+  //Source is array of objects
+  //Destination is array of objects
+  //Copy sku from each source object to itemNumber on destination object
+  "items[].sku" : "locations[].itemNumber"
+  
+  //Source is array of objects
+  //Destination is an array of values
+  //Copy name from each source object to the names array
+  , "items[].name" : "names[]"
+  
+  //Source is array of values
+  //Destination is array of values
+  //Copy the source array to the destination array
+  , "items[]" : "items2[]"
+  
+  //Source is array of values
+  //Destination is array of objects
+  //Copy each element in the source array to the title attribute on an object in thingObjects
+  , "things[]" : "thingObjects[].title"
+}
+
+console.log(inspect(merge(obj, {}, map), null, 10))
 
 console.error("Success!");
