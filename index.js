@@ -308,6 +308,9 @@ function unwrap(array, targetDepth, currentDepth, transform) {
       return result;
     }
     else {
+      //we have reached the target depth
+      //NOTE: here we just use element zero
+      //TODO: implement some way to determine which element we should use
       return unwrap(array[0], targetDepth, currentDepth + 1, transform);
     }
   }
