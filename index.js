@@ -38,21 +38,21 @@ function getKeyValue(obj, key, undefined) {
     , newKey
     ;
   
-  if (/\./gi.test(key) || /\[\]/gi.test(key)) {
+  if (/\./gi.test(key) || /\[[i]*\]/gi.test(key)) {
     keys = key.split(/\./gi);
     context = obj;
     
     for (x = 0; x < keys.length; x++) {
       subKey = keys[x];
       
-      if (/\[\]/gi.test(subKey)) {
+      if (/\[[i]*\]/gi.test(subKey)) {
         //we expect that the source object has
         //an array at this key and we will want to
         //loop through it and build up an array to return
         
         //get the subKey without the array notation ([])
         
-        subKey = subKey.split(/\[\]/gi)[0];
+        subKey = subKey.split(/\[[i]*\]/gi)[0];
         
         if (!context.hasOwnProperty(subKey)) {
           return undefined;
@@ -119,20 +119,20 @@ function setKeyValue(obj, key, value) {
   
   //check to see if we need to process 
   //multiple levels of objects
-  if (/\./gi.test(key) || /\[\]/gi.test(key)) {
+  if (/\./gi.test(key) || /\[[i]*\]/gi.test(key)) {
     keys = key.split(/\./gi);
     context = obj;
     
     for (x = 0; x < keys.length; x++) {
       subKey = keys[x];
       
-      if (/\[\]/gi.test(subKey)) {
+      if (/\[[i]*\]/gi.test(subKey)) {
         //we expect that the source object has
         //an array at this key and we will want to
         //loop through it and build up an array of objects
         
         //get the subKey without the array notation ([])
-        subKey = subKey.split(/\[\]/gi)[0];
+        subKey = subKey.split(/\[[i]*\]/gi)[0];
         
         if (!context[subKey]) {
           context[subKey] = [];
@@ -241,8 +241,8 @@ function merge(objFrom, objTo, propMap) {
         
         //try to figure out if the source side has more
         //layers of arrays than the destination.
-        frmArry = fromKey.match(/\[\]/g);
-        toArry = key.match(/\[\]/g);
+        frmArry = fromKey.match(/\[[i]*\]/g);
+        toArry = key.match(/\[[i]*\]/g);
         frmArryCount = frmArry ? frmArry.length : 0;
         toArryCount = toArry ? toArry.length : 0;
 
