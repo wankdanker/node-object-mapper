@@ -254,6 +254,18 @@ function merge(objFrom, objTo, propMap) {
           //each of the elements that will ultimately be set
           value = unwrap(value, toArryCount, 0, transform);
         }
+        else if (transform && /\[[i]*\]$/g.test(key)) {
+          //target key is a bare array
+          
+          //we will not transform within the unwrap
+          value = unwrap(value, toArryCount, 0, null);
+
+          //loop through each element in the source array
+          //and apply the transform
+          value.forEach(function (val, ix) {
+            value[ix] = transform(val, objFrom, objTo);
+          });
+        }
         else if (transform) {
           //execute the transform directly and get its value
           value = transform(value, objFrom, objTo);
