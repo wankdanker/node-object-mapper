@@ -125,6 +125,8 @@ var obj = {
 };
 
 var map = {
+  "\"NPM Module\"" : "Result.Package.Type",
+  "\"NPM Module" : "Result.Package.Type2", // This value will be omitted since there is no closing tag
   "inspired_by" : "Result.Package.InspiredByArray",
   "inspired_by[i]" : "Result.Package.InspiredBy[i].module",
   "limited_to[i]" : "Result.Package.LimitedTo[i]",
@@ -138,7 +140,8 @@ var map = {
 
 var expected = { 
   Result: { 
-    Package: { 
+    Package: {
+      Type: "NPM Module",
       InspiredByArray: ["node", "object", "mapper"],
       InspiredBy: [
         { module: "node" },

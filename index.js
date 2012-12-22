@@ -35,6 +35,9 @@ function getKeyValue(obj, key, undefined) {
     , x
     ;
   
+  if (key.indexOf('"') === 0) {
+    return key.substr(1, key.lastIndexOf('"') - 1);
+  }
   if (reg.test(key)) {
     keys = key.split(reg);
     context = obj;
@@ -148,7 +151,7 @@ function merge(objFrom, objTo, propMap) {
           def = def(objFrom, objTo);
         }
 
-        if (fromKey.indexOf('[') !== -1) {
+        if (fromKey.indexOf('[') !== -1 && fromKey.indexOf('"') !== 0) {
           startFrom = fromKey.substr(0, fromKey.indexOf('['));
           endFrom = fromKey.indexOf(']') + 2;
           endFrom = (endFrom < fromKey.length) ? fromKey.substr(endFrom) : null;

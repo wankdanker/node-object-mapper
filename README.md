@@ -175,7 +175,7 @@ var result = merge(obj, {}, map);
 */
 ```
 
-arrays example
+arrays example (with constants)
 ------------
 
 ```javascript
@@ -190,6 +190,7 @@ var obj = {
 };
 
 var map = {
+  "\"NPM Module\"" : "Result.Package.Type", // Constant value mapping example
   "inspired_by" : "Result.Package.InspiredByArray",
   "inspired_by[i]" : "Result.Package.InspiredBy[i].module",
   "limited_to[i]" : "Result.Package.LimitedTo[i]",
@@ -206,6 +207,7 @@ var result = merge(obj, {}, map);
 // Expected
 var expected = { 
   Result: { 
+    Type: "NPM Module",
     Package: { 
       InspiredByArray: ["node", "object", "mapper"],
       InspiredBy: [
