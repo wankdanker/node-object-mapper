@@ -35,6 +35,9 @@ function getKeyValue(obj, key, undefined) {
     , x
     ;
   
+  if (key.indexOf('"') === 0) {
+    return key.substr(1, key.lastIndexOf('"') - 1);
+  }
   if (reg.test(key)) {
     keys = key.split(reg);
     context = obj;
@@ -103,10 +106,15 @@ function merge(objFrom, objTo, propMap) {
   var toKey
     , fromKey
     , x
-    , value
     , def
     , transform
     , key
+    , startFrom
+    , endFrom
+    , startTo
+    , endTo
+    , toArray
+    , fromArray
     ;
     
   if (!objTo) {
@@ -143,21 +151,46 @@ function merge(objFrom, objTo, propMap) {
           def = def(objFrom, objTo);
         }
 
-        value = getKeyValue(objFrom, fromKey);
-        
-        if (transform) {
-          value = transform(value, objFrom, objTo);
-        }
-        
-        if (value || value === 0) {
-          setKeyValue(objTo, key, value);
-        }
-        else if (def || def === 0) {
-          setKeyValue(objTo, key, def);
+        if (fromKey.indexOf('[') !== -1 && fromKey.indexOf('"') !== 0) {
+          startFrom = fromKey.substr(0, fromKey.indexOf('['));
+          endFrom = fromKey.indexOf(']') + 2;
+          endFrom = (endFrom < fromKey.length) ? fromKey.substr(endFrom) : null;
+          fromArray = toArray = getKeyValue(objFrom, startFrom);
+          if (Array.isArray(fromArray)) {
+            if (key.indexOf('[') === -1) {
+              throw "Target array mapping not exist!"
+            }
+            startTo = key.substr(0, key.indexOf('['));
+            endTo = key.indexOf(']') + 2;
+            endTo = (endTo < key.length) ? key.substr(endTo) : null;
+            toArray = getKeyValue(objTo, startTo) || [];
+            for (var i = 0; i < fromArray.length; i++) {
+              toArray[i] = _mergeSingle(fromArray[i], toArray[i] || {}, endFrom, endTo, transform, def);
+            }
+            setKeyValue(objTo, startTo, toArray);
+          }
+        } else {
+          _mergeSingle(objFrom, objTo, fromKey, key, transform, def);
         }
       }
     }
   }
-  
   return objTo;
 };
+
+function _mergeSingle(objFrom, objTo, fromKey, toKey, transform, def) {
+  var value = (fromKey) ? getKeyValue(objFrom, fromKey) : objFrom;
+  if (transform) {
+    value = transform(value, objFrom, objTo);
+  }
+  if (!toKey) {
+    return value;
+  }
+  if (value || value === 0) {
+    setKeyValue(objTo, toKey, value);
+  }
+  else if (def || def === 0) {
+    setKeyValue(objTo, toKey, def);
+  }
+  return objTo;
+}
