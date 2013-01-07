@@ -184,7 +184,7 @@ map = {
   //Source is array of objects
   //Destination is array of objects
   //Copy sku from each source object to itemNumber on destination object
-  "items[].sku" : "locations[].itemNumber"
+  "items[].sku" : "items2[].itemNumber"
   
   //Source is array of objects
   //Destination is an array of values
@@ -194,12 +194,16 @@ map = {
   //Source is array of values
   //Destination is array of values
   //Copy the source array to the destination array
-  , "items[]" : "items2[]"
+  , "items[]" : "items3[]"
   
   //Source is array of values
   //Destination is array of objects
   //Copy each element in the source array to the title attribute on an object in thingObjects
   , "things[]" : "thingObjects[].title"
+  
+  , "items[].sku" : "skuList"
+  
+  , "items[].locations[]" : "locations[]"
 }
 
 console.log(inspect(merge(obj, {}, map), null, 10))
