@@ -190,6 +190,8 @@ function merge(objFrom, objTo, propMap) {
   var toKey
     , fromKey
     , x
+    , ix
+    , val
     , value
     , def
     , transform
@@ -262,9 +264,10 @@ function merge(objFrom, objTo, propMap) {
 
           //loop through each element in the source array
           //and apply the transform
-          value.forEach(function (val, ix) {
+          for (ix in value) {
+            val = value[ix];
             value[ix] = transform(val, objFrom, objTo);
-          });
+          };
         }
         else if (transform) {
           //execute the transform directly and get its value
