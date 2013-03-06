@@ -149,10 +149,10 @@ function merge(objFrom, objTo, propMap) {
           value = transform(value, objFrom, objTo);
         }
         
-        if (value || value === 0) {
+        if (typeof value !== 'undefined') {
           setKeyValue(objTo, key, value);
         }
-        else if (def || def === 0) {
+        else if (typeof def !== 'undefined') {
           setKeyValue(objTo, key, def);
         }
       }

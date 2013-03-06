@@ -6,12 +6,12 @@ var obj = {
   "sku" : "12345"
   , "upc" : "99999912345X"
   , "title" : "Test Item"
-  , "description" : "Description of test item"
+  , "description" : ""
   , "length" : 5
   , "width" : 2
   , "height" : 8
   , "inventory" : {
-    "onHandQty" : 12
+    "onHandQty" : 0
     , "replenishQty" : null
   }
 }
@@ -35,13 +35,14 @@ var expected = {
         SKU: "12345",
         UPC: "99999912345X",
         ShortTitle: "Test Item",
-        ShortDescription: "Description of test item",
+        ShortDescription: "",
         Dimensions: { 
           Length: 5, 
           Width: 2, 
           Height: 8 
         },
-        Inventory: 12 
+        Inventory: 0,
+        RelpenishQuantity: null
       } 
     } 
   } 

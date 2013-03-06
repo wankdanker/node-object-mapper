@@ -34,10 +34,19 @@ You may also specify defaults and transforms in two different ways:
   "name" : { 
     key : "firstName"
     , transform : function (value, objFrom, objTo) {
-      return "this returned value will always over ride objTo.firstName";
+      /*
+       * Value returned from `transform` will override `objTo.firstName` only
+       * if it's is not `undefined`, otherwise `default` will be tried.
+       */
+      return typeof value === 'string' ? value : undefined;
     }
     , default : function (objFrom, objTo) {
-      return "this returned value will only over-ride objTo.firstName if objFrom.name is null or undefined";
+      /*
+       * Value returned from `default` will override `objTo.firstName` only
+       * if it's not `undefined` and `objFrom.name` is `undefined`, otherwise
+       * `objTo.firstName` will remain unchanged.
+       */
+      return objFrom.county === "US" ? "John" : undefined;
     }
   , "address" : "emailAddress"
 }
