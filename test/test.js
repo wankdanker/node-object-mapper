@@ -28,24 +28,24 @@ var map = {
   , "inventory.replenishQty" : "Envelope.Request.Item.RelpenishQuantity"
 };
 
-var expected = { 
-  Envelope: { 
-    Request: { 
-      Item: { 
+var expected = {
+  Envelope: {
+    Request: {
+      Item: {
         SKU: "12345",
         UPC: "99999912345X",
         ShortTitle: "Test Item",
         ShortDescription: "",
-        Dimensions: { 
-          Length: 5, 
-          Width: 2, 
-          Height: 8 
+        Dimensions: {
+          Length: 5,
+          Width: 2,
+          Height: 8
         },
         Inventory: 0,
         RelpenishQuantity: null
-      } 
-    } 
-  } 
+      }
+    }
+  }
 };
 
 assert.deepEqual(

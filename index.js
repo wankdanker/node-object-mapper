@@ -1,32 +1,32 @@
 /*
 
-  The MIT License (MIT)
-  =====================
-  
-  Copyright (c) 2012 Daniel L. VerWeire
-  
-  Permission is hereby granted, free of charge, to any person obtaining
-  a copy of this software and associated documentation files (the
-  "Software"), to deal in the Software without restriction, including
-  without limitation the rights to use, copy, modify, merge, publish,
-  distribute, sublicense, and/or sell copies of the Software, and to
-  permit persons to whom the Software is furnished to do so, subject to
-  the following conditions:
-  
-  The above copyright notice and this permission notice shall be
-  included in all copies or substantial portions of the Software.
-  
-  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-  CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-  TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-  SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+   The MIT License (MIT)
+   =====================
 
-*/
+   Copyright (c) 2012 Daniel L. VerWeire
 
-var getKeyValue = exports.getKeyValue = 
+   Permission is hereby granted, free of charge, to any person obtaining
+   a copy of this software and associated documentation files (the
+   "Software"), to deal in the Software without restriction, including
+   without limitation the rights to use, copy, modify, merge, publish,
+   distribute, sublicense, and/or sell copies of the Software, and to
+   permit persons to whom the Software is furnished to do so, subject to
+   the following conditions:
+
+   The above copyright notice and this permission notice shall be
+   included in all copies or substantial portions of the Software.
+
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+   EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+   IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+   CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+   TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+   SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+ */
+
+var getKeyValue = exports.getKeyValue =
 function getKeyValue(obj, key, undefined) {
   var reg = /\./gi
     , subKey
@@ -34,21 +34,21 @@ function getKeyValue(obj, key, undefined) {
     , context
     , x
     ;
-  
+
   if (reg.test(key)) {
     keys = key.split(reg);
     context = obj;
-    
+
     for (x = 0; x < keys.length; x++) {
       subKey = keys[x];
-      
+
       //the values of all keys except for
       //the last one should be objects
       if (x < keys.length -1) {
         if (!context.hasOwnProperty(subKey)) {
           return undefined;
         }
-        
+
         context = context[subKey];
       }
       else {
@@ -61,7 +61,7 @@ function getKeyValue(obj, key, undefined) {
   }
 };
 
-var setKeyValue = exports.setKeyValue = 
+var setKeyValue = exports.setKeyValue =
 function setKeyValue(obj, key, value) {
   var reg = /\./gi
     , subKey
@@ -69,23 +69,23 @@ function setKeyValue(obj, key, value) {
     , context
     , x
     ;
-  
-  //check to see if we need to process 
+
+  //check to see if we need to process
   //multiple levels of objects
   if (reg.test(key)) {
     keys = key.split(reg);
     context = obj;
-    
+
     for (x = 0; x < keys.length; x++) {
       subKey = keys[x];
-      
+
       //the values of all keys except for
       //the last one should be objects
       if (x < keys.length -1) {
         if (!context[subKey]) {
           context[subKey] = {};
         }
-        
+
         context = context[subKey];
       }
       else {
@@ -98,7 +98,7 @@ function setKeyValue(obj, key, value) {
   }
 };
 
-var merge = exports.merge = 
+var merge = exports.merge =
 function merge(objFrom, objTo, propMap) {
   var toKey
     , fromKey
@@ -108,11 +108,11 @@ function merge(objFrom, objTo, propMap) {
     , transform
     , key
     ;
-    
+
   if (!objTo) {
     objTo = {};
   }
-  
+
   for(fromKey in propMap) {
     if (propMap.hasOwnProperty(fromKey)) {
       toKey = propMap[fromKey];
@@ -127,28 +127,28 @@ function merge(objFrom, objTo, propMap) {
         transform = null;
         key = toKey[x]
 
-        if (typeof(key) === "object") {
-          def = key.default || null;
-          transform = key.transform || null;
-          key = key.key;
-        }
-        else if (Array.isArray(key)) {
-          //key[toKeyName,transform,default]
-          def = key[2] || null;
-          transform = key[1] || null;
-          key = key[0];
-        }
-        
+          if (typeof(key) === "object") {
+            def = key.default || null;
+            transform = key.transform || null;
+            key = key.key;
+          }
+          else if (Array.isArray(key)) {
+            //key[toKeyName,transform,default]
+            def = key[2] || null;
+            transform = key[1] || null;
+            key = key[0];
+          }
+
         if (def && typeof(def) === "function" ) {
           def = def(objFrom, objTo);
         }
 
         value = getKeyValue(objFrom, fromKey);
-        
+
         if (transform) {
           value = transform(value, objFrom, objTo);
         }
-        
+
         if (typeof value !== 'undefined') {
           setKeyValue(objTo, key, value);
         }
@@ -158,6 +158,6 @@ function merge(objFrom, objTo, propMap) {
       }
     }
   }
-  
+
   return objTo;
 };
