@@ -152,7 +152,7 @@ function merge(objFrom, objTo, propMap) {
         if (typeof value !== 'undefined') {
           setKeyValue(objTo, key, value);
         }
-        else if (typeof def !== 'undefined') {
+        else if (typeof def !== 'undefined' && def !== null) {
           setKeyValue(objTo, key, def);
         }
       }
