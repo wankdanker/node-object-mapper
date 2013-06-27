@@ -24,6 +24,7 @@ var map = {
   , "length" : "Envelope.Request.Item.Dimensions.Length"
   , "width" : "Envelope.Request.Item.Dimensions.Width"
   , "height" : "Envelope.Request.Item.Dimensions.Height"
+  , "weight" : [["Envelope.Request.Item.Weight", null, function () { return undefined; } ]]
   , "inventory.onHandQty" : "Envelope.Request.Item.Inventory"
   , "inventory.replenishQty" : "Envelope.Request.Item.RelpenishQuantity"
 };
