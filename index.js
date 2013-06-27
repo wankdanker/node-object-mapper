@@ -127,18 +127,18 @@ function merge(objFrom, objTo, propMap) {
         transform = null;
         key = toKey[x]
 
-        if (typeof(key) === "object") {
-          def = key.default || null;
-          transform = key.transform || null;
-          key = key.key;
-        }
-        else if (Array.isArray(key)) {
+        if (Array.isArray(key)) {
           //key[toKeyName,transform,default]
           def = key[2] || null;
           transform = key[1] || null;
           key = key[0];
         }
-        
+        else if (typeof(key) === "object") {
+          def = key.default || null;
+          transform = key.transform || null;
+          key = key.key;
+        }
+
         if (def && typeof(def) === "function" ) {
           def = def(objFrom, objTo);
         }
