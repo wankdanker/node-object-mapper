@@ -28,6 +28,7 @@ var map = {
   , "weightUnits" : [["Envelope.Request.Item.WeightUnits", null, function () { return null; } ]]
   , "inventory.onHandQty" : "Envelope.Request.Item.Inventory"
   , "inventory.replenishQty" : "Envelope.Request.Item.RelpenishQuantity"
+  , "inventory.isInventoryItem" : { key : [ "Envelope.Request.Item.OnInventory", null, "YES" ] }
 };
 
 var expected = { 
@@ -45,7 +46,8 @@ var expected = {
         },
         WeightUnits : null,
         Inventory: 0,
-        RelpenishQuantity: null
+        RelpenishQuantity: null,
+        OnInventory : 'YES'
       } 
     } 
   } 
