@@ -25,6 +25,7 @@ var map = {
   , "width" : "Envelope.Request.Item.Dimensions.Width"
   , "height" : "Envelope.Request.Item.Dimensions.Height"
   , "weight" : [["Envelope.Request.Item.Weight", null, function () { return undefined; } ]]
+  , "weightUnits" : [["Envelope.Request.Item.WeightUnits", null, function () { return null; } ]]
   , "inventory.onHandQty" : "Envelope.Request.Item.Inventory"
   , "inventory.replenishQty" : "Envelope.Request.Item.RelpenishQuantity"
 };
@@ -42,6 +43,7 @@ var expected = {
           Width: 2, 
           Height: 8 
         },
+        WeightUnits : null,
         Inventory: 0,
         RelpenishQuantity: null
       } 
