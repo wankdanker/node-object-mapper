@@ -133,11 +133,11 @@ function merge(objFrom, objTo, propMap) {
           def = key.default || null;
           transform = key.transform || null;
           key = key.key;
-	  //evaluate if the new key is an array
-	  keyIsArray = Array.isArray(key);
+          //evaluate if the new key is an array
+          keyIsArray = Array.isArray(key);
         }
 
-	if (keyIsArray) {
+        if (keyIsArray) {
           //key[toKeyName,transform,default]
           def = key[2] || null;
           transform = key[1] || null;
