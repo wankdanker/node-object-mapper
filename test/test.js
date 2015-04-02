@@ -75,4 +75,13 @@ assert.deepEqual(
   , "Fail! Transform failed"
 );
 
+obj["inventory"] = null;
+expected.Envelope.Request.Item.Inventory = null;
+
+assert.deepEqual(
+  merge(obj, {}, map)
+  , expected
+  , "Fail! Transform failed"
+);
+
 console.error("Success!");
