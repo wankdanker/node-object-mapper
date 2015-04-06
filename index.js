@@ -52,7 +52,7 @@ function getKeyValue(obj, key, undefined) {
         context = context[subKey];
       }
       else {
-        return context[subKey];
+        return context ? context[subKey] : undefined;
       }
     }
   }
