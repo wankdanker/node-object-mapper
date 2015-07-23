@@ -1,4 +1,4 @@
-node-object-mapper
+object-mapper
 ------------------
 
 [![Build Status](https://travis-ci.org/wankdanker/node-object-mapper.svg)](https://travis-ci.org/wankdanker/node-object-mapper)
