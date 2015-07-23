@@ -62,8 +62,6 @@ var expected = {
   }
 };
 
-console.log(JSON.stringify(merge(obj, {}, map)));
-
 assert.deepEqual(
   merge(obj, {}, map)
   , expected
