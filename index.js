@@ -26,13 +26,14 @@
  SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
  */
+var _ = require('lodash');
 
 var undefined;
 
 module.exports = objectMapper;
 module.exports.merge = objectMapper;
-module.exports.getKeyValue = getKeyValueNew;
-module.exports.setKeyValue = setKeyValueNew;
+module.exports.getKeyValue = getKeyValue;
+module.exports.setKeyValue = setKeyValue;
 
 function _getValue(obj, key) {
   var regArray = /(\[\]|\[(.*)\])$/g
@@ -51,12 +52,14 @@ function _getValue(obj, key) {
     } else {
       return obj[key][arrayIndex];
     }
-  } else {
+  } else if (obj && obj.hasOwnProperty(key)) {
     return obj[key];
+  } else {
+    return null;
   }
 }
 
-function getKeyValueNew(obj, key) {
+function getKeyValue(obj, key) {
   var regDot = /\./g
     , next
     , keyRest
@@ -67,7 +70,7 @@ function getKeyValueNew(obj, key) {
     keyRest = key.substring(next + 1);
     key = key.substring(0, next);
 
-    return getKeyValueNew(_getValue(obj, key), keyRest);
+    return getKeyValue(_getValue(obj, key), keyRest);
   } else {
     return _getValue(obj, key);
   }
@@ -75,20 +78,32 @@ function getKeyValueNew(obj, key) {
 
 function _setValue(obj, key, value) {
   var regArray = /(\[\]|\[(.*)\])$/g
-    , arrayIndex;
+    , arrayIndex
+    , valueKey;
 
   if (regArray.test(key)) {
     regArray.lastIndex = 0;
     arrayIndex = regArray.exec(key)[2];
     key = key.replace(regArray, '');
 
-    obj[key] = [];
+    if (typeof obj[key] === 'undefined') {
+      obj[key] = [];
+    }
 
     if (Number.isNaN(arrayIndex)) {
       arrayIndex = undefined;
     }
     if (typeof arrayIndex === 'undefined') {
-      obj[key][0] = value;
+      arrayIndex = 0;
+    }
+    if (typeof obj[key][arrayIndex] === 'undefined') {
+      obj[key][arrayIndex] = {};
+    }
+    if (typeof value === 'object') {
+      valueKey = Object.keys(value)[0];
+      if (value.hasOwnProperty(valueKey)) {
+        obj[key][arrayIndex][valueKey] = value[valueKey];
+      }
     } else {
       obj[key][arrayIndex] = value;
     }
@@ -98,11 +113,12 @@ function _setValue(obj, key, value) {
   return obj[key];
 }
 
-function setKeyValueNew(obj, key, value) {
+function setKeyValue(obj, key, value) {
   var regDot = /\./g
     , next
     , keyRest
     ;
+
   obj = obj || {};
 
   if (regDot.test(key)) {
@@ -110,7 +126,7 @@ function setKeyValueNew(obj, key, value) {
     keyRest = key.substring(next + 1);
     key = key.substring(0, next);
 
-    _setValue(obj, key, setKeyValueNew(obj[key], keyRest, value));
+    _setValue(obj, key, setKeyValue(obj[key], keyRest, value));
   } else {
     _setValue(obj, key, value);
   }
@@ -118,249 +134,86 @@ function setKeyValueNew(obj, key, value) {
   return obj;
 }
 
-function getKeyValue(obj, key) {
-  var reg = /\./gi
-    , regArray = /(\[\]|\[(.*)\])$/g
-    , subKey
-    , keys
-    , context
-    , x
-    , arrayWork
-    , arrayIndex
-    ;
-
-  if (reg.test(key)) {
-    keys = key.split(reg);
-    context = obj;
-
-    for (x = 0; x < keys.length; x++) {
-      subKey = keys[x];
-
-      arrayWork = false;
-      arrayIndex = undefined;
-      if (regArray.test(subKey)) {
-        regArray.lastIndex = 0;
-        arrayWork = true;
-        arrayIndex = regArray.exec(subKey)[2];
-        if (arrayIndex === '*') {
-          arrayIndex = undefined;
-        }
-        if (arrayIndex !== undefined && Number.isNaN(arrayIndex)) {
-          arrayIndex = 0;
-        }
-        subKey = subKey.replace(regArray, '');
-      }
-
-      //the values of all keys except for
-      //the last one should be objects
-      if (x < keys.length - 1) {
-        if (!context.hasOwnProperty(subKey)) {
-          return undefined;
-        }
-
-        if (arrayWork) {
-          if (arrayIndex === undefined) {
-            context = context[subKey];
-          }
-          else {
-            context = context[subKey][arrayIndex];
-          }
-        }
-        else {
-          context = context[subKey];
-        }
-      }
-      else {
-        if (arrayIndex === undefined) {
-          if (Array.isArray(context)) {
-            return context.map(function (subKey, item) {
-              return item[subKey];
-            }.bind(this, subKey));
-          }
-          else {
-            return context ? context[subKey] : undefined;
-          }
-        }
-        else {
-          return context ? context[subKey][arrayIndex] : undefined;
-        }
-      }
-    }
-  }
-  else {
-    if (regArray.test(key)) {
-      regArray.lastIndex = 0;
-      arrayIndex = regArray.exec(key)[2];
-      if (arrayIndex === '*') {
-        arrayIndex = undefined;
-      }
-      key = key.replace(regArray, '');
-      if (arrayIndex === '') {
-        return obj[key]
-      }
-      else {
-        if (Number.isNaN(arrayIndex)) {
-          arrayIndex = 0;
-        }
-        return obj[key][arrayIndex];
-      }
-    }
-    else {
-      return obj[key];
-    }
-  }
-}
-
-function setKeyValue(obj, key, value) {
-  var reg = /\./gi
-    , regArray = /(\[\]|\[(.*)\])/g
-    , subKey
-    , keys
-    , context
-    , x
-    , arrayWork
-    , arrayIndex
-    ;
-
-  //check to see if we need to process
-  //multiple levels of objects
-  if (reg.test(key)) {
-    keys = key.split(reg);
-    context = obj;
-
-    for (x = 0; x < keys.length; x++) {
-      subKey = keys[x];
-
-      arrayWork = false;
-      //arrayIndex = undefined;
-      if (regArray.test(subKey)) {
-        regArray.lastIndex = 0;
-        arrayWork = true;
-        arrayIndex = regArray.exec(key)[2];
-        if (arrayIndex === '*') {
-          arrayIndex = undefined;
-        }
-        subKey = subKey.replace(regArray, '');
-      }
-
-      //the values of all keys except for
-      //the last one should be objects
-      if (x < keys.length - 1) {
-        if (!context[subKey]) {
-          if (arrayWork) {
-            context[subKey] = [];
-          }
-          else {
-            context[subKey] = {};
-          }
-        }
-        context = context[subKey];
-      }
-      else {
-        if (Array.isArray(context)) {
-          if (Array.isArray(value)) {
-            value.forEach(function (item, index) {
-              if (typeof context[index] !== 'object') {
-                context[index] = {};
-              }
-              context[index][subKey] = item;
-            });
-
-          }
-          else {
-            arrayIndex = arrayIndex || 0;
-            if (typeof context[arrayIndex] !== 'object') {
-              context[arrayIndex] = {};
-            }
-            context[arrayIndex][subKey] = value;
-          }
-        }
-        else {
-          context[subKey] = value;
-        }
-      }
-    }
-  }
-  else {
-    if (regArray.test(key)) {
-      regArray.lastIndex = 0;
-      key = key.replace(regArray, '');
-      obj[key] = [value];
-    }
-    else {
-      obj[key] = value;
-    }
-  }
-}
-
-function objectMapper(objFrom, objTo, propMap) {
-  var toKey
-    , fromKey
-    , x
-    , value
-    , def
+function _mapKey(fromObject, fromKey, toObject, toKey) {
+  var fromValue
+    , restToKeys
+    , _default = null
     , transform
-    , key
-    , keyIsArray
     ;
 
-  if (!propMap) {
-    propMap = objTo;
-    objTo = null;
+  if (Array.isArray(toKey) && toKey.length) {
+    restToKeys = toKey.splice(1);
+    toKey = toKey[0];
   }
 
-  if (!objTo) {
-    objTo = {};
+
+  if (toKey instanceof Object && Object.getPrototypeOf(toKey) === Object.prototype) {
+    _default = toKey.default || null;
+    transform = toKey.transform;
+    toKey = toKey.key;
   }
 
-  for (fromKey in propMap) {
-    if (propMap.hasOwnProperty(fromKey)) {
-      toKey = propMap[fromKey];
+  if (Array.isArray(toKey)) {
+    transform = toKey[1];
+    _default = toKey[2] || null;
+    toKey = toKey[0];
+  }
 
-      //force toKey to an array of toKeys
-      if (!Array.isArray(toKey)) {
-        toKey = [toKey];
-      }
+  if (typeof _default === 'function') {
+    _default = _default(fromObject, fromKey, toObject, toKey);
+  }
 
-      for (x = 0; x < toKey.length; x++) {
-        def = null;
-        transform = null;
-        key = toKey[x];
-        keyIsArray = Array.isArray(key);
+  fromValue = getKeyValue(fromObject, fromKey);
+  if (typeof fromValue === 'undefined' || fromValue === null) {
+    fromValue = _default;
+  }
 
-        if (typeof(key) === "object" && !keyIsArray) {
-          def = key.default || null;
-          transform = key.transform || null;
-          key = key.key;
-          //evaluate if the new key is an array
-          keyIsArray = Array.isArray(key);
-        }
+  if (typeof fromValue !== 'undefined' && typeof transform === 'function') {
+    fromValue = transform(fromValue, fromObject, toObject, fromKey, toKey);
+  }
 
-        if (keyIsArray) {
-          //key[toKeyName,transform,default]
-          def = key[2] || null;
-          transform = key[1] || null;
-          key = key[0];
-        }
+  setKeyValue(toObject, toKey, fromValue);
 
-        if (def && typeof(def) === "function") {
-          def = def(objFrom, objTo);
-        }
+  if (Array.isArray(restToKeys) && restToKeys.length) {
+    _mapKey(fromObject, fromKey, toObject, restToKeys);
+  }
+}
+function _map(fromObject, toObject, propertyMap, propertyKeys) {
+  var fromKey
+    , toKey
+    ;
 
-        value = getKeyValue(objFrom, fromKey);
-        if (transform) {
-          value = transform(value, objFrom, objTo);
-        }
+  if (propertyKeys.length) {
+    fromKey = propertyKeys.splice(0, 1)[0];
+    if (propertyMap.hasOwnProperty(fromKey)) {
+      toKey = propertyMap[fromKey];
 
-        if (typeof value !== 'undefined') {
-          setKeyValue(objTo, key, value);
-        }
-        else if (typeof def !== 'undefined') {
-          setKeyValue(objTo, key, def);
-        }
-      }
+      _mapKey(fromObject, fromKey, toObject, toKey);
     }
+    return _map(fromObject, toObject, propertyMap, propertyKeys);
+  } else {
+    return toObject;
+  }
+}
+
+function objectMapper(fromObject, toObject, propertyMap) {
+  //avoid ref change
+  fromObject = _.cloneDeep(fromObject);
+  toObject = _.cloneDeep(toObject);
+  propertyMap = _.cloneDeep(propertyMap);
+
+  var propertyKeys;
+
+  if (typeof propertyMap === 'undefined') {
+    propertyMap = toObject;
+    toObject = undefined;
   }
 
-  return objTo;
+  if (typeof toObject === 'undefined') {
+    toObject = {};
+  }
+
+  propertyKeys = Object.keys(propertyMap);
+
+  return _map(fromObject, toObject, propertyMap, propertyKeys);
 }
