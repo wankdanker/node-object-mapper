@@ -34,7 +34,7 @@ test('get value - one level deep', function (t) {
   t.deepEqual(expect, result);
   t.end();
 });
-test('get value - two level deep', function (t) {
+test('get value - two levels deep', function (t) {
   var key = 'foo.baz.fog';
 
   var obj = {
@@ -138,6 +138,120 @@ test('get value - crazy', function (t) {
   var expect = "bar";
 
   var result = om.getKeyValue(obj, key);
+
+  t.deepEqual(expect, result);
+  t.end();
+});
+
+test('set value - simple', function (t) {
+  var key = 'foo';
+  var value = 'bar';
+
+  var expect = {
+    foo: "bar"
+  };
+
+  var result = om.setKeyValue({}, key, value);
+
+  t.deepEqual(expect, result);
+  t.end();
+});
+test('set value - one level deep', function (t) {
+  var key = 'foo.bar';
+  var value = 'baz';
+
+  var expect = {
+    foo: {
+      bar: 'baz'
+    }
+  };
+
+  var result = om.setKeyValue({}, key, value);
+
+  t.deepEqual(expect, result);
+  t.end();
+});
+test('set value - two levels deep', function (t) {
+  var key = 'foo.bar.baz';
+  var value = 'foo';
+
+  var expect = {
+    foo: {
+      bar: {
+        baz: 'foo'
+      }
+    }
+  };
+
+  var result = om.setKeyValue({}, key, value);
+
+  t.deepEqual(expect, result);
+  t.end();
+});
+test('set value - one level deep inside array', function (t) {
+  var key = 'foo.bar[]';
+  var value = 'baz';
+
+  var expect = {
+    foo: {
+      bar: ['baz']
+    }
+  };
+
+  var result = om.setKeyValue({}, key, value);
+
+  t.deepEqual(expect, result);
+  t.end();
+});
+test('set value - one level deep inside array with one level deep', function (t) {
+  var key = 'foo.bar[].baz';
+  var value = 'foo';
+
+  var expect = {
+    foo: {
+      bar: [{
+        baz: 'foo'
+      }]
+    }
+  };
+
+  var result = om.setKeyValue({}, key, value);
+
+  t.deepEqual(expect, result);
+  t.end();
+});
+test('set value - one level deep inside array at defined index with one level deep', function (t) {
+  var key = 'foo.bar[1].baz';
+  var value = 'foo';
+
+  var expect = {
+    foo: {
+      bar: [0, {
+        baz: 'foo'
+      }]
+    }
+  };
+
+  var result = om.setKeyValue({}, key, value);
+
+  t.deepEqual(expect, result);
+  t.end();
+});
+test('set value - crazy', function (t) {
+  var key = 'foo.bar[1].baz[2].thing';
+  var value = 'foo';
+
+  var expect = {
+    foo: {
+      bar: [, {
+        baz: [0, 1, {
+          thing: 'foo'
+        }]
+      }]
+    }
+  };
+
+  var result = om.setKeyValue({}, key, value);
 
   t.deepEqual(expect, result);
   t.end();

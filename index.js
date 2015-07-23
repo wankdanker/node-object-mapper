@@ -32,7 +32,7 @@ var undefined;
 module.exports = objectMapper;
 module.exports.merge = objectMapper;
 module.exports.getKeyValue = getKeyValueNew;
-module.exports.setKeyValue = setKeyValue;
+module.exports.setKeyValue = setKeyValueNew;
 
 function _getValue(obj, key) {
   var regArray = /(\[\]|\[(.*)\])$/g
@@ -71,6 +71,51 @@ function getKeyValueNew(obj, key) {
   } else {
     return _getValue(obj, key);
   }
+}
+
+function _setValue(obj, key, value) {
+  var regArray = /(\[\]|\[(.*)\])$/g
+    , arrayIndex;
+
+  if (regArray.test(key)) {
+    regArray.lastIndex = 0;
+    arrayIndex = regArray.exec(key)[2];
+    key = key.replace(regArray, '');
+
+    obj[key] = [];
+
+    if (Number.isNaN(arrayIndex)) {
+      arrayIndex = undefined;
+    }
+    if (typeof arrayIndex === 'undefined') {
+      obj[key][0] = value;
+    } else {
+      obj[key][arrayIndex] = value;
+    }
+  } else {
+    obj[key] = value;
+  }
+  return obj[key];
+}
+
+function setKeyValueNew(obj, key, value) {
+  var regDot = /\./g
+    , next
+    , keyRest
+    ;
+  obj = obj || {};
+
+  if (regDot.test(key)) {
+    next = key.indexOf('.');
+    keyRest = key.substring(next + 1);
+    key = key.substring(0, next);
+
+    _setValue(obj, key, setKeyValueNew(obj[key], keyRest, value));
+  } else {
+    _setValue(obj, key, value);
+  }
+
+  return obj;
 }
 
 function getKeyValue(obj, key) {
