@@ -26,7 +26,11 @@
 
 */
 
-var getKeyValue = exports.getKeyValue =
+module.exports = objectMapper;
+module.exports.merge = objectMapper;
+module.exports.getKeyValue = getKeyValue;
+module.exports.setKeyValue = setKeyValue;
+
 function getKeyValue(obj, key, undefined) {
   var reg = /\./gi
     , regArray = /(\[\]|\[(.*)\])$/g
@@ -117,7 +121,6 @@ function getKeyValue(obj, key, undefined) {
   }
 };
 
-var setKeyValue = exports.setKeyValue =
 function setKeyValue(obj, key, value) {
   var reg = /\./gi
     , regArray = /(\[\]|\[(.*)\])/g
@@ -206,8 +209,7 @@ function setKeyValue(obj, key, value) {
   }
 };
 
-var merge = exports.merge =
-function merge(objFrom, objTo, propMap) {
+function objectMapper (objFrom, objTo, propMap) {
   var toKey
     , fromKey
     , x
