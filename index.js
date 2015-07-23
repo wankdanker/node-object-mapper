@@ -1,37 +1,79 @@
+"use strict";
 /*
 
-  The MIT License (MIT)
-  =====================
+ The MIT License (MIT)
+ =====================
 
-  Copyright (c) 2012 Daniel L. VerWeire
+ Copyright (c) 2012 Daniel L. VerWeire
 
-  Permission is hereby granted, free of charge, to any person obtaining
-  a copy of this software and associated documentation files (the
-  "Software"), to deal in the Software without restriction, including
-  without limitation the rights to use, copy, modify, merge, publish,
-  distribute, sublicense, and/or sell copies of the Software, and to
-  permit persons to whom the Software is furnished to do so, subject to
-  the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining
+ a copy of this software and associated documentation files (the
+ "Software"), to deal in the Software without restriction, including
+ without limitation the rights to use, copy, modify, merge, publish,
+ distribute, sublicense, and/or sell copies of the Software, and to
+ permit persons to whom the Software is furnished to do so, subject to
+ the following conditions:
 
-  The above copyright notice and this permission notice shall be
-  included in all copies or substantial portions of the Software.
+ The above copyright notice and this permission notice shall be
+ included in all copies or substantial portions of the Software.
 
-  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-  CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-  TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-  SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+ CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-*/
+ */
+
+var undefined;
 
 module.exports = objectMapper;
 module.exports.merge = objectMapper;
-module.exports.getKeyValue = getKeyValue;
+module.exports.getKeyValue = getKeyValueNew;
 module.exports.setKeyValue = setKeyValue;
 
-function getKeyValue(obj, key, undefined) {
+function _getValue(obj, key) {
+  var regArray = /(\[\]|\[(.*)\])$/g
+    , arrayIndex;
+
+  if (regArray.test(key)) {
+    regArray.lastIndex = 0;
+    arrayIndex = regArray.exec(key)[2];
+    key = key.replace(regArray, '');
+
+    if (Number.isNaN(arrayIndex)) {
+      arrayIndex = undefined;
+    }
+    if (typeof arrayIndex === 'undefined') {
+      return obj[key];
+    } else {
+      return obj[key][arrayIndex];
+    }
+  } else {
+    return obj[key];
+  }
+}
+
+function getKeyValueNew(obj, key) {
+  var regDot = /\./g
+    , next
+    , keyRest
+    ;
+
+  if (regDot.test(key)) {
+    next = key.indexOf('.');
+    keyRest = key.substring(next + 1);
+    key = key.substring(0, next);
+
+    return getKeyValueNew(_getValue(obj, key), keyRest);
+  } else {
+    return _getValue(obj, key);
+  }
+}
+
+function getKeyValue(obj, key) {
   var reg = /\./gi
     , regArray = /(\[\]|\[(.*)\])$/g
     , subKey
@@ -48,53 +90,54 @@ function getKeyValue(obj, key, undefined) {
 
     for (x = 0; x < keys.length; x++) {
       subKey = keys[x];
-      arrayWork = false;
 
+      arrayWork = false;
+      arrayIndex = undefined;
       if (regArray.test(subKey)) {
         regArray.lastIndex = 0;
         arrayWork = true;
         arrayIndex = regArray.exec(subKey)[2];
-
-        if (isNaN(arrayIndex)) {
-          arrayIndex = null;
+        if (arrayIndex === '*') {
+          arrayIndex = undefined;
         }
-        subKey = subKey.replace(regArray,'');
+        if (arrayIndex !== undefined && Number.isNaN(arrayIndex)) {
+          arrayIndex = 0;
+        }
+        subKey = subKey.replace(regArray, '');
       }
 
       //the values of all keys except for
       //the last one should be objects
-      if (x < keys.length -1) {
-        if (context === undefined || !context.hasOwnProperty(subKey)) {
+      if (x < keys.length - 1) {
+        if (!context.hasOwnProperty(subKey)) {
           return undefined;
         }
 
-        if (arrayWork && arrayIndex === null) {
-          //set context to the entire array
-          context = context[subKey];
-
-          if (Array.isArray(context)) {
-            key = keys.slice(x + 1).join('.');
-            return context.map(function (obj) {
-              return getKeyValue(obj, key);
-            });
+        if (arrayWork) {
+          if (arrayIndex === undefined) {
+            context = context[subKey];
           }
-        }
-        else if (arrayWork) {
-          context = context[subKey][arrayIndex];
+          else {
+            context = context[subKey][arrayIndex];
+          }
         }
         else {
           context = context[subKey];
         }
       }
       else {
-        if (arrayWork && arrayIndex === null) {
-          return context ? context[subKey] : undefined;
-        }
-        else if (arrayWork) {
-          return context ? context[subKey][arrayIndex] : undefined;
+        if (arrayIndex === undefined) {
+          if (Array.isArray(context)) {
+            return context.map(function (subKey, item) {
+              return item[subKey];
+            }.bind(this, subKey));
+          }
+          else {
+            return context ? context[subKey] : undefined;
+          }
         }
         else {
-          return context ? context[subKey] : undefined;
+          return context ? context[subKey][arrayIndex] : undefined;
         }
       }
     }
@@ -103,15 +146,17 @@ function getKeyValue(obj, key, undefined) {
     if (regArray.test(key)) {
       regArray.lastIndex = 0;
       arrayIndex = regArray.exec(key)[2];
-      if (Number.isNaN(arrayIndex)) {
-        arrayIndex = null;
+      if (arrayIndex === '*') {
+        arrayIndex = undefined;
       }
-      key = key.replace(regArray,'');
-      if (arrayIndex === null) {
-        //return the whole array
-        return obj[key];
+      key = key.replace(regArray, '');
+      if (arrayIndex === '') {
+        return obj[key]
       }
       else {
+        if (Number.isNaN(arrayIndex)) {
+          arrayIndex = 0;
+        }
         return obj[key][arrayIndex];
       }
     }
@@ -119,7 +164,7 @@ function getKeyValue(obj, key, undefined) {
       return obj[key];
     }
   }
-};
+}
 
 function setKeyValue(obj, key, value) {
   var reg = /\./gi
@@ -140,56 +185,50 @@ function setKeyValue(obj, key, value) {
 
     for (x = 0; x < keys.length; x++) {
       subKey = keys[x];
-      arrayWork = false;
 
-      if(regArray.test(subKey)){
+      arrayWork = false;
+      //arrayIndex = undefined;
+      if (regArray.test(subKey)) {
         regArray.lastIndex = 0;
         arrayWork = true;
-        arrayIndex = regArray.exec(subKey)[2];
-
-        if (isNaN(arrayIndex)) {
-          arrayIndex = null;
-        }       
-        
-        subKey = subKey.replace(regArray,'');
+        arrayIndex = regArray.exec(key)[2];
+        if (arrayIndex === '*') {
+          arrayIndex = undefined;
+        }
+        subKey = subKey.replace(regArray, '');
       }
 
       //the values of all keys except for
       //the last one should be objects
-      if (x < keys.length -1) {
-        if (arrayWork && arrayIndex === null) {
-          context[subKey] = context[subKey] || [];
-
-          if (Array.isArray(value)) {
-            key = keys.slice(x+1).join('.');
-            
-            value.forEach(function (obj, i) {
-
-            var tmp = context[subKey][i] = context[subKey][i] || {};
-              setKeyValue(tmp, key, obj);
-            });
-
-            return;
-          }
-          else {
-            context[subKey][arrayIndex || 0] = context[subKey][0] || {}
-          }
-        }
-        else if (!context[subKey]) {
+      if (x < keys.length - 1) {
+        if (!context[subKey]) {
           if (arrayWork) {
             context[subKey] = [];
-            context[subKey][arrayIndex] = context[subKey][arrayIndex] || {};
           }
           else {
             context[subKey] = {};
           }
         }
-        
         context = context[subKey];
       }
       else {
         if (Array.isArray(context)) {
-          context[arrayIndex || 0][subKey] = value;
+          if (Array.isArray(value)) {
+            value.forEach(function (item, index) {
+              if (typeof context[index] !== 'object') {
+                context[index] = {};
+              }
+              context[index][subKey] = item;
+            });
+
+          }
+          else {
+            arrayIndex = arrayIndex || 0;
+            if (typeof context[arrayIndex] !== 'object') {
+              context[arrayIndex] = {};
+            }
+            context[arrayIndex][subKey] = value;
+          }
         }
         else {
           context[subKey] = value;
@@ -207,9 +246,9 @@ function setKeyValue(obj, key, value) {
       obj[key] = value;
     }
   }
-};
+}
 
-function objectMapper (objFrom, objTo, propMap) {
+function objectMapper(objFrom, objTo, propMap) {
   var toKey
     , fromKey
     , x
@@ -229,7 +268,7 @@ function objectMapper (objFrom, objTo, propMap) {
     objTo = {};
   }
 
-  for(fromKey in propMap) {
+  for (fromKey in propMap) {
     if (propMap.hasOwnProperty(fromKey)) {
       toKey = propMap[fromKey];
 
@@ -238,7 +277,7 @@ function objectMapper (objFrom, objTo, propMap) {
         toKey = [toKey];
       }
 
-      for(x = 0; x < toKey.length; x++) {
+      for (x = 0; x < toKey.length; x++) {
         def = null;
         transform = null;
         key = toKey[x];
@@ -259,7 +298,7 @@ function objectMapper (objFrom, objTo, propMap) {
           key = key[0];
         }
 
-        if (def && typeof(def) === "function" ) {
+        if (def && typeof(def) === "function") {
           def = def(objFrom, objTo);
         }
 
@@ -279,4 +318,4 @@ function objectMapper (objFrom, objTo, propMap) {
   }
 
   return objTo;
-};
+}
