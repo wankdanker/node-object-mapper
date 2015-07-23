@@ -3,8 +3,14 @@ node-object-mapper
 
 [![Build Status](https://travis-ci.org/wankdanker/node-object-mapper.svg)](https://travis-ci.org/wankdanker/node-object-mapper)
 
-This module provides a way to copy properties from one object to another based 
-on a separate object which defines how the properties should be mapped. That 
+installation
+------------------
+```shell
+$ npm install --save object-mapper
+```
+
+This module provides a way to copy properties from one object to another based
+on a separate object which defines how the properties should be mapped. That
 separate mapping object is a simple object like:
 
 ```javascript
@@ -14,8 +20,8 @@ separate mapping object is a simple object like:
 }
 ```
 
-You may specify properties deep within the source object to be copied to 
-properties deep within the destination object by using dot notation in the 
+You may specify properties deep within the source object to be copied to
+properties deep within the destination object by using dot notation in the
 mapping like:
 
 ```javascript
@@ -25,7 +31,7 @@ mapping like:
 }
 ```
 
-Objects will be automatically created where they do not exist on the destination 
+Objects will be automatically created where they do not exist on the destination
 object.
 
 You may also specify defaults and transforms in two different ways:
@@ -33,7 +39,7 @@ You may also specify defaults and transforms in two different ways:
 ```javascript
 //with an object specifying key, transform and default
 {
-  "name" : { 
+  "name" : {
     key : "firstName"
     , transform : function (value, objFrom, objTo) {
       /*
@@ -55,7 +61,7 @@ You may also specify defaults and transforms in two different ways:
 
 //or with an array like [key, transform, default]
 {
-  "name" : { 
+  "name" : {
     key : ["firstName", function (value, objFrom, objTo) {
       return "this returned value will always over ride objTo.firstName";
     }, function (objFrom, objTo) {
@@ -71,22 +77,22 @@ You may also specify defaults and transforms in two different ways:
 methods
 ------------
 
-### .merge(sourceObject[, destinationObject], mapObject); 
+### .merge(sourceObject[, destinationObject], mapObject);
 
-Copy properties from **sourceObject** to **destinationObject** by following the 
+Copy properties from **sourceObject** to **destinationObject** by following the
 mapping defined by **mapObject**
 
 This function is also exported directly from require('object-mapper') (ie: var merge = require('object-mapper');)
 
  - **sourceObject** is the object FROM which properties will be copied.
  - **destinationObject** [OPTIONAL] is the object TO which properties will be copied.
- - **mapObject** is the object which defines how properties are copied from 
+ - **mapObject** is the object which defines how properties are copied from
 **sourceObject** to **destinationObject**
 
 ### .getKeyValue(obj, key);
 
-Get the key value within **obj**, going deep within the object if necessary. 
-This method is used internally but is exposed because it may be of use elsewhere 
+Get the key value within **obj**, going deep within the object if necessary.
+This method is used internally but is exposed because it may be of use elsewhere
 with other projects.
 
  - **obj** is the object from which you would like to get a property/key value.
@@ -94,8 +100,8 @@ with other projects.
 
 ### .setKeyValue(obj, key, value);
 
-Set the key value within **obj**, going deep within the object if necessary.This 
-method is used internally but is exposed because it may be of use elsewhere with 
+Set the key value within **obj**, going deep within the object if necessary.This
+method is used internally but is exposed because it may be of use elsewhere with
 other projects.
 
  - **obj** is the object within which the property/key will be set.
@@ -135,23 +141,23 @@ var map = {
 var result = objectMapper(obj, map);
 
 /*
-{ 
-  Envelope: { 
-    Request: { 
-      Item: { 
+{
+  Envelope: {
+    Request: {
+      Item: {
         SKU: "12345",
         UPC: "99999912345X",
         ShortTitle: "Test Item",
         ShortDescription: "Description of test item",
-        Dimensions: { 
-          Length: 5, 
-          Width: 2, 
-          Height: 8 
+        Dimensions: {
+          Length: 5,
+          Width: 2,
+          Height: 8
         },
-        Inventory: 12 
-      } 
-    } 
-  } 
+        Inventory: 12
+      }
+    }
+  }
 };
 */
 ```
@@ -159,9 +165,9 @@ var result = objectMapper(obj, map);
 use case
 -------------
 
-I use **node-object-mapper's** `merge()` method to map values from records 
-returned from a database into horribly complex objects that will be eventually 
-turned in to XML. 
+I use **node-object-mapper's** `merge()` method to map values from records
+returned from a database into horribly complex objects that will be eventually
+turned in to XML.
 
 
 license
