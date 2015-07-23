@@ -6,7 +6,7 @@ var obj = {
   "sku" : "12345"
   , "upc" : "99999912345X"
   , "title" : "Test Item"
-  , "description": ""
+  , "descriptions": ["Short description", "Long description"]
   , "length" : 5
   , "width" : 2
   , "height" : 8
@@ -22,7 +22,6 @@ var map = {
   , "upc" : "Envelope.Request.Item.UPC"
   , "title" : "Envelope.Request.Item.ShortTitle"
   , "length" : "Envelope.Request.Item.Dimensions.Length"
-  , "description" : "Envelope.Request.Item.ShortDescription"
   , "width" : "Envelope.Request.Item.Dimensions.Width"
   , "height" : "Envelope.Request.Item.Dimensions.Height"
   , "weight" : [["Envelope.Request.Item.Weight", null, function () { return undefined; } ]]
@@ -31,6 +30,8 @@ var map = {
   , "inventory.replenishQty" : "Envelope.Request.Item.RelpenishQuantity"
   , "inventory.isInventoryItem" : { key : [ "Envelope.Request.Item.OnInventory", null, "YES" ] }
   , "price" : ["Envelope.Request.Item.Price[].List", "Envelope.Request.Item.Price[].Value", "Test[]"]
+  , "descriptions[0]": "Envelope.Request.Item.ShortDescription"
+  , "descriptions[1]": "Envelope.Request.Item.LongDescription"
 };
 
 var expected = {
@@ -41,7 +42,6 @@ var expected = {
         SKU: "12345",
         UPC: "99999912345X",
         ShortTitle: "Test Item",
-        ShortDescription: "",
         Dimensions: {
           Length: 5,
           Width: 2,
@@ -54,11 +54,15 @@ var expected = {
         Price : [{
           List : 100,
           Value : 100
-        }]
+        }],
+        ShortDescription : "Short description",
+        LongDescription : "Long description"
       }
     }
   }
 };
+
+console.log(JSON.stringify(merge(obj, {}, map)));
 
 assert.deepEqual(
   merge(obj, {}, map)

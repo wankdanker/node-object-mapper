@@ -29,10 +29,13 @@
 var getKeyValue = exports.getKeyValue =
 function getKeyValue(obj, key, undefined) {
   var reg = /\./gi
+    , regArray = /(\[\]|\[(.*)\])$/g
     , subKey
     , keys
     , context
     , x
+    , arrayWork
+    , arrayIndex
     ;
 
   if (reg.test(key)) {
@@ -42,6 +45,16 @@ function getKeyValue(obj, key, undefined) {
     for (x = 0; x < keys.length; x++) {
       subKey = keys[x];
 
+      if (regArray.test(subKey)) {
+        regArray.lastIndex = 0;
+        arrayWork = true;
+        arrayIndex = regArray.exec(subKey)[2];
+        if (Number.isNaN(arrayIndex)) {
+          arrayIndex = 0;
+        }
+        subKey = subKey.replace(regArray,'');
+      }
+
       //the values of all keys except for
       //the last one should be objects
       if (x < keys.length -1) {
@@ -49,15 +62,36 @@ function getKeyValue(obj, key, undefined) {
           return undefined;
         }
 
-        context = context[subKey];
+        if (arrayWork) {
+          context = context[subKey][arrayIndex];
+        }
+        else {
+          context = context[subKey];
+        }
       }
       else {
-        return context ? context[subKey] : undefined;
+        if (arrayWork) {
+          return context ? context[subKey][arrayIndex] : undefined;
+        }
+        else {
+          return context ? context[subKey] : undefined;
+        }
       }
     }
   }
   else {
-    return obj[key];
+    if (regArray.test(key)) {
+      regArray.lastIndex = 0;
+      arrayIndex = regArray.exec(key)[2];
+      if (Number.isNaN(arrayIndex)) {
+        arrayIndex = 0;
+      }
+      key = key.replace(regArray,'');
+      return obj[key][arrayIndex];
+    }
+    else {
+      return obj[key];
+    }
   }
 };
 
@@ -81,6 +115,7 @@ function setKeyValue(obj, key, value) {
     for (x = 0; x < keys.length; x++) {
       subKey = keys[x];
       if(regArray.test(subKey)){
+        regArray.lastIndex = 0;
         arrayWork = true;
         subKey = subKey.replace(regArray,'');
       }
@@ -110,6 +145,7 @@ function setKeyValue(obj, key, value) {
   }
   else {
     if (regArray.test(key)) {
+      regArray.lastIndex = 0;
       key = key.replace(regArray, '');
       obj[key] = [value];
     }
