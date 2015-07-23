@@ -220,6 +220,11 @@ function objectMapper (objFrom, objTo, propMap) {
     , keyIsArray
     ;
 
+  if (!propMap) {
+    propMap = objTo;
+    objTo = null;
+  }
+
   if (!objTo) {
     objTo = {};
   }
@@ -259,7 +264,6 @@ function objectMapper (objFrom, objTo, propMap) {
         }
 
         value = getKeyValue(objFrom, fromKey);
-
         if (transform) {
           value = transform(value, objFrom, objTo);
         }
