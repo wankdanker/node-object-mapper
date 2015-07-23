@@ -44,13 +44,15 @@ function getKeyValue(obj, key, undefined) {
 
     for (x = 0; x < keys.length; x++) {
       subKey = keys[x];
+      arrayWork = false;
 
       if (regArray.test(subKey)) {
         regArray.lastIndex = 0;
         arrayWork = true;
         arrayIndex = regArray.exec(subKey)[2];
-        if (Number.isNaN(arrayIndex)) {
-          arrayIndex = 0;
+
+        if (isNaN(arrayIndex)) {
+          arrayIndex = null;
         }
         subKey = subKey.replace(regArray,'');
       }
@@ -58,11 +60,22 @@ function getKeyValue(obj, key, undefined) {
       //the values of all keys except for
       //the last one should be objects
       if (x < keys.length -1) {
-        if (!context.hasOwnProperty(subKey)) {
+        if (context === undefined || !context.hasOwnProperty(subKey)) {
           return undefined;
         }
 
-        if (arrayWork) {
+        if (arrayWork && arrayIndex === null) {
+          //set context to the entire array
+          context = context[subKey];
+
+          if (Array.isArray(context)) {
+            key = keys.slice(x + 1).join('.');
+            return context.map(function (obj) {
+              return getKeyValue(obj, key);
+            });
+          }
+        }
+        else if (arrayWork) {
           context = context[subKey][arrayIndex];
         }
         else {
@@ -70,7 +83,10 @@ function getKeyValue(obj, key, undefined) {
         }
       }
       else {
-        if (arrayWork) {
+        if (arrayWork && arrayIndex === null) {
+          return context ? context[subKey] : undefined;
+        }
+        else if (arrayWork) {
           return context ? context[subKey][arrayIndex] : undefined;
         }
         else {
@@ -84,10 +100,16 @@ function getKeyValue(obj, key, undefined) {
       regArray.lastIndex = 0;
       arrayIndex = regArray.exec(key)[2];
       if (Number.isNaN(arrayIndex)) {
-        arrayIndex = 0;
+        arrayIndex = null;
       }
       key = key.replace(regArray,'');
-      return obj[key][arrayIndex];
+      if (arrayIndex === null) {
+        //return the whole array
+        return obj[key];
+      }
+      else {
+        return obj[key][arrayIndex];
+      }
     }
     else {
       return obj[key];
@@ -104,6 +126,7 @@ function setKeyValue(obj, key, value) {
     , context
     , x
     , arrayWork
+    , arrayIndex
     ;
 
   //check to see if we need to process
@@ -114,28 +137,56 @@ function setKeyValue(obj, key, value) {
 
     for (x = 0; x < keys.length; x++) {
       subKey = keys[x];
+      arrayWork = false;
+
       if(regArray.test(subKey)){
         regArray.lastIndex = 0;
         arrayWork = true;
+        arrayIndex = regArray.exec(subKey)[2];
+
+        if (isNaN(arrayIndex)) {
+          arrayIndex = null;
+        }       
+        
         subKey = subKey.replace(regArray,'');
       }
 
       //the values of all keys except for
       //the last one should be objects
       if (x < keys.length -1) {
-        if (!context[subKey]) {
+        if (arrayWork && arrayIndex === null) {
+          context[subKey] = context[subKey] || [];
+
+          if (Array.isArray(value)) {
+            key = keys.slice(x+1).join('.');
+            
+            value.forEach(function (obj, i) {
+
+            var tmp = context[subKey][i] = context[subKey][i] || {};
+              setKeyValue(tmp, key, obj);
+            });
+
+            return;
+          }
+          else {
+            context[subKey][arrayIndex || 0] = context[subKey][0] || {}
+          }
+        }
+        else if (!context[subKey]) {
           if (arrayWork) {
-            context[subKey] = [{}];
+            context[subKey] = [];
+            context[subKey][arrayIndex] = context[subKey][arrayIndex] || {};
           }
           else {
             context[subKey] = {};
           }
         }
+        
         context = context[subKey];
       }
       else {
         if (Array.isArray(context)) {
-          context[0][subKey] = value;
+          context[arrayIndex || 0][subKey] = value;
         }
         else {
           context[subKey] = value;
