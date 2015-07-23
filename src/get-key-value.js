@@ -50,6 +50,10 @@ function _getValue(object, key) {
     } else {
       return object[key][arrayIndex];
     }
+  } else if (Array.isArray(object) && object.length) {
+    return object.map(function (item) {
+      return GetKeyValue(item, key);
+    });
   } else if (object && object.hasOwnProperty(key)) {
     return object[key];
   } else {

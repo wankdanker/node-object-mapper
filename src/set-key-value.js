@@ -20,9 +20,9 @@ function SetKeyValue(object, key, value) {
     keyRest = key.substring(next + 1);
     key = key.substring(0, next);
 
-    _setValue(object, key, SetKeyValue(object[key], keyRest, value));
+    object = _setValue(object, key, SetKeyValue(object[key], keyRest, value));
   } else {
-    _setValue(object, key, value);
+    object = _setValue(object, key, value);
   }
 
   return object;
@@ -41,7 +41,8 @@ module.exports = SetKeyValue;
 function _setValue(object, key, value) {
   var regArray = /(\[\]|\[(.*)\])$/g
     , arrayIndex
-    , valueKey;
+    , tmpObject
+    ;
 
   if (regArray.test(key)) {
     regArray.lastIndex = 0;
@@ -58,19 +59,41 @@ function _setValue(object, key, value) {
     if (typeof arrayIndex === 'undefined') {
       arrayIndex = 0;
     }
-    if (typeof object[key][arrayIndex] === 'undefined') {
-      object[key][arrayIndex] = {};
-    }
-    if (typeof value === 'object') {
-      valueKey = Object.keys(value)[0];
-      if (value.hasOwnProperty(valueKey)) {
-        object[key][arrayIndex][valueKey] = value[valueKey];
-      }
+    if (Array.isArray(value)) {
+      value.forEach(function (item, index) {
+        _initializeObjectProperty(object, key, index);
+        _setValueFromObject(item, object, key, index);
+      })
     } else {
-      object[key][arrayIndex] = value;
+      _initializeObjectProperty(object, key, arrayIndex);
+      if (typeof value === 'object') {
+        _setValueFromObject(value, object, key, arrayIndex);
+      } else {
+        object[key][arrayIndex] = value;
+      }
     }
+
+  } else if (Array.isArray(value)) {
+    return value.map(function (valueItem) {
+      tmpObject = {};
+      tmpObject[key] = valueItem;
+      return tmpObject;
+    });
   } else {
     object[key] = value;
   }
-  return object[key];
+  return object;
+}
+
+function _initializeObjectProperty(object, key, index) {
+  if (typeof object[key][index] === 'undefined') {
+    object[key][index] = {};
+  }
+}
+
+function _setValueFromObject(value, object, key, index) {
+  var valueKey = Object.keys(value)[0];
+  if (value.hasOwnProperty(valueKey)) {
+    object[key][index][valueKey] = value[valueKey];
+  }
 }

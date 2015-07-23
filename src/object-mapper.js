@@ -41,6 +41,34 @@ module.exports.getKeyValue = getKeyValue;
 module.exports.setKeyValue = setKeyValue;
 
 /**
+ * Function that handle each key from map
+ * @param fromObject
+ * @param toObject
+ * @param propertyMap
+ * @param propertyKeys
+ * @returns {*}
+ * @private
+ * @recursive
+ */
+function _map(fromObject, toObject, propertyMap, propertyKeys) {
+  var fromKey
+    , toKey
+    ;
+
+  if (propertyKeys.length) {
+    fromKey = propertyKeys.splice(0, 1)[0];
+    if (propertyMap.hasOwnProperty(fromKey)) {
+      toKey = propertyMap[fromKey];
+
+      _mapKey(fromObject, fromKey, toObject, toKey);
+    }
+    return _map(fromObject, toObject, propertyMap, propertyKeys);
+  } else {
+    return toObject;
+  }
+}
+
+/**
  * Function that calls get and set key values
  * @param fromObject
  * @param fromKey
@@ -91,33 +119,5 @@ function _mapKey(fromObject, fromKey, toObject, toKey) {
 
   if (Array.isArray(restToKeys) && restToKeys.length) {
     _mapKey(fromObject, fromKey, toObject, restToKeys);
-  }
-}
-
-/**
- * Function that handle each key from map
- * @param fromObject
- * @param toObject
- * @param propertyMap
- * @param propertyKeys
- * @returns {*}
- * @private
- * @recursive
- */
-function _map(fromObject, toObject, propertyMap, propertyKeys) {
-  var fromKey
-    , toKey
-    ;
-
-  if (propertyKeys.length) {
-    fromKey = propertyKeys.splice(0, 1)[0];
-    if (propertyMap.hasOwnProperty(fromKey)) {
-      toKey = propertyMap[fromKey];
-
-      _mapKey(fromObject, fromKey, toObject, toKey);
-    }
-    return _map(fromObject, toObject, propertyMap, propertyKeys);
-  } else {
-    return toObject;
   }
 }

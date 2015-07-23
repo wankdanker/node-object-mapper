@@ -485,7 +485,7 @@ test('map object to another - with key object notation with default value when k
   var map = {
     'notExistingKey': {
       key: 'bar.foo[].baz',
-      default: 10
+      'default': 10
     }
   };
 
@@ -725,8 +725,89 @@ test('map object to another - with key array notation with transform function', 
   t.end();
 });
 
+test('array mapping - simple', function (t) {
+  var obj = {
+    "comments": [
+      {a: 'a1', b: 'b1'}
+      , {a: 'a2', b: 'b2'}
+    ]
+  };
+
+  var map = {
+    "comments[].a": ["comments[].c"]
+    , "comments[].b": ["comments[].d"]
+  };
+
+  var expect = {
+    "comments": [
+      {c: 'a1', d: 'b1'}
+      , {c: 'a2', d: 'b2'}
+    ]
+  };
+
+  var result = om(obj, map);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+
+test('array mapping - simple deep', function (t) {
+  var obj = {
+    "thing": {
+      "comments": [
+        {a: 'a1', b: 'b1'}
+        , {a: 'a2', b: 'b2'}
+      ]
+    }
+  };
+
+  var map = {
+    "thing.comments[].a": ["thing.comments[].c"]
+    , "thing.comments[].b": ["thing.comments[].d"]
+  };
+
+  var expect = {
+    "thing": {
+      "comments": [
+        {c: 'a1', d: 'b1'}
+        , {c: 'a2', d: 'b2'}
+      ]
+    }
+  };
+
+  var result = om(obj, map);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+
+test('array mapping - from/to specific indexes', function (t) {
+  var obj = {
+    "comments": [
+      {a: 'a1', b: 'b1'}
+      , {a: 'a2', b: 'b2'}
+    ]
+  };
+
+  var map = {
+    "comments[0].a": ["comments[1].c"]
+    , "comments[0].b": ["comments[1].d"]
+  };
+
+  var expect = {
+    "comments": [
+      , {c: 'a1', d: 'b1'}
+    ]
+  };
+
+  var result = om(obj, map);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+
 test('original various tests', function (t) {
-  var merge = require('../').merge
+  var merge = require('../').merge;
 
   var obj = {
     "sku": "12345"
