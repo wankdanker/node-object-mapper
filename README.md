@@ -1,6 +1,8 @@
 node-object-mapper
 ------------------
 
+[![Build Status](https://travis-ci.org/wankdanker/node-object-mapper.svg)](https://travis-ci.org/wankdanker/node-object-mapper)
+
 This module provides a way to copy properties from one object to another based 
 on a separate object which defines how the properties should be mapped. That 
 separate mapping object is a simple object like:
@@ -69,13 +71,15 @@ You may also specify defaults and transforms in two different ways:
 methods
 ------------
 
-### .merge(sourceObject, destinationObject, mapObject); 
+### .merge(sourceObject[, destinationObject], mapObject); 
 
 Copy properties from **sourceObject** to **destinationObject** by following the 
 mapping defined by **mapObject**
 
+This function is also exported directly from require('object-mapper') (ie: var merge = require('object-mapper');)
+
  - **sourceObject** is the object FROM which properties will be copied.
- - **destinationObject** is the object TO which properties will be copied.
+ - **destinationObject** [OPTIONAL] is the object TO which properties will be copied.
  - **mapObject** is the object which defines how properties are copied from 
 **sourceObject** to **destinationObject**
 
@@ -102,7 +106,7 @@ example
 ------------
 
 ```javascript
-merge = require('object-mapper').merge;
+var objectMapper = require('object-mapper');
 
 var obj = {
   "sku" : "12345"
@@ -128,7 +132,7 @@ var map = {
   , "inventory.onHandQty" : "Envelope.Request.Item.Inventory"
 };
 
-var result = merge(obj, {}, map);
+var result = objectMapper(obj, map);
 
 /*
 { 
