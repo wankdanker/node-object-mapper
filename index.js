@@ -2,9 +2,9 @@
 
   The MIT License (MIT)
   =====================
-  
+
   Copyright (c) 2012 Daniel L. VerWeire
-  
+
   Permission is hereby granted, free of charge, to any person obtaining
   a copy of this software and associated documentation files (the
   "Software"), to deal in the Software without restriction, including
@@ -12,10 +12,10 @@
   distribute, sublicense, and/or sell copies of the Software, and to
   permit persons to whom the Software is furnished to do so, subject to
   the following conditions:
-  
+
   The above copyright notice and this permission notice shall be
   included in all copies or substantial portions of the Software.
-  
+
   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
   EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
@@ -26,7 +26,7 @@
 
 */
 
-var getKeyValue = exports.getKeyValue = 
+var getKeyValue = exports.getKeyValue =
 function getKeyValue(obj, key, undefined) {
   var reg = /\./gi
     , subKey
@@ -34,21 +34,21 @@ function getKeyValue(obj, key, undefined) {
     , context
     , x
     ;
-  
+
   if (reg.test(key)) {
     keys = key.split(reg);
     context = obj;
-    
+
     for (x = 0; x < keys.length; x++) {
       subKey = keys[x];
-      
+
       //the values of all keys except for
       //the last one should be objects
       if (x < keys.length -1) {
         if (!context.hasOwnProperty(subKey)) {
           return undefined;
         }
-        
+
         context = context[subKey];
       }
       else {
@@ -61,44 +61,65 @@ function getKeyValue(obj, key, undefined) {
   }
 };
 
-var setKeyValue = exports.setKeyValue = 
+var setKeyValue = exports.setKeyValue =
 function setKeyValue(obj, key, value) {
   var reg = /\./gi
+    , regArray = /(\[\]|\[(.*)\])/g
     , subKey
     , keys
     , context
     , x
+    , arrayWork
     ;
-  
-  //check to see if we need to process 
+
+  //check to see if we need to process
   //multiple levels of objects
   if (reg.test(key)) {
     keys = key.split(reg);
     context = obj;
-    
+
     for (x = 0; x < keys.length; x++) {
       subKey = keys[x];
-      
+      if(regArray.test(subKey)){
+        arrayWork = true;
+        subKey = subKey.replace(regArray,'');
+      }
+
       //the values of all keys except for
       //the last one should be objects
       if (x < keys.length -1) {
         if (!context[subKey]) {
-          context[subKey] = {};
+          if (arrayWork) {
+            context[subKey] = [{}];
+          }
+          else {
+            context[subKey] = {};
+          }
         }
-        
         context = context[subKey];
       }
       else {
-        context[subKey] = value;
+        if (Array.isArray(context)) {
+          context[0][subKey] = value;
+        }
+        else {
+          context[subKey] = value;
+        }
       }
     }
   }
   else {
-    obj[key] = value;
+    if (regArray.test(key)) {
+      key = key.replace(regArray, '');
+      obj[key] = [value];
+    }
+    else {
+      obj[key] = value;
+    }
   }
 };
 
-var merge = exports.merge = 
+var merge = exports.merge =
 function merge(objFrom, objTo, propMap) {
   var toKey
     , fromKey
@@ -109,11 +130,11 @@ function merge(objFrom, objTo, propMap) {
     , key
     , keyIsArray
     ;
-    
+
   if (!objTo) {
     objTo = {};
   }
-  
+
   for(fromKey in propMap) {
     if (propMap.hasOwnProperty(fromKey)) {
       toKey = propMap[fromKey];
@@ -149,11 +170,11 @@ function merge(objFrom, objTo, propMap) {
         }
 
         value = getKeyValue(objFrom, fromKey);
-        
+
         if (transform) {
           value = transform(value, objFrom, objTo);
         }
-        
+
         if (typeof value !== 'undefined') {
           setKeyValue(objTo, key, value);
         }
@@ -163,6 +184,6 @@ function merge(objFrom, objTo, propMap) {
       }
     }
   }
-  
+
   return objTo;
 };

@@ -6,7 +6,7 @@ var obj = {
   "sku" : "12345"
   , "upc" : "99999912345X"
   , "title" : "Test Item"
-  , "description" : ""
+  , "description": ""
   , "length" : 5
   , "width" : 2
   , "height" : 8
@@ -14,14 +14,15 @@ var obj = {
     "onHandQty" : 0
     , "replenishQty" : null
   }
-}
+  , "price" : 100
+};
 
 var map = {
   "sku" : "Envelope.Request.Item.SKU"
   , "upc" : "Envelope.Request.Item.UPC"
   , "title" : "Envelope.Request.Item.ShortTitle"
-  , "description" : "Envelope.Request.Item.ShortDescription"
   , "length" : "Envelope.Request.Item.Dimensions.Length"
+  , "description" : "Envelope.Request.Item.ShortDescription"
   , "width" : "Envelope.Request.Item.Dimensions.Width"
   , "height" : "Envelope.Request.Item.Dimensions.Height"
   , "weight" : [["Envelope.Request.Item.Weight", null, function () { return undefined; } ]]
@@ -29,28 +30,34 @@ var map = {
   , "inventory.onHandQty" : "Envelope.Request.Item.Inventory"
   , "inventory.replenishQty" : "Envelope.Request.Item.RelpenishQuantity"
   , "inventory.isInventoryItem" : { key : [ "Envelope.Request.Item.OnInventory", null, "YES" ] }
+  , "price" : ["Envelope.Request.Item.Price[].List", "Envelope.Request.Item.Price[].Value", "Test[]"]
 };
 
-var expected = { 
-  Envelope: { 
-    Request: { 
-      Item: { 
+var expected = {
+  Test : [100],
+  Envelope: {
+    Request: {
+      Item: {
         SKU: "12345",
         UPC: "99999912345X",
         ShortTitle: "Test Item",
         ShortDescription: "",
-        Dimensions: { 
-          Length: 5, 
-          Width: 2, 
-          Height: 8 
+        Dimensions: {
+          Length: 5,
+          Width: 2,
+          Height: 8
         },
         WeightUnits : null,
         Inventory: 0,
         RelpenishQuantity: null,
-        OnInventory : 'YES'
-      } 
-    } 
-  } 
+        OnInventory : 'YES',
+        Price : [{
+          List : 100,
+          Value : 100
+        }]
+      }
+    }
+  }
 };
 
 assert.deepEqual(
