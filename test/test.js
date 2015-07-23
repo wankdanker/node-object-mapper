@@ -1,43 +1,127 @@
-var merge = require('../').merge
-  , assert = require('assert')
-  , inspect = require('util').inspect;
+var om = require('../')
+  , test = require('tape')
+  ;
 
-var obj = {
-  "sku" : "12345"
-  , "upc" : "99999912345X"
-  , "title" : "Test Item"
-  , "descriptions": ["Short description", "Long description"]
-  , "length" : 5
-  , "width" : 2
-  , "height" : 8
-  , "inventory" : {
-    "onHandQty" : 0
-    , "replenishQty" : null
+test('array mapping - simple', function (t) {
+  var obj = {
+    "comments" : [
+      { a : 'a1', b : 'b1'}
+      , { a : 'a2', b : 'b2'}
+    ]
+  };
+
+  var map = {
+    "comments[].a" : ["comments[].c"]
+    , "comments[].b" : ["comments[].d"]
+  };
+
+  var expect = {
+    "comments" : [
+      { c : 'a1', d : 'b1' }
+      , { c : 'a2', d : 'b2' }
+    ]
   }
-  , "price" : 100
-};
+  
+  var result = om(obj, map);
 
-var map = {
-  "sku" : "Envelope.Request.Item.SKU"
-  , "upc" : "Envelope.Request.Item.UPC"
-  , "title" : "Envelope.Request.Item.ShortTitle"
-  , "length" : "Envelope.Request.Item.Dimensions.Length"
-  , "width" : "Envelope.Request.Item.Dimensions.Width"
-  , "height" : "Envelope.Request.Item.Dimensions.Height"
-  , "weight" : [["Envelope.Request.Item.Weight", null, function () { return undefined; } ]]
-  , "weightUnits" : [["Envelope.Request.Item.WeightUnits", null, function () { return null; } ]]
-  , "inventory.onHandQty" : "Envelope.Request.Item.Inventory"
-  , "inventory.replenishQty" : "Envelope.Request.Item.RelpenishQuantity"
-  , "inventory.isInventoryItem" : { key : [ "Envelope.Request.Item.OnInventory", null, "YES" ] }
-  , "price" : ["Envelope.Request.Item.Price[].List", "Envelope.Request.Item.Price[].Value", "Test[]"]
-  , "descriptions[0]": "Envelope.Request.Item.ShortDescription"
-  , "descriptions[1]": "Envelope.Request.Item.LongDescription"
-};
+  t.deepEqual(expect, result);
+  t.end();
+});
 
-var expected = {
-  Test : [100],
-  Envelope: {
-    Request: {
+test('array mapping - simple deep', function (t) {
+  var obj = {
+    "thing" : {
+      "comments" : [
+        { a : 'a1', b : 'b1'}
+        , { a : 'a2', b : 'b2'}
+      ]
+    }
+  };
+
+  var map = {
+    "thing.comments[].a" : ["thing.comments[].c"]
+    , "thing.comments[].b" : ["thing.comments[].d"]
+  };
+
+  var expect = {
+    "thing" : {
+      "comments" : [
+        { c : 'a1', d : 'b1' }
+        , { c : 'a2', d : 'b2' }
+      ]
+    }
+  }
+  
+  var result = om(obj, map);
+
+  t.deepEqual(expect, result);
+  t.end();
+});
+
+test('array mapping - from/to specific indexes', function (t) {
+  var obj = {
+    "comments" : [
+      { a : 'a1', b : 'b1'}
+      , { a : 'a2', b : 'b2'}
+    ]
+  };
+
+  var map = {
+    "comments[0].a" : ["comments[1].c"]
+    , "comments[0].b" : ["comments[1].d"]
+  };
+
+  var expect = {
+    "comments" : [
+      , { c : 'a1', d : 'b1' }
+    ]
+  }
+  
+  var result = om(obj, map);
+  
+  t.deepEqual(expect, result);
+  t.end();
+});
+
+test('original various tests', function (t) {
+  var merge = require('../').merge
+
+  var obj = {
+    "sku" : "12345"
+    , "upc" : "99999912345X"
+    , "title" : "Test Item"
+    , "descriptions": ["Short description", "Long description"]
+    , "length" : 5
+    , "width" : 2
+    , "height" : 8
+    , "inventory" : {
+      "onHandQty" : 0
+      , "replenishQty" : null
+    }
+    , "price" : 100
+  };
+
+  var map = {
+    "sku" : "Envelope.Request.Item.SKU"
+    , "upc" : "Envelope.Request.Item.UPC"
+    , "title" : "Envelope.Request.Item.ShortTitle"
+    , "length" : "Envelope.Request.Item.Dimensions.Length"
+    , "width" : "Envelope.Request.Item.Dimensions.Width"
+    , "height" : "Envelope.Request.Item.Dimensions.Height"
+    , "weight" : [["Envelope.Request.Item.Weight", null, function () { return undefined; } ]]
+    , "weightUnits" : [["Envelope.Request.Item.WeightUnits", null, function () { return null; } ]]
+    , "inventory.onHandQty" : "Envelope.Request.Item.Inventory"
+    , "inventory.replenishQty" : "Envelope.Request.Item.RelpenishQuantity"
+    , "inventory.isInventoryItem" : { key : [ "Envelope.Request.Item.OnInventory", null, "YES" ] }
+    , "price" : ["Envelope.Request.Item.Price[].List", "Envelope.Request.Item.Price[].Value", "Test[]"]
+    , "descriptions[0]": "Envelope.Request.Item.ShortDescription"
+    , "descriptions[1]": "Envelope.Request.Item.LongDescription"
+  };
+
+  var expected = {
+    Test : [100],
+    Envelope: {
+      Request: {
       Item: {
         SKU: "12345",
         UPC: "99999912345X",
@@ -58,39 +142,33 @@ var expected = {
         ShortDescription : "Short description",
         LongDescription : "Long description"
       }
+      }
+    }
+  };
+
+  var result = merge(obj, {}, map);
+
+  t.deepEqual(expected, result);
+
+  map.sku = {
+    key : "Envelope.Request.Item.SKU"
+    , transform : function (val, objFrom, objTo) {
+        return "over-ridden-sku";
     }
   }
-};
 
-assert.deepEqual(
-  merge(obj, {}, map)
-  , expected
-  , "Fail! Objects did not match as expected"
-);
+  expected.Envelope.Request.Item.SKU = "over-ridden-sku";
+
+  result = merge(obj, {}, map);
+  t.deepEqual(expected, result, 'transform');
 
 
-map.sku = {
-  key : "Envelope.Request.Item.SKU"
-  , transform : function (val, objFrom, objTo) {
-      return "over-ridden-sku";
-  }
-}
+  obj["inventory"] = null;
+  expected.Envelope.Request.Item.Inventory = null;
 
-expected.Envelope.Request.Item.SKU = "over-ridden-sku"
+  result = merge(obj, {}, map);
+  t.deepEqual(expected, result, 'transform');
 
-assert.deepEqual(
-  merge(obj, {}, map)
-  , expected
-  , "Fail! Transform failed"
-);
+  t.end();
+});
 
-obj["inventory"] = null;
-expected.Envelope.Request.Item.Inventory = null;
-
-assert.deepEqual(
-  merge(obj, {}, map)
-  , expected
-  , "Fail! Transform failed"
-);
-
-console.error("Success!");

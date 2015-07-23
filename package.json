@@ -11,7 +11,9 @@
     "test": "node test/test.js"
   },
   "dependencies": {},
-  "devDependencies": {},
+  "devDependencies": {
+    "tape": "^4.0.1"
+  },
   "optionalDependencies": {},
   "engines": {
     "node": "*"
