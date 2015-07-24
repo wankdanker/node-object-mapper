@@ -1,6 +1,5 @@
 'use strict';
-var _ = require('lodash')
-  , getKeyValue = require('./get-key-value')
+var getKeyValue = require('./get-key-value')
   , setKeyValue = require('./set-key-value')
   , _undefined
   ;
@@ -15,11 +14,6 @@ var _ = require('lodash')
  * @constructor
  */
 function ObjectMapper(fromObject, toObject, propertyMap) {
-  //avoid ref change
-  fromObject = _.cloneDeep(fromObject);
-  toObject = _.cloneDeep(toObject);
-  propertyMap = _.cloneDeep(propertyMap);
-
   var propertyKeys;
 
   if (typeof propertyMap === 'undefined') {
@@ -85,6 +79,7 @@ function _mapKey(fromObject, fromKey, toObject, toKey) {
     ;
 
   if (Array.isArray(toKey) && toKey.length) {
+    toKey = toKey.slice();
     restToKeys = toKey.splice(1);
     toKey = toKey[0];
   }

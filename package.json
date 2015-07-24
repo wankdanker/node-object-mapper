@@ -10,9 +10,7 @@
   "scripts": {
     "test": "node test/test.js"
   },
-  "dependencies": {
-    "lodash": "^3.10.0"
-  },
+  "dependencies": {},
   "devDependencies": {
     "tape": "^4.0.1"
   },
