@@ -724,6 +724,27 @@ test('map object to another - with key array notation with transform function', 
   t.deepEqual(result, expect);
   t.end();
 });
+test('array mapping - fromObject is an array', function (t) {
+  var obj = [
+    { a : 'a1', b : 'b1' }
+    , { a : 'a2', b : 'b2' }
+  ];
+
+  var map = {
+   '[].a' : '[].c'
+   , '[].b' : '[].d'
+  };
+
+  var expect = [
+    { c : 'a1', d : 'b1' }
+    , { c : 'a2', d : 'b2' }
+  ];
+
+  var result = om(obj, map);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
 
 test('array mapping - simple', function (t) {
   var obj = {
