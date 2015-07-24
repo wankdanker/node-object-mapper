@@ -17,5 +17,11 @@
   "optionalDependencies": {},
   "engines": {
     "node": "*"
-  }
+  },
+  "contributors" : [
+    { "name" : "Dan VerWeire", "email" : "dverweire@gmail.com" },
+    { "name" : "rafakato" },
+    { "name" : "irnc" },
+    { "name" : "scotthogan" }
+  ]
 }
