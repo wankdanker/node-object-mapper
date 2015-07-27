@@ -35,9 +35,14 @@ module.exports = GetKeyValue;
  */
 function _getValue(object, key) {
   var regArray = /(\[\]|\[(.*)\])$/g
-    , arrayIndex;
+    , arrayIndex
+    , result;
 
-  if (regArray.test(key)) {
+  if (Array.isArray(object) && object.length) {
+    result = object.map(function (item) {
+      return GetKeyValue(item, key);
+    });
+  } else if (regArray.test(key)) {
     regArray.lastIndex = 0;
     arrayIndex = regArray.exec(key)[2];
     key = key.replace(regArray, '');
@@ -46,17 +51,27 @@ function _getValue(object, key) {
       arrayIndex = _undefined;
     }
     if (typeof arrayIndex === 'undefined') {
-      return object[key];
+      result = object[key];
     } else {
-      return object[key][arrayIndex];
+      result = object[key][arrayIndex];
     }
-  } else if (Array.isArray(object) && object.length) {
-    return object.map(function (item) {
-      return GetKeyValue(item, key);
-    });
   } else if (object && object.hasOwnProperty(key)) {
-    return object[key];
+    result = object[key];
   } else {
-    return null;
+    result = null;
   }
+
+  if (Array.isArray(result)) {
+    result = result.reduce(function (a, b) {
+      if (Array.isArray(a) && Array.isArray(b)) {
+        return a.concat(b);
+      }
+      return [a, b];
+    });
+    if (!Array.isArray(result)) {
+      result = [result];
+    }
+  }
+
+  return result;
 }

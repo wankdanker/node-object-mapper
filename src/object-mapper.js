@@ -84,7 +84,6 @@ function _mapKey(fromObject, fromKey, toObject, toKey) {
     toKey = toKey[0];
   }
 
-
   if (toKey instanceof Object && Object.getPrototypeOf(toKey) === Object.prototype) {
     _default = toKey.default || null;
     transform = toKey.transform;
@@ -110,7 +109,7 @@ function _mapKey(fromObject, fromKey, toObject, toKey) {
     fromValue = transform(fromValue, fromObject, toObject, fromKey, toKey);
   }
 
-  setKeyValue(toObject, toKey, fromValue);
+  toObject = setKeyValue(toObject, toKey, fromValue);
 
   if (Array.isArray(restToKeys) && restToKeys.length) {
     _mapKey(fromObject, fromKey, toObject, restToKeys);
