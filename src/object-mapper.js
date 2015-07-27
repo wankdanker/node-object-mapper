@@ -54,10 +54,11 @@ function _map(fromObject, toObject, propertyMap, propertyKeys) {
     if (propertyMap.hasOwnProperty(fromKey)) {
       toKey = propertyMap[fromKey];
 
-      return _mapKey(fromObject, fromKey, toObject, toKey);
+      toObject = _mapKey(fromObject, fromKey, toObject, toKey);
     } else {
-      return null;
+      toObject = null;
     }
+    return _map(fromObject, toObject, propertyMap, propertyKeys);
   } else {
     return toObject;
   }
