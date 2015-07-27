@@ -63,7 +63,6 @@ function _setValue(destinationObject, key, keys, fromValue) {
       arrayIndex = match[2] || destinationObject.length || 0;
     }
   }
-
   if (keys.length === 0) {
     if (isValueArray) {
       destinationObject[key][arrayIndex] = fromValue;
@@ -75,7 +74,7 @@ function _setValue(destinationObject, key, keys, fromValue) {
   } else {
     if (isValueArray) {
       console.log(recursiveCount, 'Property Array value', destinationObject, key, arrayIndex);
-      if (Array.isArray(fromValue)) {
+      if (Array.isArray(fromValue) && _isNextArrayProperty(keys) === false) {
         for (valueIndex = 0; valueIndex < fromValue.length; valueIndex++) {
           value = fromValue[valueIndex];
           destinationObject[key][arrayIndex + valueIndex] = _setValue(destinationObject[key][arrayIndex + valueIndex], keys[0], keys.slice(1), value);
@@ -84,15 +83,30 @@ function _setValue(destinationObject, key, keys, fromValue) {
         destinationObject[key][arrayIndex] = _setValue(destinationObject[key][arrayIndex], keys[0], keys.slice(1), fromValue);
       }
     } else if (Array.isArray(destinationObject)) {
-      console.log(recursiveCount, 'Array value');
-      destinationObject[arrayIndex] = _setValue(destinationObject[arrayIndex], keys[0], keys.slice(1), fromValue);
+      console.log(recursiveCount, 'Array destination value');
+      if (Array.isArray(fromValue)) {
+        for (valueIndex = 0; valueIndex < fromValue.length; valueIndex++) {
+          value = fromValue[valueIndex];
+          destinationObject[arrayIndex] = _setValue(destinationObject[arrayIndex], keys[0], keys.slice(1), value);
+        }
+      } else {
+        destinationObject[arrayIndex] = _setValue(destinationObject[arrayIndex], keys[0], keys.slice(1), fromValue);
+      }
     } else {
       console.log(recursiveCount, 'Property value');
       destinationObject[key] = _setValue(destinationObject[key], keys[0], keys.slice(1), fromValue);
     }
   }
 
+  console.log(recursiveCount, 'destinationObject', destinationObject);
+
   return destinationObject;
+}
+
+function _isNextArrayProperty(keys) {
+  var regArray = /(\[\]|\[(.*)\])$/g
+    ;
+  return regArray.test(keys[0]);
 }
 
 function _isEmpty(object) {

@@ -4,195 +4,195 @@ var om = require('../')
   , test = require('tape')
   ;
 
-//test('get value - simple', function (t) {
-//  var key = 'foo';
-//
-//  var obj = {
-//    "foo": "bar"
-//  };
-//
-//  var expect = "bar";
-//
-//  var result = om.getKeyValue(obj, key);
-//
-//  t.deepEqual(result, expect);
-//  t.end();
-//});
-//test('get value - one level deep', function (t) {
-//  var key = 'foo.baz';
-//
-//  var obj = {
-//    "foo": {
-//      "baz": "bar"
-//    }
-//  };
-//
-//  var expect = "bar";
-//
-//  var result = om.getKeyValue(obj, key);
-//
-//  t.deepEqual(result, expect);
-//  t.end();
-//});
-//test('get value - two levels deep', function (t) {
-//  var key = 'foo.baz.fog';
-//
-//  var obj = {
-//    "foo": {
-//      "baz": {
-//        "fog": "bar"
-//      }
-//    }
-//  };
-//
-//  var expect = "bar";
-//
-//  var result = om.getKeyValue(obj, key);
-//
-//  t.deepEqual(result, expect);
-//  t.end();
-//});
-//test('get value - one level deep and item is a array', function (t) {
-//  var key = 'foo.baz[]';
-//
-//  var obj = {
-//    "foo": {
-//      "baz": ["bar"]
-//    }
-//  };
-//
-//  var expect = ["bar"];
-//
-//  var result = om.getKeyValue(obj, key);
-//
-//  t.deepEqual(result, expect);
-//  t.end();
-//});
-//test('get value - one level deep and first item of array', function (t) {
-//  var key = 'foo.baz[0]';
-//
-//  var obj = {
-//    "foo": {
-//      "baz": ["bar"]
-//    }
-//  };
-//
-//  var expect = "bar";
-//
-//  var result = om.getKeyValue(obj, key);
-//
-//  t.deepEqual(result, expect);
-//  t.end();
-//});
-//test('get value - one level deep and first item of array and one level', function (t) {
-//  var key = 'foo.baz[0].fog';
-//
-//  var obj = {
-//    "foo": {
-//      "baz": [{
-//        "fog": "bar"
-//      }]
-//    }
-//  };
-//
-//  var expect = "bar";
-//
-//  var result = om.getKeyValue(obj, key);
-//
-//  t.deepEqual(result, expect);
-//  t.end();
-//});
-//test('get value - one level deep and first item of array and two levels', function (t) {
-//  var key = 'foo.baz[0].fog.baz';
-//
-//  var obj = {
-//    "foo": {
-//      "baz": [{
-//        "fog": {
-//          "baz": "bar"
-//        }
-//      }]
-//    }
-//  };
-//
-//  var expect = "bar";
-//
-//  var result = om.getKeyValue(obj, key);
-//
-//  t.deepEqual(result, expect);
-//  t.end();
-//});
-//test('get value - one level array', function (t) {
-//  var key = 'foo[]';
-//
-//  var obj = {
-//    "foo": [{
-//      "baz": [{
-//        "fog": {
-//          "baz": "bar"
-//        }
-//      }]
-//    }]
-//  };
-//
-//  var expect = [{
-//    "baz": [{
-//      "fog": {
-//        "baz": "bar"
-//      }
-//    }]
-//  }];
-//
-//  var result = om.getKeyValue(obj, key);
-//
-//  t.deepEqual(result, expect);
-//  t.end();
-//});
-//test('get value - two level deep array', function (t) {
-//  var key = 'foo[].baz[].fog.baz';
-//
-//  var obj = {
-//    "foo": [{
-//      "baz": [{
-//        "fog": {
-//          "baz": "bar"
-//        }
-//      }, {
-//        "fog": {
-//          "baz": "var"
-//        }
-//      }]
-//    }]
-//  };
-//
-//  var expect = ["bar", "var"];
-//
-//  var result = om.getKeyValue(obj, key);
-//
-//  t.deepEqual(result, expect);
-//  t.end();
-//});
-//test('get value - crazy', function (t) {
-//  var key = 'foo.baz[0].fog[1].baz';
-//
-//  var obj = {
-//    "foo": {
-//      "baz": [{
-//        "fog": [, {
-//          "baz": "bar"
-//        }]
-//      }]
-//    }
-//  };
-//
-//  var expect = "bar";
-//
-//  var result = om.getKeyValue(obj, key);
-//
-//  t.deepEqual(result, expect);
-//  t.end();
-//});
-//
+test('get value - simple', function (t) {
+  var key = 'foo';
+
+  var obj = {
+    "foo": "bar"
+  };
+
+  var expect = "bar";
+
+  var result = om.getKeyValue(obj, key);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+test('get value - one level deep', function (t) {
+  var key = 'foo.baz';
+
+  var obj = {
+    "foo": {
+      "baz": "bar"
+    }
+  };
+
+  var expect = "bar";
+
+  var result = om.getKeyValue(obj, key);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+test('get value - two levels deep', function (t) {
+  var key = 'foo.baz.fog';
+
+  var obj = {
+    "foo": {
+      "baz": {
+        "fog": "bar"
+      }
+    }
+  };
+
+  var expect = "bar";
+
+  var result = om.getKeyValue(obj, key);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+test('get value - one level deep and item is a array', function (t) {
+  var key = 'foo.baz[]';
+
+  var obj = {
+    "foo": {
+      "baz": ["bar"]
+    }
+  };
+
+  var expect = ["bar"];
+
+  var result = om.getKeyValue(obj, key);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+test('get value - one level deep and first item of array', function (t) {
+  var key = 'foo.baz[0]';
+
+  var obj = {
+    "foo": {
+      "baz": ["bar"]
+    }
+  };
+
+  var expect = "bar";
+
+  var result = om.getKeyValue(obj, key);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+test('get value - one level deep and first item of array and one level', function (t) {
+  var key = 'foo.baz[0].fog';
+
+  var obj = {
+    "foo": {
+      "baz": [{
+        "fog": "bar"
+      }]
+    }
+  };
+
+  var expect = "bar";
+
+  var result = om.getKeyValue(obj, key);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+test('get value - one level deep and first item of array and two levels', function (t) {
+  var key = 'foo.baz[0].fog.baz';
+
+  var obj = {
+    "foo": {
+      "baz": [{
+        "fog": {
+          "baz": "bar"
+        }
+      }]
+    }
+  };
+
+  var expect = "bar";
+
+  var result = om.getKeyValue(obj, key);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+test('get value - one level array', function (t) {
+  var key = 'foo[]';
+
+  var obj = {
+    "foo": [{
+      "baz": [{
+        "fog": {
+          "baz": "bar"
+        }
+      }]
+    }]
+  };
+
+  var expect = [{
+    "baz": [{
+      "fog": {
+        "baz": "bar"
+      }
+    }]
+  }];
+
+  var result = om.getKeyValue(obj, key);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+test('get value - two level deep array', function (t) {
+  var key = 'foo[].baz[].fog.baz';
+
+  var obj = {
+    "foo": [{
+      "baz": [{
+        "fog": {
+          "baz": "bar"
+        }
+      }, {
+        "fog": {
+          "baz": "var"
+        }
+      }]
+    }]
+  };
+
+  var expect = ["bar", "var"];
+
+  var result = om.getKeyValue(obj, key);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+test('get value - crazy', function (t) {
+  var key = 'foo.baz[0].fog[1].baz';
+
+  var obj = {
+    "foo": {
+      "baz": [{
+        "fog": [, {
+          "baz": "bar"
+        }]
+      }]
+    }
+  };
+
+  var expect = "bar";
+
+  var result = om.getKeyValue(obj, key);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+
 test('set value - simple', function (t) {
   var key = 'foo';
   var value = 'bar';
@@ -434,44 +434,92 @@ test('set value - array to simple object', function (t) {
   t.deepEqual(result, expect);
   t.end();
 });
-//test('set value - array to object', function (t) {
-//  var key = 'foo[].bar[].baz';
-//  var value = ['foo', 'var'];
-//
-//  var expect = {
-//    foo: [{
-//      bar: [{
-//        baz: 'foo'
-//      }, {
-//        baz: 'var'
-//      }]
-//    }]
-//  };
-//
-//  var result = om.setKeyValue({}, key, value);
-//
-//  t.deepEqual(result, expect);
-//  t.end();
-//});
-//test('set value - crazy', function (t) {
-//  var key = 'foo.bar[1].baz[2].thing';
-//  var value = 'foo';
-//
-//  var expect = {
-//    foo: {
-//      bar: [, {
-//        baz: [, , {
-//          thing: 'foo'
-//        }]
-//      }]
-//    }
-//  };
-//
-//  var result = om.setKeyValue({}, key, value);
-//
-//  t.deepEqual(result, expect);
-//  t.end();
-//});
+test('set value - array to two level object', function (t) {
+  var key = 'bar.foo[].baz';
+  var value = ['foo', 'var'];
+
+  var expect = {
+    bar: {
+      foo: [
+        {
+          baz: 'foo'
+        }
+        , {
+          baz: 'var'
+        }
+      ]
+    }
+  };
+
+  var result = om.setKeyValue({}, key, value);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+test('set value - array to two level object', function (t) {
+  var key = 'bar.foo[].baz.foo';
+  var value = ['foo', 'var'];
+
+  var expect = {
+    bar: {
+      foo: [
+        {
+          baz: {
+            foo: 'foo'
+          }
+        }
+        , {
+          baz: {
+            foo: 'var'
+          }
+        }
+      ]
+    }
+  };
+
+  var result = om.setKeyValue({}, key, value);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+test('set value - array to object', function (t) {
+  var key = 'foo[].bar[].baz';
+  var value = ['foo', 'var'];
+
+  var expect = {
+    foo: [{
+      bar: [{
+        baz: 'foo'
+      }, {
+        baz: 'var'
+      }]
+    }]
+  };
+
+  var result = om.setKeyValue({}, key, value);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+test('set value - crazy', function (t) {
+  var key = 'foo.bar[1].baz[2].thing';
+  var value = 'foo';
+
+  var expect = {
+    foo: {
+      bar: [, {
+        baz: [, , {
+          thing: 'foo'
+        }]
+      }]
+    }
+  };
+
+  var result = om.setKeyValue({}, key, value);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
 //
 //test('map object to another - simple', function (t) {
 //  var obj = {
