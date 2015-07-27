@@ -54,9 +54,10 @@ function _map(fromObject, toObject, propertyMap, propertyKeys) {
     if (propertyMap.hasOwnProperty(fromKey)) {
       toKey = propertyMap[fromKey];
 
-      _mapKey(fromObject, fromKey, toObject, toKey);
+      return _mapKey(fromObject, fromKey, toObject, toKey);
+    } else {
+      return null;
     }
-    return _map(fromObject, toObject, propertyMap, propertyKeys);
   } else {
     return toObject;
   }
@@ -112,6 +113,8 @@ function _mapKey(fromObject, fromKey, toObject, toKey) {
   toObject = setKeyValue(toObject, toKey, fromValue);
 
   if (Array.isArray(restToKeys) && restToKeys.length) {
-    _mapKey(fromObject, fromKey, toObject, restToKeys);
+    toObject = _mapKey(fromObject, fromKey, toObject, restToKeys);
   }
+
+  return toObject;
 }
