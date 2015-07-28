@@ -895,6 +895,38 @@ test('map object to another - with key object notation with default function whe
   t.end();
 });
 
+test('map object to another - with key object notation with default function returning undefined when key does not exists', function (t) {
+  var obj = {
+    "a" : 1234,
+    "foo": {
+      "bar": "baz"
+    }
+  };
+
+  var expect = {
+    bar: {
+      bar : "baz",
+      a : 1234
+    }
+  };
+
+  var map = {
+    'foo.bar' : 'bar.bar',
+    'notExistingKey': {
+      key: 'bar.test',
+      default: function (fromObject, fromKey, toObject, toKey) {
+        return undefined
+      }
+    },
+    'a' : 'bar.a'
+  };
+
+  var result = om(obj, map);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+
 test('map object to another - with key object notation with transform', function (t) {
   var baseObject = {
     test: 1

@@ -111,6 +111,10 @@ function _mapKey(fromObject, fromKey, toObject, toKey) {
     fromValue = transform(fromValue, fromObject, toObject, fromKey, toKey);
   }
 
+  if (typeof fromValue === 'undefined') {
+    return toObject;
+  }
+
   toObject = setKeyValue(toObject, toKey, fromValue);
 
   if (Array.isArray(restToKeys) && restToKeys.length) {
