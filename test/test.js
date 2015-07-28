@@ -19,13 +19,37 @@ test('get value - simple', function (t) {
   t.end();
 });
 test('get value - one level deep', function (t) {
-  var key = 'foo.baz';
+  var key = 'foo.bar';
 
   var obj = {
     "foo": {
-      "baz": "bar"
+      "bar": "baz"
     }
   };
+
+  var expect = "baz";
+
+  var result = om.getKeyValue(obj, key);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+test('get value - simple array', function (t) {
+  var key = '[]';
+
+  var obj = ["bar"];
+
+  var expect = ["bar"];
+
+  var result = om.getKeyValue(obj, key);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+test('get value - simple array defined index', function (t) {
+  var key = '[1]';
+
+  var obj = ["foo", "bar"];
 
   var expect = "bar";
 
@@ -69,15 +93,33 @@ test('get value - one level deep and item is a array', function (t) {
   t.end();
 });
 test('get value - one level deep and first item of array', function (t) {
-  var key = 'foo.baz[0]';
+  var key = 'foo.baz[1]';
 
   var obj = {
     "foo": {
-      "baz": ["bar"]
+      "baz": ["bar", "foo"]
     }
   };
 
-  var expect = "bar";
+  var expect = "foo";
+
+  var result = om.getKeyValue(obj, key);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+test('get value - one level deep and array and one level', function (t) {
+  var key = 'foo.baz[].fog';
+
+  var obj = {
+    "foo": {
+      "baz": [{
+        "fog": "bar"
+      }]
+    }
+  };
+
+  var expect = ["bar"];
 
   var result = om.getKeyValue(obj, key);
 
@@ -122,6 +164,56 @@ test('get value - one level deep and first item of array and two levels', functi
   t.deepEqual(result, expect);
   t.end();
 });
+test('get value - one level array', function (t) {
+  var key = 'foo[]';
+
+  var obj = {
+    "foo": [{
+      "baz": [{
+        "fog": {
+          "baz": "bar"
+        }
+      }]
+    }]
+  };
+
+  var expect = [{
+    "baz": [{
+      "fog": {
+        "baz": "bar"
+      }
+    }]
+  }];
+
+  var result = om.getKeyValue(obj, key);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+test('get value - two level deep array', function (t) {
+  var key = 'foo[].baz[].fog.baz';
+
+  var obj = {
+    "foo": [{
+      "baz": [{
+        "fog": {
+          "baz": "bar"
+        }
+      }, {
+        "fog": {
+          "baz": "var"
+        }
+      }]
+    }]
+  };
+
+  var expect = ["bar", "var"];
+
+  var result = om.getKeyValue(obj, key);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
 test('get value - crazy', function (t) {
   var key = 'foo.baz[0].fog[1].baz';
 
@@ -151,20 +243,82 @@ test('set value - simple', function (t) {
     foo: "bar"
   };
 
-  var result = om.setKeyValue({}, key, value);
+  var result = om.setKeyValue(null, key, value);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+test('set value - simple with base object', function (t) {
+  var key = 'foo';
+  var value = 'bar';
+
+  var base = {
+    baz: "foo"
+  };
+
+  var expect = {
+    baz: "foo",
+    foo: "bar"
+  };
+
+  var result = om.setKeyValue(base, key, value);
 
   t.deepEqual(result, expect);
   t.end();
 });
 test('set value - simple array', function (t) {
-  var key = 'foo[]';
+  var key = '[]';
   var value = 'bar';
 
-  var expect = {
-    foo: ["bar"]
-  };
+  var expect = ['bar'];
 
-  var result = om.setKeyValue({}, key, value);
+  var result = om.setKeyValue(null, key, value);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+test('set value - simple array with base array', function (t) {
+  var key = '[]';
+  var value = 'bar';
+
+  var base = ['foo'];
+  var expect = ['bar'];
+
+  var result = om.setKeyValue(base, key, value);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+test('set value - simple array in index 0', function (t) {
+  var key = '[0]';
+  var value = 'bar';
+
+  var expect = ['bar'];
+
+  var result = om.setKeyValue(null, key, value);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+test('set value - simple array in index 0 with base array', function (t) {
+  var key = '[0]';
+  var value = 'bar';
+
+  var base = ['foo'];
+  var expect = ['bar'];
+
+  var result = om.setKeyValue(base, key, value);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+test('set value - simple array in index 1', function (t) {
+  var key = '[1]';
+  var value = 'bar';
+
+  var expect = [, 'bar'];
+
+  var result = om.setKeyValue(null, key, value);
 
   t.deepEqual(result, expect);
   t.end();
@@ -180,6 +334,50 @@ test('set value - one level deep', function (t) {
   };
 
   var result = om.setKeyValue({}, key, value);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+test('set value - object inside simple array', function (t) {
+  var key = '[].foo';
+  var value = 'bar';
+
+  var expect = [{
+    foo: 'bar'
+  }];
+
+  var result = om.setKeyValue(null, key, value);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+test('set value - array to object inside simple array', function (t) {
+  var key = '[].foo';
+  var value = ['bar', 'baz'];
+
+  var expect = [
+    {
+      foo: 'bar'
+    }
+    , {
+      foo: 'baz'
+    }
+  ];
+
+  var result = om.setKeyValue(null, key, value);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+test('set value - object inside simple array defined index', function (t) {
+  var key = '[3].foo';
+  var value = 'bar';
+
+  var expect = [, , , {
+    foo: 'bar'
+  }];
+
+  var result = om.setKeyValue(null, key, value);
 
   t.deepEqual(result, expect);
   t.end();
@@ -233,6 +431,32 @@ test('set value - one level deep inside array with one level deep', function (t)
   t.deepEqual(result, expect);
   t.end();
 });
+test('set value - one level deep inside array with one level deep inside a existing array', function (t) {
+  var key = 'foo.bar[].baz';
+  var value = 'foo';
+
+  var base = {
+    foo: {
+      bar: [{
+        bar: 'baz'
+      }]
+    }
+  };
+
+  var expect = {
+    foo: {
+      bar: [{
+        bar: 'baz'
+        , baz: 'foo'
+      }]
+    }
+  };
+
+  var result = om.setKeyValue(base, key, value);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
 test('set value - one level deep inside array at defined index with one level deep', function (t) {
   var key = 'foo.bar[1].baz';
   var value = 'foo';
@@ -243,6 +467,93 @@ test('set value - one level deep inside array at defined index with one level de
         baz: 'foo'
       }]
     }
+  };
+
+  var result = om.setKeyValue({}, key, value);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+test('set value - array to simple object', function (t) {
+  var key = 'foo[].baz';
+  var value = ['foo', 'var'];
+
+  var expect = {
+    foo: [
+      {
+        baz: 'foo'
+      }
+      , {
+        baz: 'var'
+      }
+    ]
+  };
+
+  var result = om.setKeyValue({}, key, value);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+test('set value - array to two level object', function (t) {
+  var key = 'bar.foo[].baz';
+  var value = ['foo', 'var'];
+
+  var expect = {
+    bar: {
+      foo: [
+        {
+          baz: 'foo'
+        }
+        , {
+          baz: 'var'
+        }
+      ]
+    }
+  };
+
+  var result = om.setKeyValue({}, key, value);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+test('set value - array to two level object', function (t) {
+  var key = 'bar.foo[].baz.foo';
+  var value = ['foo', 'var'];
+
+  var expect = {
+    bar: {
+      foo: [
+        {
+          baz: {
+            foo: 'foo'
+          }
+        }
+        , {
+          baz: {
+            foo: 'var'
+          }
+        }
+      ]
+    }
+  };
+
+  var result = om.setKeyValue({}, key, value);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+test('set value - array to object', function (t) {
+  var key = 'foo[].bar[].baz';
+  var value = ['foo', 'var'];
+
+  var expect = {
+    foo: [{
+      bar: [{
+        baz: 'foo'
+      }, {
+        baz: 'var'
+      }]
+    }]
   };
 
   var result = om.setKeyValue({}, key, value);
@@ -368,6 +679,60 @@ test('map object to another - with base object', function (t) {
 });
 
 test('map object to another - with two destinations for same value', function (t) {
+  var baseObject = {
+    test: 1
+  };
+
+  var obj = {
+    "foo": "bar"
+  };
+
+  var expect = {
+    test: 1,
+    bar: "bar",
+    baz: "bar"
+  };
+
+  var map = {
+    'foo': ['bar', 'baz']
+  };
+
+  var result = om(obj, baseObject, map);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+test('map object to another - with two destinations for same value inside object', function (t) {
+  var baseObject = {
+    test: 1
+  };
+
+  var obj = {
+    "foo": {
+      "bar": "baz"
+    }
+  };
+
+  var expect = {
+    test: 1,
+    bar: {
+      foo: {
+        baz: 'baz',
+        foo: 'baz'
+      }
+    }
+  };
+
+  var map = {
+    'foo.bar': ['bar.foo.baz', 'bar.foo.foo']
+  };
+
+  var result = om(obj, baseObject, map);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+test('map object to another - with two destinations for same value inside array', function (t) {
   var baseObject = {
     test: 1
   };
@@ -724,27 +1089,6 @@ test('map object to another - with key array notation with transform function', 
   t.deepEqual(result, expect);
   t.end();
 });
-test('array mapping - fromObject is an array', function (t) {
-  var obj = [
-    { a : 'a1', b : 'b1' }
-    , { a : 'a2', b : 'b2' }
-  ];
-
-  var map = {
-   '[].a' : '[].c'
-   , '[].b' : '[].d'
-  };
-
-  var expect = [
-    { c : 'a1', d : 'b1' }
-    , { c : 'a2', d : 'b2' }
-  ];
-
-  var result = om(obj, map);
-
-  t.deepEqual(result, expect);
-  t.end();
-});
 
 test('array mapping - simple', function (t) {
   var obj = {
@@ -763,6 +1107,40 @@ test('array mapping - simple', function (t) {
     "comments": [
       {c: 'a1', d: 'b1'}
       , {c: 'a2', d: 'b2'}
+    ]
+  };
+
+  var result = om(obj, map);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+
+test('array mapping - two level deep', function (t) {
+  var obj = {
+    "comments": [
+      {
+        "data": [
+          {a: 'a1', b: 'b1'}
+          , {a: 'a2', b: 'b2'}
+        ]
+      }
+    ]
+  };
+
+  var map = {
+    "comments[].data[].a": "comments[].data[].c"
+    , "comments[].data[].b": "comments[].data[].d"
+  };
+
+  var expect = {
+    "comments": [
+      {
+        "data": [
+          {c: 'a1', d: 'b1'}
+          , {c: 'a2', d: 'b2'}
+        ]
+      }
     ]
   };
 
@@ -817,7 +1195,7 @@ test('array mapping - from/to specific indexes', function (t) {
 
   var expect = {
     "comments": [
-      , {c: 'a1', d: 'b1'}
+      null, {c: 'a1', d: 'b1'}
     ]
   };
 
@@ -826,7 +1204,27 @@ test('array mapping - from/to specific indexes', function (t) {
   t.deepEqual(result, expect);
   t.end();
 });
+test('array mapping - fromObject is an array', function (t) {
+  var obj = [
+    {a: 'a1', b: 'b1'}
+    , {a: 'a2', b: 'b2'}
+  ];
 
+  var map = {
+    '[].a': '[].c'
+    , '[].b': '[].d'
+  };
+
+  var expect = [
+    {c: 'a1', d: 'b1'}
+    , {c: 'a2', d: 'b2'}
+  ];
+
+  var result = om(obj, map);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
 test('original various tests', function (t) {
   var merge = require('../').merge;
 

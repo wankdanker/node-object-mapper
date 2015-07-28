@@ -12,6 +12,7 @@
   },
   "dependencies": {},
   "devDependencies": {
+    "debug": "^2.2.0",
     "tape": "^4.0.1"
   },
   "optionalDependencies": {},

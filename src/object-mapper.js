@@ -54,7 +54,9 @@ function _map(fromObject, toObject, propertyMap, propertyKeys) {
     if (propertyMap.hasOwnProperty(fromKey)) {
       toKey = propertyMap[fromKey];
 
-      _mapKey(fromObject, fromKey, toObject, toKey);
+      toObject = _mapKey(fromObject, fromKey, toObject, toKey);
+    } else {
+      toObject = null;
     }
     return _map(fromObject, toObject, propertyMap, propertyKeys);
   } else {
@@ -84,7 +86,6 @@ function _mapKey(fromObject, fromKey, toObject, toKey) {
     toKey = toKey[0];
   }
 
-
   if (toKey instanceof Object && Object.getPrototypeOf(toKey) === Object.prototype) {
     _default = toKey.default || null;
     transform = toKey.transform;
@@ -110,9 +111,11 @@ function _mapKey(fromObject, fromKey, toObject, toKey) {
     fromValue = transform(fromValue, fromObject, toObject, fromKey, toKey);
   }
 
-  setKeyValue(toObject, toKey, fromValue);
+  toObject = setKeyValue(toObject, toKey, fromValue);
 
   if (Array.isArray(restToKeys) && restToKeys.length) {
-    _mapKey(fromObject, fromKey, toObject, restToKeys);
+    toObject = _mapKey(fromObject, fromKey, toObject, restToKeys);
   }
+
+  return toObject;
 }

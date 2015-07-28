@@ -1,99 +1,164 @@
 'use strict';
-
 /**
  * Make the set of a value withing the key in the passed object
- * @param object
- * @param key
- * @param value
+ * @param baseObject
+ * @param destinationKey
+ * @param fromValue
  * @returns {*|{}}
  */
-function SetKeyValue(object, key, value) {
+function SetKeyValue(baseObject, destinationKey, fromValue) {
   var regDot = /\./g
-    , next
-    , keyRest
+    , keys
+    , key
     ;
 
-  object = object || {};
+  keys = destinationKey.split(regDot);
+  key = keys.splice(0, 1);
 
-  if (regDot.test(key)) {
-    next = key.indexOf('.');
-    keyRest = key.substring(next + 1);
-    key = key.substring(0, next);
-
-    object = _setValue(object, key, SetKeyValue(object[key], keyRest, value));
-  } else {
-    object = _setValue(object, key, value);
-  }
-
-  return object;
+  return _setValue(baseObject, key[0], keys, fromValue);
 }
 module.exports = SetKeyValue;
 
 /**
  * Set the value within the passed object, considering if is a array or object set
- * @param object
+ * @param destinationObject
  * @param key
- * @param value
+ * @param keys
+ * @param fromValue
  * @returns {*}
  * @private
  * @recursive
  */
-function _setValue(object, key, value) {
+function _setValue(destinationObject, key, keys, fromValue) {
   var regArray = /(\[\]|\[(.*)\])$/g
-    , arrayIndex
-    , tmpObject
+    , match
+    , arrayIndex = 0
+    , valueIndex
+    , isPropertyArray = false
+    , isValueArray = false
+    , value
     ;
 
-  if (regArray.test(key)) {
-    regArray.lastIndex = 0;
-    arrayIndex = regArray.exec(key)[2];
+  match = regArray.exec(key);
+  if (match) {
+    isPropertyArray = true;
     key = key.replace(regArray, '');
+    isValueArray = (key !== '');
+  }
 
-    if (typeof object[key] === 'undefined') {
-      object[key] = [];
-    }
-
-    if (Number.isNaN(arrayIndex)) {
-      arrayIndex = _undefined;
-    }
-    if (typeof arrayIndex === 'undefined') {
-      arrayIndex = 0;
-    }
-    if (Array.isArray(value)) {
-      value.forEach(function (item, index) {
-        _initializeObjectProperty(object, key, index);
-        _setValueFromObject(item, object, key, index);
-      })
-    } else {
-      _initializeObjectProperty(object, key, arrayIndex);
-      if (typeof value === 'object') {
-        _setValueFromObject(value, object, key, arrayIndex);
+  if (_isEmpty(destinationObject)) {
+    if (isPropertyArray) {
+      arrayIndex = match[2] || 0;
+      if (isValueArray) {
+        destinationObject = {};
+        destinationObject[key] = [];
       } else {
-        object[key][arrayIndex] = value;
+        destinationObject = [];
       }
+    } else {
+      destinationObject = {};
     }
-
-  } else if (Array.isArray(value)) {
-    return value.map(function (valueItem) {
-      tmpObject = {};
-      tmpObject[key] = valueItem;
-      return tmpObject;
-    });
   } else {
-    object[key] = value;
+    destinationObject = JSON.parse(JSON.stringify(destinationObject));
+    if (isPropertyArray) {
+      arrayIndex = match[2] || 0;
+    }
   }
-  return object;
+  if (keys.length === 0) {
+    if (isValueArray) {
+      if (Array.isArray(destinationObject[key]) === false) {
+        destinationObject[key] = [];
+      }
+      destinationObject[key][arrayIndex] = fromValue;
+    } else if (Array.isArray(destinationObject)) {
+      destinationObject[arrayIndex] = fromValue;
+    } else {
+      destinationObject[key] = fromValue;
+    }
+  } else {
+    if (isValueArray) {
+      if (Array.isArray(destinationObject[key]) === false) {
+        destinationObject[key] = [];
+      }
+      if (Array.isArray(fromValue) && _isNextArrayProperty(keys) === false) {
+        for (valueIndex = 0; valueIndex < fromValue.length; valueIndex++) {
+          value = fromValue[valueIndex];
+          destinationObject[key][arrayIndex + valueIndex] = _setValue(destinationObject[key][arrayIndex + valueIndex], keys[0], keys.slice(1), value);
+        }
+      } else {
+        destinationObject[key][arrayIndex] = _setValue(destinationObject[key][arrayIndex], keys[0], keys.slice(1), fromValue);
+      }
+    } else if (Array.isArray(destinationObject)) {
+      if (Array.isArray(fromValue)) {
+        for (valueIndex = 0; valueIndex < fromValue.length; valueIndex++) {
+          value = fromValue[valueIndex];
+          destinationObject[arrayIndex + valueIndex] = _setValue(destinationObject[arrayIndex + valueIndex], keys[0], keys.slice(1), value);
+        }
+      } else {
+        destinationObject[arrayIndex] = _setValue(destinationObject[arrayIndex], keys[0], keys.slice(1), fromValue);
+      }
+    } else {
+      destinationObject[key] = _setValue(destinationObject[key], keys[0], keys.slice(1), fromValue);
+    }
+  }
+
+
+  return destinationObject;
 }
 
-function _initializeObjectProperty(object, key, index) {
-  if (typeof object[key][index] === 'undefined') {
-    object[key][index] = {};
-  }
+/**
+ * Check if next key is a array lookup
+ * @param keys
+ * @returns {boolean}
+ * @private
+ */
+function _isNextArrayProperty(keys) {
+  var regArray = /(\[\]|\[(.*)\])$/g
+    ;
+  return regArray.test(keys[0]);
 }
 
-function _setValueFromObject(value, object, key, index) {
-  var valueKey = Object.keys(value)[0];
-  if (value.hasOwnProperty(valueKey)) {
-    object[key][index][valueKey] = value[valueKey];
+/**
+ * Check if passed object is empty, checking for object and array types
+ * @param object
+ * @returns {boolean}
+ * @private
+ */
+function _isEmpty(object) {
+  var empty = false;
+  if (typeof object === 'undefined' || object === null) {
+    empty = true;
+  } else if (_isEmptyObject(object)) {
+    empty = true;
+  } else if (_isEmptyArray(object)) {
+    empty = true;
   }
+
+  return empty;
+}
+
+/**
+ * Check if passed object is empty
+ * @param object
+ * @returns {boolean}
+ * @private
+ */
+function _isEmptyObject(object) {
+  return typeof object === 'object'
+    && Array.isArray(object) === false
+    && Object.keys(object).length === 0
+    ;
+}
+
+/**
+ * Check if passed array is empty or with empty values only
+ * @param object
+ * @returns {boolean}
+ * @private
+ */
+function _isEmptyArray(object) {
+  return Array.isArray(object)
+    && (object.length === 0
+    || object.join('').length === 0)
+    ;
 }
