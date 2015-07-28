@@ -282,7 +282,7 @@ test('set value - simple array with base array', function (t) {
   var value = 'bar';
 
   var base = ['foo'];
-  var expect = ['foo', 'bar'];
+  var expect = ['bar'];
 
   var result = om.setKeyValue(base, key, value);
 
@@ -360,7 +360,7 @@ test('set value - array to object inside simple array', function (t) {
       foo: 'bar'
     }
     , {
-      foo: 'bar'
+      foo: 'baz'
     }
   ];
 

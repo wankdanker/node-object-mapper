@@ -1,5 +1,4 @@
 'use strict';
-
 /**
  * Make the set of a value withing the key in the passed object
  * @param baseObject
@@ -62,7 +61,7 @@ function _setValue(destinationObject, key, keys, fromValue) {
   } else {
     destinationObject = JSON.parse(JSON.stringify(destinationObject));
     if (isPropertyArray) {
-      arrayIndex = match[2] || destinationObject.length || 0;
+      arrayIndex = match[2] || 0;
     }
   }
   if (keys.length === 0) {
@@ -93,7 +92,7 @@ function _setValue(destinationObject, key, keys, fromValue) {
       if (Array.isArray(fromValue)) {
         for (valueIndex = 0; valueIndex < fromValue.length; valueIndex++) {
           value = fromValue[valueIndex];
-          destinationObject[arrayIndex] = _setValue(destinationObject[arrayIndex], keys[0], keys.slice(1), value);
+          destinationObject[arrayIndex + valueIndex] = _setValue(destinationObject[arrayIndex + valueIndex], keys[0], keys.slice(1), value);
         }
       } else {
         destinationObject[arrayIndex] = _setValue(destinationObject[arrayIndex], keys[0], keys.slice(1), fromValue);
@@ -107,12 +106,24 @@ function _setValue(destinationObject, key, keys, fromValue) {
   return destinationObject;
 }
 
+/**
+ * Check if next key is a array lookup
+ * @param keys
+ * @returns {boolean}
+ * @private
+ */
 function _isNextArrayProperty(keys) {
   var regArray = /(\[\]|\[(.*)\])$/g
     ;
   return regArray.test(keys[0]);
 }
 
+/**
+ * Check if passed object is empty, checking for object and array types
+ * @param object
+ * @returns {boolean}
+ * @private
+ */
 function _isEmpty(object) {
   var empty = false;
   if (typeof object === 'undefined' || object === null) {
@@ -125,12 +136,26 @@ function _isEmpty(object) {
 
   return empty;
 }
+
+/**
+ * Check if passed object is empty
+ * @param object
+ * @returns {boolean}
+ * @private
+ */
 function _isEmptyObject(object) {
   return typeof object === 'object'
     && Array.isArray(object) === false
     && Object.keys(object).length === 0
     ;
 }
+
+/**
+ * Check if passed array is empty or with empty values only
+ * @param object
+ * @returns {boolean}
+ * @private
+ */
 function _isEmptyArray(object) {
   return Array.isArray(object)
     && (object.length === 0
