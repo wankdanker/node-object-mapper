@@ -111,7 +111,7 @@ function _mapKey(fromObject, fromKey, toObject, toKey) {
     fromValue = transform(fromValue, fromObject, toObject, fromKey, toKey);
   }
 
-  if (typeof fromValue === 'undefined') {
+  if (typeof fromValue === 'undefined' || typeof toKey === 'undefined') {
     return toObject;
   }
 

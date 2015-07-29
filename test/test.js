@@ -895,6 +895,31 @@ test('map object to another - with key object notation with default function whe
   t.end();
 });
 
+test('map object to another - when target key is undefined it should be ignored', function (t) {
+  var obj = {
+    "a" : 1234,
+    "foo": {
+      "bar": "baz"
+    }
+  };
+
+  var expect = {
+    bar: {
+      bar : "baz",
+    }
+  };
+
+  var map = {
+    'foo.bar' : 'bar.bar',
+    'a': undefined
+   };
+
+  var result = om(obj, map);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+
 test('map object to another - with key object notation with default function returning undefined when key does not exists', function (t) {
   var obj = {
     "a" : 1234,
