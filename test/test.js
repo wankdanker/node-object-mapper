@@ -1147,6 +1147,35 @@ test('map object to another - with key array notation with transform function', 
   t.end();
 });
 
+test('map object to another - map object without destination key via transform', function (t) {
+  var obj = {
+    thing : {
+      thing2 : {
+        thing3 : {
+          a: 'a1'
+          , b: 'b1'
+        }
+      }
+    }
+  };
+
+  var map = {
+    'thing.thing2.thing3' : [[ null, function (val, src, dst) {
+        dst.manual = val.a + val.b;
+      }
+    , null ]]
+  };
+
+  var expect = {
+    'manual' : 'a1b1'
+  };
+
+  var result = om(obj, map);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+
 test('array mapping - simple', function (t) {
   var obj = {
     "comments": [
@@ -1282,6 +1311,98 @@ test('array mapping - fromObject is an array', function (t) {
   t.deepEqual(result, expect);
   t.end();
 });
+
+test('mapping - map full array to single value via transform', function (t) {
+  var obj = {
+    thing : [
+      {a: 'a1', b: 'b1'}
+      , {a: 'a2', b: 'b2'}
+      , {a: 'a3', b: 'b3'}
+    ]
+  };
+
+  var map = {
+    'thing' : [[ 'thing2', function (val, src, dst) {
+        var a = val.reduce(function (i, obj) {
+          return i += obj.a;
+        }, '');
+
+        return a;
+      }
+    , null ]]
+  };
+
+  var expect = {
+    'thing2' : 'a1a2a3'
+  };
+
+  var result = om(obj, map);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+
+test('mapping - map full array without destination key via transform', function (t) {
+  var obj = {
+    thing : {
+      thing2 : {
+        thing3 : [
+          {a: 'a1', b: 'b1'}
+          , {a: 'a2', b: 'b2'}
+          , {a: 'a3', b: 'b3'}
+        ]
+      }
+    }
+  };
+
+  var map = {
+    'thing.thing2.thing3' : [[ null, function (val, src, dst) {
+        var a = val.reduce(function (i, obj) {
+          return i += obj.a;
+        }, '');
+  
+        dst.manual = a
+      }
+    , null ]]
+  };
+
+  var expect = {
+    'manual' : 'a1a2a3'
+  };
+
+  var result = om(obj, map);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+
+test('mapping - map full array to same array on destination side', function (t) {
+  var obj = {
+    thing : [
+      {a: 'a1', b: 'b1'}
+      , {a: 'a2', b: 'b2'}
+      , {a: 'a3', b: 'b3'}
+    ]
+  };
+
+  var map = {
+    'thing' : 'thing2'
+  };
+
+  var expect = {
+    'thing2' : [
+      {a: 'a1', b: 'b1'}
+      , {a: 'a2', b: 'b2'}
+      , {a: 'a3', b: 'b3'}
+    ]
+  };
+
+  var result = om(obj, map);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+
 test('original various tests', function (t) {
   var merge = require('../').merge;
 
