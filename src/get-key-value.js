@@ -23,8 +23,12 @@ function GetKeyValue(fromObject, fromKey) {
     result = result.reduce(function (a, b) {
       if (Array.isArray(a) && Array.isArray(b)) {
         return a.concat(b);
+      } else if (Array.isArray(a)) {
+        a.push(b);
+        return a;
+      } else {
+        return [a, b];
       }
-      return [a, b];
     });
     if (!Array.isArray(result)) {
       result = [result];
