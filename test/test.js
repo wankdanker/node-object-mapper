@@ -1290,6 +1290,7 @@ test('array mapping - from/to specific indexes', function (t) {
   t.deepEqual(result, expect);
   t.end();
 });
+
 test('array mapping - fromObject is an array', function (t) {
   var obj = [
     {a: 'a1', b: 'b1'}
@@ -1310,6 +1311,53 @@ test('array mapping - fromObject is an array', function (t) {
 
   t.deepEqual(result, expect);
   t.end();
+});
+
+test('array mapping - fromObject empty array property ignored', function (t) {
+  var obj = {
+    phone_numbers: []
+  };
+
+  var map = {
+    'phone_numbers': {
+      key: 'questionnaire.initial.cellPhoneNumber',
+      transform: function (sourceValue) {
+        var i;
+
+        if (!Array.isArray(sourceValue)) {
+          return null;
+        }
+
+        for (i = 0; i < sourceValue.length; i++) {
+          if (sourceValue[i].primary) {
+            return {
+              code: sourceValue[i].country_code,
+              phone: sourceValue[i].number
+            };
+          }
+        }
+      }
+    }
+  };
+
+  var target = {
+    questionnaire: {
+      initial: {}
+    }
+  };
+
+  var expected = {
+    questionnaire: {
+      initial: {}
+    }
+  };
+
+  var result = om(obj, target, map);
+
+  t.deepEqual(result, expected);
+  t.end();
+
+
 });
 
 test('mapping - map full array to single value via transform', function (t) {
