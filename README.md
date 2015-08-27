@@ -48,6 +48,28 @@ You may also specify array lookups within the source object to be copied to prop
 }
 ```
 
+In order to utilize a source field more than once, utilize the key-transform syntax in the mapping link:
+
+```javascript
+{
+  "foo": [
+    {
+      key: "foo",
+      transform: function (value) {
+        return val + "_foo";
+      }
+    },
+    {
+      key: "baz",
+      transform: function (value) {
+        return val + "_baz"
+      }
+    }
+  ],
+  "bar": "bar"
+}
+```
+
 ###Destination###
 
 You may specify the destination as:
