@@ -48,6 +48,17 @@ You may also specify array lookups within the source object to be copied to prop
 }
 ```
 
+###Destination###
+
+You may specify the destination as:
+ - String
+ - Object
+ - Array
+
+####String####
+
+When using string as destination you shall use as described above.
+
 In order to utilize a source field more than once, utilize the key-transform syntax in the mapping link:
 
 ```javascript
@@ -69,17 +80,6 @@ In order to utilize a source field more than once, utilize the key-transform syn
   "bar": "bar"
 }
 ```
-
-###Destination###
-
-You may specify the destination as:
- - String
- - Object
- - Array
-
-####String####
-
-When using string as destination you shall use as described above.
 
 ####Object####
 
