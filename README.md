@@ -59,6 +59,28 @@ You may specify the destination as:
 
 When using string as destination you shall use as described above.
 
+In order to utilize a source field more than once, utilize the key-transform syntax in the mapping link:
+
+```javascript
+{
+  "foo": [
+    {
+      key: "foo",
+      transform: function (value) {
+        return val + "_foo";
+      }
+    },
+    {
+      key: "baz",
+      transform: function (value) {
+        return val + "_baz"
+      }
+    }
+  ],
+  "bar": "bar"
+}
+```
+
 ####Object####
 
 When using object as destination you need can use the following object:
