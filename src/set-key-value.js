@@ -12,6 +12,7 @@ function SetKeyValue(baseObject, destinationKey, fromValue) {
     , key
     ;
 
+
   keys = destinationKey.split(regDot);
   key = keys.splice(0, 1);
 
@@ -31,7 +32,11 @@ module.exports = SetKeyValue;
  */
 function _setValue(destinationObject, key, keys, fromValue) {
   var regArray = /(\[\]|\[(.*)\])$/g
+    , regAppendArray = /(\[\]|\[(.*)\]\+)$/g
+    , regCanBeNull = /(\?)$/g
     , match
+    , appendToArray
+    , canBeNull
     , arrayIndex = 0
     , valueIndex
     , isPropertyArray = false
@@ -39,11 +44,26 @@ function _setValue(destinationObject, key, keys, fromValue) {
     , value
     ;
 
+  // Check from key to see if it allows null values
+  // canBeNull = regCanBeNull.exec(key);
+  // if(canBeNull){
+  //   key = key.replace(regCanBeNull, '');
+  // }
+  // if(!canBeNull && (fromValue === null || fromValue === undefined)){
+  //       return destinationObject;
+  // }
   match = regArray.exec(key);
+  appendToArray = regAppendArray.exec(key);
   if (match) {
-    isPropertyArray = true;
-    key = key.replace(regArray, '');
+      isPropertyArray = true;
+      key = key.replace(regArray, '');
     isValueArray = (key !== '');
+  }
+  if (appendToArray) {
+    match = appendToArray;
+    isPropertyArray = true;
+    isValueArray = (key !== '');
+    key = key.replace(regAppendArray, '');
   }
 
   if (_isEmpty(destinationObject)) {
@@ -69,9 +89,13 @@ function _setValue(destinationObject, key, keys, fromValue) {
       if (Array.isArray(destinationObject[key]) === false) {
         destinationObject[key] = [];
       }
-      destinationObject[key][arrayIndex] = fromValue;
+      if(appendToArray){
+          destinationObject[key].push(fromValue);
+      } else{
+        destinationObject[key][arrayIndex] = fromValue;
+      }
     } else if (Array.isArray(destinationObject)) {
-      destinationObject[arrayIndex] = fromValue;
+        destinationObject[arrayIndex] = fromValue;
     } else {
       destinationObject[key] = fromValue;
     }
