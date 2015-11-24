@@ -1408,7 +1408,7 @@ test('mapping - map full array without destination key via transform', function 
         var a = val.reduce(function (i, obj) {
           return i += obj.a;
         }, '');
-  
+
         dst.manual = a
       }
     , null ]]
@@ -1442,6 +1442,40 @@ test('mapping - map full array to same array on destination side', function (t) 
       {a: 'a1', b: 'b1'}
       , {a: 'a2', b: 'b2'}
       , {a: 'a3', b: 'b3'}
+    ]
+  };
+
+  var result = om(obj, map);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+
+test('mapping - map and append full array to existing mapped array', function (t) {
+  var obj = {
+    thing : [
+      {a: 'a1', b: 'b1'}
+      , {a: 'a2', b: 'b2'}
+      , {a: 'a3', b: 'b3'}
+    ],
+    thingOther:[{a: 'a4', b: 'b4'}
+    , {a: 'a5', b: 'b5'}
+    , {a: 'a6', b: 'b6'}]
+  };
+
+  var map = {
+    'thing' : 'thing2[]+',
+    'thingOther' : 'thing2[]+',
+  };
+
+  var expect = {
+    'thing2' : [
+      [{a: 'a1', b: 'b1'}
+      , {a: 'a2', b: 'b2'}
+      , {a: 'a3', b: 'b3'}],
+      [{a: 'a4', b: 'b4'}
+      , {a: 'a5', b: 'b5'}
+      , {a: 'a6', b: 'b6'}]
     ]
   };
 
