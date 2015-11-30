@@ -1485,6 +1485,88 @@ test('mapping - map and append full array to existing mapped array', function (t
   t.end();
 });
 
+test('map object to another - prevent null values from being mapped', function (t) {
+  var obj = {
+    "a" : 1234,
+    "foo": {
+      "bar": null
+    }
+  };
+
+  var expect = {
+    foo:{
+      a:1234
+    },
+    bar:{
+
+    }
+  };
+
+  var map = {
+    'foo.bar' : 'bar.bar',
+    'a': 'foo.a'
+   };
+
+  var result = om(obj, map);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+
+test('map object to another - allow null values', function (t) {
+  var obj = {
+    "a" : 1234,
+    "foo": {
+      "bar": null
+    }
+  };
+
+  var expect = {
+    foo:{
+      a:1234
+    },
+    bar:null
+  };
+
+  var map = {
+    'foo.bar' : 'bar?',
+    'a': 'foo.a'
+   };
+
+  var result = om(obj, map);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+test('map object to another - allow null values', function (t) {
+  var obj = {
+    "a" : 1234,
+    "foo": {
+      "bar": null
+    }
+  };
+
+  var expect = {
+    foo:{
+      a:1234
+    },
+    bar:{
+      bar:null
+    }
+  };
+
+  var map = {
+    'foo.bar' : 'bar.bar?',
+    'a': 'foo.a'
+   };
+
+  var result = om(obj, map);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+
+
 test('original various tests', function (t) {
   var merge = require('../').merge;
 
@@ -1517,7 +1599,7 @@ test('original various tests', function (t) {
       return null;
     }]]
     , "inventory.onHandQty": "Envelope.Request.Item.Inventory"
-    , "inventory.replenishQty": "Envelope.Request.Item.RelpenishQuantity"
+    , "inventory.replenishQty": "Envelope.Request.Item.RelpenishQuantity?"
     , "inventory.isInventoryItem": {key: ["Envelope.Request.Item.OnInventory", null, "YES"]}
     , "price": ["Envelope.Request.Item.Price[].List", "Envelope.Request.Item.Price[].Value", "Test[]"]
     , "descriptions[0]": "Envelope.Request.Item.ShortDescription"
@@ -1538,7 +1620,6 @@ test('original various tests', function (t) {
             Height: 8
           },
           Weight: 10,
-          WeightUnits: null,
           Inventory: 0,
           RelpenishQuantity: null,
           OnInventory: 'YES',
@@ -1570,13 +1651,6 @@ test('original various tests', function (t) {
 
   t.deepEqual(result, expected, 'override sku');
 
-
-  obj["inventory"] = null;
-  expected.Envelope.Request.Item.Inventory = null;
-
-  result = merge(obj, {}, map);
-
-  t.deepEqual(result, expected, 'null inventory');
 
   t.end();
 });

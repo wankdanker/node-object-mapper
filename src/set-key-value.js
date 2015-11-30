@@ -44,14 +44,11 @@ function _setValue(destinationObject, key, keys, fromValue) {
     , value
     ;
 
-  // Check from key to see if it allows null values
-  // canBeNull = regCanBeNull.exec(key);
-  // if(canBeNull){
-  //   key = key.replace(regCanBeNull, '');
-  // }
-  // if(!canBeNull && (fromValue === null || fromValue === undefined)){
-  //       return destinationObject;
-  // }
+  canBeNull = regCanBeNull.exec(key);
+  if(canBeNull){
+    key = key.replace(regCanBeNull, '');
+  }
+
   match = regArray.exec(key);
   appendToArray = regAppendArray.exec(key);
   if (match) {
@@ -59,6 +56,7 @@ function _setValue(destinationObject, key, keys, fromValue) {
       key = key.replace(regArray, '');
     isValueArray = (key !== '');
   }
+
   if (appendToArray) {
     match = appendToArray;
     isPropertyArray = true;
@@ -85,6 +83,9 @@ function _setValue(destinationObject, key, keys, fromValue) {
     }
   }
   if (keys.length === 0) {
+    if(!canBeNull && (fromValue === null || fromValue === undefined)){
+      return destinationObject;
+    }
     if (isValueArray) {
       if (Array.isArray(destinationObject[key]) === false) {
         destinationObject[key] = [];
