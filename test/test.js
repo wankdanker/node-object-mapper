@@ -1653,11 +1653,11 @@ test('original various tests', function (t) {
   t.deepEqual(result, expected, 'override sku');
 
   obj["inventory"] = null;
-   expected.Envelope.Request.Item.Inventory = null;
+  expected.Envelope.Request.Item.Inventory = null;
 
-   result = merge(obj, {}, map);
+  result = merge(obj, {}, map);
 
-   t.deepEqual(result, expected, 'null inventory');
+  t.deepEqual(result, expected, 'null inventory');
 
   t.end();
 });
