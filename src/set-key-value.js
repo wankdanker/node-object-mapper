@@ -44,7 +44,7 @@ function _setValue(destinationObject, key, keys, fromValue) {
     , value
     ;
 
-  canBeNull = regCanBeNull.exec(key);
+  canBeNull = regCanBeNull.test(key);
   if(canBeNull){
     key = key.replace(regCanBeNull, '');
   }
@@ -52,8 +52,8 @@ function _setValue(destinationObject, key, keys, fromValue) {
   match = regArray.exec(key);
   appendToArray = regAppendArray.exec(key);
   if (match) {
-      isPropertyArray = true;
-      key = key.replace(regArray, '');
+    isPropertyArray = true;
+    key = key.replace(regArray, '');
     isValueArray = (key !== '');
   }
 

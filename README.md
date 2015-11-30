@@ -117,10 +117,51 @@ When using arrays as destination you can pass a string, object or another array 
 }
 ```
 
+If you want to append items to an existing array, include a '+' after the []
+```javascript
+{
+  "sourceArray[]":{
+    "key":"destination[]+",
+    "transform": (val) => mappingFunction(val)
+  },
+  "otherSourceArray[]":{
+    "key":"destination[]+",
+    "transform:":(val) => mappingFunction(val)
+  }
+}
+// Results in the destination array appending the source values
+{
+  "destination":[
+    {/*Results from mapping function applied to sourceArray */},
+    {/*Results from mapping function applied to otherSourceArray */},
+  ]
+}
+```
+
 The array shorthand for object is defined like:
 
 ```javascript
 [(Key(String))), (Transform(Function())), (Default(String|Number|Function()))]
+```
+
+###Null Values###
+
+By default any source object null value is not mapped. If you want to allow this you may do so explicitly by including the post fix operator '?' to any destination key.
+
+```javascript
+var original = {
+  "sourceKey":null,
+  "otherSourceKey":null
+}
+var transform = {
+  "sourceKey":"canBeNull?",
+  "otherSourceKey":"cannotBeNull"
+}
+var results = ObjectMapper(original, {}, transform);
+// Results would be the following
+{
+  canBeNull:null
+}
 ```
 
 ##Methods##
