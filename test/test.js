@@ -1281,7 +1281,7 @@ test('array mapping - from/to specific indexes', function (t) {
 
   var expect = {
     "comments": [
-      null, {c: 'a1', d: 'b1'}
+      , {c: 'a1', d: 'b1'}
     ]
   };
 

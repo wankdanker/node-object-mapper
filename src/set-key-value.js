@@ -77,7 +77,6 @@ function _setValue(destinationObject, key, keys, fromValue) {
       destinationObject = {};
     }
   } else {
-    destinationObject = JSON.parse(JSON.stringify(destinationObject));
     if (isPropertyArray) {
       arrayIndex = match[2] || 0;
     }
