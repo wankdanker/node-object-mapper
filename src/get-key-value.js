@@ -9,17 +9,24 @@
  */
 function GetKeyValue(fromObject, fromKey) {
   var regDot = /\./g
+    , regFinishArray = /.+(\[\])/g
     , keys
     , key
     , result
+    , lastValue
     ;
 
   keys = fromKey.split(regDot);
   key = keys.splice(0, 1);
-
+  lastValue = fromKey.match(regFinishArray);
+  if(lastValue != null && lastValue[0] === fromKey){
+    fromKey = fromKey.slice(0,-2);
+  }else{
+    lastValue = null;
+  }
   result = _getValue(fromObject, key[0], keys);
 
-  if (Array.isArray(result)) {
+  if (Array.isArray(result) && !lastValue) {
     if (result.length) {
       result = result.reduce(function (a, b) {
         if (Array.isArray(a) && Array.isArray(b)) {
