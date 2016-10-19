@@ -4,8 +4,8 @@
 
 ##About##
 
-This module provides a way to copy properties from one object to another based
-on a separate object which defines how the properties should be mapped.
+Copy properties from one `Object` to another based
+on a separate `Object`, which defines how the properties should be mapped.
 
 ##Installation##
 
@@ -15,36 +15,36 @@ $ npm install --save object-mapper
 
 ##Usage##
 
-The mapping object is a simple object, where the `key` is the **source** and the `value` is the **destination**.
+A mapping object `key` is the **source** `key` and the `value` is the `key` on the **destination** object the `value` is mapped to.
 
 ###Source###
 
-The source can be specified as a simple string like:
+The source `key` can be specified as a simple string:
 
 ```javascript
 {
-  "foo": "bar"
+  "foo": "bar" //map src.foo to dest.bar
 }
 ```
 
-You may specify properties deep within the source object to be copied to
-properties deep within the destination object by using dot notation in the
-mapping like:
+You may specify properties deep within the source `Object` to be copied to
+properties deep within the destination `Object` by using dot notation in the
+mapping `key`:
 
 ```javascript
 {
-  "foo": "bar.baz"
-  , "bar.foo": "baz"
+  "foo": "bar.baz", //map src.foo to dest.bar.baz
+  "bar.foo": "baz" //map src.bar.foo to dest.baz
 }
 ```
 
-You may also specify array lookups within the source object to be copied to properties deep within the destination object by using `[]` notation in the mapping link:
+You may also specify `Array` lookups within the source `Object` to be copied to properties deep within the destination object by using `[]` notation in the mapping:
 
 ```javascript
 {
-  "[].foo": "bar[]"
-  , "foo[].bar": "[]"
-  , "foo[0].bar": "baz"
+  "[].foo": "bar[]",
+  "foo[].bar": "[]",
+  "foo[0].bar": "baz"
 }
 ```
 
@@ -57,39 +57,52 @@ You may specify the destination as:
 
 ####String####
 
-When using string as destination you shall use as described above.
+When using a `String` as the destination, use the method described above.
 
-In order to utilize a source field more than once, utilize the key-transform syntax in the mapping link:
+To utilize a source field more than once, utilize the key-transform syntax in the mapping link:
 
 ```javascript
-{
+var objectMapper = require('object-mapper');
+
+var map = {
   "foo": [
     {
       key: "foo",
-      transform: function (value) {
+      transform: function (value) { 
         return val + "_foo";
       }
     },
     {
       key: "baz",
       transform: function (value) {
-        return val + "_baz"
+        return val + "_baz";
       }
     }
   ],
   "bar": "bar"
-}
+};
+
+var src = {
+	foo: 'blah',
+	bar: 'something'
+};
+
+var dest = objectMapper(src, map);
+
+// dest.foo: 'blah_foo'
+// dest.baz: 'blah_baz'
+// dest.bar: 'something' 
 ```
 
 ####Object####
 
-When using object as destination you need can use the following object:
+Using an `Object` as the destination:
 
 ```javascript
 {
-  "key": (String)
-  , "transform": (Function())
-  , "default": (Function()|String|Number)
+  "key": (String),
+  "transform": (Function()),
+  "default": (Function()|String|Number)
 }
 ```
 
@@ -97,27 +110,27 @@ When using object as destination you need can use the following object:
 
 ###### transform(sourceValue, sourceObject, destinationObject, destinationKey);
 
-This function let you handle the **sourceValue** as you need;
+Specify the mapping of a **sourceValue** as you need;
 
 ###### default(sourceObject, sourceKey, destinationObject, destinationKey);
 
-This function let you return a _default_ value when the **sourceValue** is `undefined` or `null`.
+Specify a _default_ return value when the **sourceValue** is `undefined` or `null`.
 
 ####Array####
 
-When using arrays as destination you can pass a string, object or another array (shorthand for object):
+When using an `Array` as the destination you can pass a `String`, an `Object` or another `Array` (shorthand for `Object`):
 
 ```javascript
 {
-  "foo": ["bar", "baz"]
-  , "bar": [{
+  "foo": ["bar", "baz"],
+  "bar": [{
     "key": "foo"
-  }]
-  , "baz": [["bar", null, "foo"]]
+  }],
+  "baz": [["bar", null, "foo"]]
 }
 ```
 
-If you want to append items to an existing array, include a '+' after the []
+If you want to append items to an existing `Array`, append a `+` after the `[]`
 ```javascript
 {
   "sourceArray[]":{
@@ -132,13 +145,13 @@ If you want to append items to an existing array, include a '+' after the []
 // Results in the destination array appending the source values
 {
   "destination":[
-    {/*Results from mapping function applied to sourceArray */},
-    {/*Results from mapping function applied to otherSourceArray */},
+    {/*Results from the mapping function applied to sourceArray */},
+    {/*Results from the mapping function applied to otherSourceArray */},
   ]
 }
 ```
 
-The array shorthand for object is defined like:
+The `Array` shorthand for an `Object`:
 
 ```javascript
 [(Key(String))), (Transform(Function())), (Default(String|Number|Function()))]
@@ -146,7 +159,7 @@ The array shorthand for object is defined like:
 
 ###Null Values###
 
-By default any source object null value is not mapped. If you want to allow this you may do so explicitly by including the post fix operator '?' to any destination key.
+By default `null` values on the source `Object` is not mapped. You can override this by including the post fix operator '?' to any destination `key`.
 
 ```javascript
 var original = {
@@ -180,7 +193,7 @@ This function is also exported directly from `require('object-mapper')` (ie: `va
 
 ### .getKeyValue(sourceObject, key);
 
-Get the key value within **sourceObject**, going deep within the object if necessary.
+Get the `key` value within **sourceObject**, going deep within the object if necessary.
 This method is used internally but is exposed because it may be of use elsewhere
 with other projects.
 
@@ -189,7 +202,7 @@ with other projects.
 
 ### .setKeyValue(destinationObject, key, value);
 
-Set the key value within **destinationObject**, going deep within the object if necessary.This
+Set the `key` value within **destinationObject**, going deep within the object if necessary.This
 method is used internally but is exposed because it may be of use elsewhere with
 other projects.
 
@@ -202,31 +215,31 @@ other projects.
 ```javascript
 var objectMapper = require('object-mapper');
 
-var obj = {
-  "sku" : "12345"
-  , "upc" : "99999912345X"
-  , "title" : "Test Item"
-  , "description" : "Description of test item"
-  , "length" : 5
-  , "width" : 2
-  , "height" : 8
-  , "inventory" : {
+var src = {
+  "sku" : "12345",
+  "upc" : "99999912345X",
+  "title" : "Test Item",
+  "description" : "Description of test item",
+  "length" : 5,
+  "width" : 2,
+  "height" : 8,
+  "inventory" : {
     "onHandQty" : 12
   }
 };
 
 var map = {
-  "sku": "Envelope.Request.Item.SKU"
-  , "upc": "Envelope.Request.Item.UPC"
-  , "title": "Envelope.Request.Item.ShortTitle"
-  , "description": "Envelope.Request.Item.ShortDescription"
-  , "length": "Envelope.Request.Item.Dimensions.Length"
-  , "width": "Envelope.Request.Item.Dimensions.Width"
-  , "height": "Envelope.Request.Item.Dimensions.Height"
-  , "inventory.onHandQty": "Envelope.Request.Item.Inventory"
+  "sku": "Envelope.Request.Item.SKU",
+  "upc": "Envelope.Request.Item.UPC",
+  "title": "Envelope.Request.Item.ShortTitle",
+  "description": "Envelope.Request.Item.ShortDescription",
+  "length": "Envelope.Request.Item.Dimensions.Length",
+  "width": "Envelope.Request.Item.Dimensions.Width",
+  "height": "Envelope.Request.Item.Dimensions.Height",
+  "inventory.onHandQty": "Envelope.Request.Item.Inventory"
 };
 
-var result = objectMapper(obj, map);
+var dest = objectMapper(obj, map);
 
 /*
 {
@@ -252,7 +265,7 @@ var result = objectMapper(obj, map);
 
 ##Use case##
 
-I use **object-mapper's** `merge()` method to map values from records
+I use the **object-mapper's** `merge()` method to map values from records
 returned from a database into horribly complex objects that will be eventually
 turned in to XML.
 
