@@ -69,13 +69,13 @@ var map = {
     {
       key: "foo",
       transform: function (value) { 
-        return val + "_foo";
+        return value + "_foo";
       }
     },
     {
       key: "baz",
       transform: function (value) {
-        return val + "_baz";
+        return value + "_baz";
       }
     }
   ],
@@ -133,18 +133,19 @@ When using an `Array` as the destination you can pass a `String`, an `Object` or
 If you want to append items to an existing `Array`, append a `+` after the `[]`
 ```javascript
 {
-  "sourceArray[]":{
-    "key":"destination[]+",
+  "sourceArray[]": {
+    "key": "destination[]+",
     "transform": (val) => mappingFunction(val)
   },
-  "otherSourceArray[]":{
-    "key":"destination[]+",
-    "transform:":(val) => mappingFunction(val)
+  "otherSourceArray[]": {
+    "key": "destination[]+",
+    "transform": (val) => mappingFunction(val)
   }
 }
+
 // Results in the destination array appending the source values
 {
-  "destination":[
+  "destination": [
     {/*Results from the mapping function applied to sourceArray */},
     {/*Results from the mapping function applied to otherSourceArray */},
   ]
@@ -163,17 +164,20 @@ By default `null` values on the source `Object` is not mapped. You can override 
 
 ```javascript
 var original = {
-  "sourceKey":null,
-  "otherSourceKey":null
+  "sourceKey": null,
+  "otherSourceKey": null
 }
+
 var transform = {
-  "sourceKey":"canBeNull?",
-  "otherSourceKey":"cannotBeNull"
+  "sourceKey": "canBeNull?",
+  "otherSourceKey": "cannotBeNull"
 }
+
 var results = ObjectMapper(original, {}, transform);
+
 // Results would be the following
 {
-  canBeNull:null
+  canBeNull: null
 }
 ```
 
@@ -216,15 +220,15 @@ other projects.
 var objectMapper = require('object-mapper');
 
 var src = {
-  "sku" : "12345",
-  "upc" : "99999912345X",
-  "title" : "Test Item",
-  "description" : "Description of test item",
-  "length" : 5,
-  "width" : 2,
-  "height" : 8,
-  "inventory" : {
-    "onHandQty" : 12
+  "sku": "12345",
+  "upc": "99999912345X",
+  "title": "Test Item",
+  "description": "Description of test item",
+  "length": 5,
+  "width": 2,
+  "height": 8,
+  "inventory": {
+    "onHandQty": 12
   }
 };
 
