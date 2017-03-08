@@ -78,7 +78,7 @@ function _getValue(fromObject, key, keys) {
 
   if (keys.length === 0) {
     if (isValueArray) {
-      if (typeof arrayIndex === 'undefined') {
+      if (typeof arrayIndex === 'undefined' || fromObject[key] === undefined) {
         result = fromObject[key];
       } else {
         result = fromObject[key][arrayIndex];
