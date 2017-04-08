@@ -1661,3 +1661,79 @@ test('original various tests', function (t) {
 
   t.end();
 });
+
+test('map array inside array to property', function (t) {
+  var obj = {
+    name: 'Charles Montgomery Burns',
+    deeds: [
+      {
+        type: 'theft',
+        description: 'taking candy from a baby',
+        victims: [
+          'lisa'
+        ]
+      },
+      {
+        type: 'polution',
+        description: 'dumping nuclear waste in river',
+        victims: [
+          'ohio river',
+          'mississippi river'
+        ]
+      }
+    ]
+  };
+
+  var expect = {
+    deeds: [
+      {
+        type: 'theft',
+        victims: [
+          'lisa'
+        ]
+      },
+      {
+        type: 'polution',
+        victims: [
+          'ohio river',
+          'mississippi river'
+        ]
+      }
+    ]
+  };
+
+  // would expect this to just assign the array as a property
+  var map = {
+    'deeds[].type': 'deeds[].type',
+    'deeds[].victims': 'deeds[].victims',
+   };
+
+   // would expect each victim to be added to the array of its deed
+  var map2 = {
+    'deeds[].type': 'deeds[].type',
+    'deeds[].victims[]': 'deeds[].victims[]',
+   };
+
+  // just guessing now
+  var map3 = {
+    'deeds[].type': 'deeds[].type',
+    'deeds[].victims': 'deeds[].victims[]',
+   };
+
+  // just guessing now
+  var map4 = {
+    'deeds[].type': 'deeds[].type',
+    'deeds[].victims[]': 'deeds[].victims',
+   };
+
+  var result = om(obj, map);
+  var result2 = om(obj, map2);
+  var result3 = om(obj, map3);
+  var result4 = om(obj, map4);
+
+  t.deepEqual(result, expect);
+  t.deepEqual(result2, expect);
+  t.deepEqual(result3, expect);
+  t.deepEqual(result4, expect);
+  t.end();
+});
