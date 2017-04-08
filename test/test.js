@@ -1664,76 +1664,63 @@ test('original various tests', function (t) {
 
 test('map array inside array to property', function (t) {
   var obj = {
-    name: 'Charles Montgomery Burns',
-    deeds: [
-      {
-        type: 'theft',
-        description: 'taking candy from a baby',
-        victims: [
-          'lisa'
-        ]
+    name: 'Transfer in Sunnyvale',
+    transfers: [{
+      type: 'TAKE',
+      target_route: {
+        _id: '58e4a15607689eafed8e2840',
+        driver: '58e4a15607689eafed8e282a'
       },
-      {
-        type: 'polution',
-        description: 'dumping nuclear waste in river',
-        victims: [
-          'ohio river',
-          'mississippi river'
-        ]
-      }
+      orders: [ '58e4a15807689eafed8e2d0b' ]
+    }, {
+      type: 'GIVE',
+      target_route: {
+        _id: '58e4a15607689eafed8e2840',
+        driver: '58e4a15607689eafed8e282a'
+      },
+      orders: [ '58e4a15607689eafed8e2841' ]
+    }],
+    orders: [
+      '58e4a15807689eafed8e2d0b',
+      '58e4a15607689eafed8e2841'
     ]
   };
 
   var expect = {
-    deeds: [
-      {
-        type: 'theft',
-        victims: [
-          'lisa'
-        ]
+    name: 'Transfer in Sunnyvale',
+    transfers: [{
+      type: 'TAKE',
+      target_route: {
+        _id: '58e4a15607689eafed8e2840',
+        driver: '58e4a15607689eafed8e282a'
       },
-      {
-        type: 'polution',
-        victims: [
-          'ohio river',
-          'mississippi river'
-        ]
-      }
+      orders: [ '58e4a15807689eafed8e2d0b' ]
+    }, {
+      type: 'GIVE',
+      target_route: {
+        _id: '58e4a15607689eafed8e2840',
+        driver: '58e4a15607689eafed8e282a'
+      },
+      orders: [ '58e4a15607689eafed8e2841' ]
+    }],
+    orders: [
+      '58e4a15807689eafed8e2d0b',
+      '58e4a15607689eafed8e2841'
     ]
   };
 
   // would expect this to just assign the array as a property
   var map = {
-    'deeds[].type': 'deeds[].type',
-    'deeds[].victims': 'deeds[].victims',
-   };
-
-   // would expect each victim to be added to the array of its deed
-  var map2 = {
-    'deeds[].type': 'deeds[].type',
-    'deeds[].victims[]': 'deeds[].victims[]',
-   };
-
-  // just guessing now
-  var map3 = {
-    'deeds[].type': 'deeds[].type',
-    'deeds[].victims': 'deeds[].victims[]',
-   };
-
-  // just guessing now
-  var map4 = {
-    'deeds[].type': 'deeds[].type',
-    'deeds[].victims[]': 'deeds[].victims',
+    'name': 'name',
+    'transfers[].type': 'transfers[].type',
+    'transfers[].target_route._id': 'transfers[].target_route._id',
+    'transfers[].target_route.driver': 'transfers[].target_route.driver',
+    'transfers[].orders[]': 'transfers[].orders',
+    'orders': 'orders'
    };
 
   var result = om(obj, map);
-  var result2 = om(obj, map2);
-  var result3 = om(obj, map3);
-  var result4 = om(obj, map4);
 
   t.deepEqual(result, expect);
-  t.deepEqual(result2, expect);
-  t.deepEqual(result3, expect);
-  t.deepEqual(result4, expect);
   t.end();
 });
