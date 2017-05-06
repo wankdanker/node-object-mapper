@@ -1664,43 +1664,41 @@ test('original various tests', function (t) {
 
 test('map array inside array to property', function (t) {
 
-  var mongoose = require('mongoose');
-
   var obj = {
-  "orders": [{
-    "foodie": {
-      "first_name": "Foodie2",
-      "last_name": "Foodie2"
-    },
-    "sort_code": "A02"
-  }],
-  "transfers": [{
-    "type": "GIVE",
-    "target_route": {
-      "_id": "58e4a15607689eafed8e2841",
-      "driver": "58e4a15607689eafed8e2831"
-    },
-    "orders": ["58e4a15807689eafed8e2d0b"]
-  }]
-};
+    "orders": [{
+      "foodie": {
+        "first_name": "Foodie2",
+        "last_name": "Foodie2"
+      },
+      "sort_code": "A02"
+    }],
+    "transfers": [{
+      "type": "GIVE",
+      "target_route": {
+        "_id": "58e4a15607689eafed8e2841",
+        "driver": "58e4a15607689eafed8e2831"
+      },
+      "orders": ["58e4a15807689eafed8e2d0b"]
+    }]
+  };
 
   var expect = {
-  "orders": [{
-    "foodie": {
-      "first_name": "Foodie2",
-      "last_name": "Foodie2"
-    },
-    "sort_code": "A02"
-  }],
-  "transfers": [{
-    "type": "GIVE",
-    "target_route": {
-      "_id": "58e4a15607689eafed8e2841",
-      "driver": "58e4a15607689eafed8e2831"
-    },
-    "orders": ["58e4a15807689eafed8e2d0b"]
-  }]
-};
+    "orders": [{
+      "foodie": {
+        "first_name": "Foodie2",
+        "last_name": "Foodie2"
+      },
+      "sort_code": "A02"
+    }],
+    "transfers": [{
+      "type": "GIVE",
+      "target_route": {
+        "_id": "58e4a15607689eafed8e2841",
+        "driver": "58e4a15607689eafed8e2831"
+      },
+      "orders": ["58e4a15807689eafed8e2d0b"]
+    }]
+  };
 
   // would expect this to just assign the array as a property
   var map = {
@@ -1713,7 +1711,7 @@ test('map array inside array to property', function (t) {
     'transfers[].orders[]': 'transfers[].orders',
     'transfers[].target_route._id': 'transfers[].target_route._id',
     'transfers[].target_route.driver': 'transfers[].target_route.driver'
-   };
+  };
 
   var result = om(obj, map);
 
