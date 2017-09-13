@@ -1,23 +1,23 @@
-#object-mapper#
+# object-mapper
 
 [![Build Status](https://travis-ci.org/wankdanker/node-object-mapper.svg)](https://travis-ci.org/wankdanker/node-object-mapper) [![Join the chat at https://gitter.im/wankdanker/node-object-mapper](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/wankdanker/node-object-mapper?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-##About##
+## About
 
 Copy properties from one `Object` to another based
 on a separate `Object`, which defines how the properties should be mapped.
 
-##Installation##
+## Installation
 
 ```shell
 $ npm install --save object-mapper
 ```
 
-##Usage##
+## Usage
 
 A mapping object `key` is the **source** `key` and the `value` is the `key` on the **destination** object the `value` is mapped to.
 
-###Source###
+### Source
 
 The source `key` can be specified as a simple string:
 
@@ -48,14 +48,14 @@ You may also specify `Array` lookups within the source `Object` to be copied to 
 }
 ```
 
-###Destination###
+### Destination
 
 You may specify the destination as:
  - String
  - Object
  - Array
 
-####String####
+#### String
 
 When using a `String` as the destination, use the method described above.
 
@@ -94,7 +94,7 @@ var dest = objectMapper(src, map);
 // dest.bar: 'something' 
 ```
 
-####Object####
+#### Object
 
 Using an `Object` as the destination:
 
@@ -106,7 +106,7 @@ Using an `Object` as the destination:
 }
 ```
 
-#####Methods#####
+##### Methods
 
 ###### transform(sourceValue, sourceObject, destinationObject, destinationKey);
 
@@ -116,7 +116,7 @@ Specify the mapping of a **sourceValue** as you need;
 
 Specify a _default_ return value when the **sourceValue** is `undefined` or `null`.
 
-####Array####
+#### Array
 
 When using an `Array` as the destination you can pass a `String`, an `Object` or another `Array` (shorthand for `Object`):
 
@@ -158,7 +158,7 @@ The `Array` shorthand for an `Object`:
 [(Key(String))), (Transform(Function())), (Default(String|Number|Function()))]
 ```
 
-###Null Values###
+### Null Values
 
 By default `null` values on the source `Object` is not mapped. You can override this by including the post fix operator '?' to any destination `key`.
 
@@ -181,7 +181,7 @@ var results = ObjectMapper(original, {}, transform);
 }
 ```
 
-##Methods##
+## Methods
 
 ### .merge(sourceObject[, destinationObject], mapObject);
 
@@ -214,7 +214,7 @@ other projects.
  - **key** is the name of the property/key which will be set.
  - **value** is the value of the property/key.
 
-##Example##
+## Example
 
 ```javascript
 var objectMapper = require('object-mapper');
@@ -267,14 +267,14 @@ var dest = objectMapper(obj, map);
 */
 ```
 
-##Use case##
+## Use case
 
 I use the **object-mapper's** `merge()` method to map values from records
 returned from a database into horribly complex objects that will be eventually
 turned in to XML.
 
 
-##License##
+## License
 
 ### The MIT License (MIT)
 
