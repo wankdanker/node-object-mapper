@@ -1,4 +1,6 @@
 'use strict';
+var utils = require('./utils')
+  ;
 
 /**
  * Make the get of a value with the key in the passed object
@@ -137,6 +139,15 @@ function _getValue(fromObject, key, keys) {
       }
     } else {
       result = _getValue(fromObject[key], keys[0], keys.slice(1));
+    }
+  }
+
+  if(Array.isArray(result)) {
+    result = result.filter(function (item) {
+      return (typeof item !== 'undefined' || utils._isEmptyObject(item));
+    });
+    if (utils._isEmptyArray(result)) {
+      result = undefined;
     }
   }
 

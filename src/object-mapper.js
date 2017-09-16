@@ -1,5 +1,6 @@
 'use strict';
-var getKeyValue = require('./get-key-value')
+var utils = require('./utils')
+  , getKeyValue = require('./get-key-value')
   , setKeyValue = require('./set-key-value')
   , _undefined
   ;
