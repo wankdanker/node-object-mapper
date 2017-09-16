@@ -1653,6 +1653,8 @@ test('original various tests', function (t) {
   t.deepEqual(result, expected, 'override sku');
 
   obj["inventory"] = null;
+  map["inventory.onHandQty"] = {key: ["Envelope.Request.Item.Inventory?", null, null]};
+  map["inventory.replenishQty"] = {key: ["Envelope.Request.Item.RelpenishQuantity?", null, null]};
   expected.Envelope.Request.Item.Inventory = null;
 
   result = merge(obj, {}, map);
@@ -1711,6 +1713,60 @@ test('map array inside array to property', function (t) {
     'transfers[].orders[]': 'transfers[].orders',
     'transfers[].target_route._id': 'transfers[].target_route._id',
     'transfers[].target_route.driver': 'transfers[].target_route.driver'
+  };
+
+  var result = om(obj, map);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+
+test('do not map when a property not present in source and default is not given in map', function (t) {
+  var expect = {
+    mapThis: 'defaultVal',
+    mapThisToo: [ {
+      property: 'defaultVal',
+      subArray: [ { property: null } ]
+    } ],
+    other: 'otherVal'
+  };
+
+  var map = {
+    "doNotMapThis": {
+      "key": "doNotMapThis",
+      "transform": function(val) {
+        return "_" + val;
+      }
+    },
+    "doNotMapThisToo[].property": {
+      "key": "doNotMapThisToo[].property",
+      "transform": function(val) {
+        return "_" + val;
+      }
+    },
+    "doNotMapThisToo[].subArray[].property": {
+      "key": "doNotMapThisToo[].subArray[].property",
+      "transform": function(val) {
+        return "_" + val;
+      }
+    },
+    "mapThis": {
+      "key": "mapThis",
+      "default": "defaultVal"
+    },
+    "mapThisToo[].property": {
+      "key": "mapThisToo[].property",
+      "default": "defaultVal"
+    },
+    "mapThisToo[].subArray[].property": {
+      "key": "mapThisToo[].subArray[].property?",
+      "default": null 
+    },
+    "other": "other"
+  };
+
+  var obj = {
+    "other": "otherVal"    
   };
 
   var result = om(obj, map);
