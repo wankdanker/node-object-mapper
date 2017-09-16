@@ -1653,6 +1653,8 @@ test('original various tests', function (t) {
   t.deepEqual(result, expected, 'override sku');
 
   obj["inventory"] = null;
+  map["inventory.onHandQty"] = {key: ["Envelope.Request.Item.Inventory?", null, null]};
+  map["inventory.replenishQty"] = {key: ["Envelope.Request.Item.RelpenishQuantity?", null, null]};
   expected.Envelope.Request.Item.Inventory = null;
 
   result = merge(obj, {}, map);
