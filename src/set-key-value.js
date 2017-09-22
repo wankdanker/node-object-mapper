@@ -7,14 +7,26 @@
  * @returns {*|{}}
  */
 function SetKeyValue(baseObject, destinationKey, fromValue) {
-  var regDot = /\./g
-    , keys
-    , key
-    ;
+  var merged = [];
+  // matches only unescaped dots
+  var regDot = /([^\\])(\\\\)*\./g;
+  var keys = destinationKey.split(regDot);
+  for (var i = 0; i < keys.length; i++) {
+    if ((i - 1) % 3 === 0) {
+      // Every third match is the character of
+      // the first group [^\\] which
+      // needs to be merged in again
+      var tmpKey = keys[i - 1] + keys[i];
+      merged.push(tmpKey.replace("\\.", "."));
+    }
+    // Add part after last dot
+    if (i === keys.length - 1) {
+      merged.push(keys[i].replace("\\.", "."));
+    }
+  }
+  keys = merged;
 
-
-  keys = destinationKey.split(regDot);
-  key = keys.splice(0, 1);
+  var key = keys.splice(0, 1);
 
   return _setValue(baseObject, key[0], keys, fromValue);
 }

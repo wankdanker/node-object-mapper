@@ -1718,3 +1718,37 @@ test('map array inside array to property', function (t) {
   t.deepEqual(result, expect);
   t.end();
 });
+
+test('Mapping source key properties with dots', function (t) {
+  var baseObject = {
+    test: 1
+  };
+
+  var obj = {
+    "foo": {
+      "bar": "baz"
+    }
+  };
+
+  var expect = {
+    test: 1,
+    "bar.baz": "baz"
+  };
+
+  var map = {
+    'foo.bar': {
+      key: 'bar\\.baz',
+      transform: function (value, fromObject, toObject, fromKey, toKey) {
+        return value;
+      }
+    }
+  };
+
+  var result = om(obj, baseObject, map);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+
+
+
