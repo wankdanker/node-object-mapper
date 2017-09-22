@@ -1750,5 +1750,36 @@ test('Mapping source key properties with dots', function (t) {
   t.end();
 });
 
+test('Mapping source key properties with wrong escaped dot', function (t) {
+  var baseObject = {
+    test: 1
+  };
+
+  var obj = {
+    "foo": {
+      "bar": "baz"
+    }
+  };
+
+  var expect = {
+    test: 1,
+    "bar": {"baz": "baz"}
+  };
+
+  var map = {
+    'foo.bar': {
+      key: 'bar\.baz', // actually equivalent to bar.baz as "bar\.baz" === "bar.baz"
+      transform: function (value, fromObject, toObject, fromKey, toKey) {
+        return value;
+      }
+    }
+  };
+
+  var result = om(obj, baseObject, map);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+
 
 
