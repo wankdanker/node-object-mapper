@@ -1719,11 +1719,7 @@ test('map array inside array to property', function (t) {
   t.end();
 });
 
-test('Mapping source key properties with dots', function (t) {
-  var baseObject = {
-    test: 1
-  };
-
+test('Mapping destination property with a literal dot', function (t) {
   var obj = {
     "foo": {
       "bar": "baz"
@@ -1731,7 +1727,6 @@ test('Mapping source key properties with dots', function (t) {
   };
 
   var expect = {
-    test: 1,
     "bar.baz": "baz"
   };
 
@@ -1744,16 +1739,13 @@ test('Mapping source key properties with dots', function (t) {
     }
   };
 
-  var result = om(obj, baseObject, map);
+  var result = om(obj, map);
 
   t.deepEqual(result, expect);
   t.end();
 });
 
-test('Mapping source key properties with wrong escaped dot', function (t) {
-  var baseObject = {
-    test: 1
-  };
+test('Mapping destination property with wrong escaped dot', function (t) {
 
   var obj = {
     "foo": {
@@ -1762,7 +1754,6 @@ test('Mapping source key properties with wrong escaped dot', function (t) {
   };
 
   var expect = {
-    test: 1,
     "bar": {"baz": "baz"}
   };
 
@@ -1775,11 +1766,61 @@ test('Mapping source key properties with wrong escaped dot', function (t) {
     }
   };
 
-  var result = om(obj, baseObject, map);
+  var result = om(obj, map);
 
   t.deepEqual(result, expect);
   t.end();
 });
 
+test('Mapping destination property with two escaped dots', function (t) {
+  var obj = {
+    "foo": {
+      "bar": "baz"
+    }
+  };
+
+  var expect = {
+    "bar.baz.duz": "baz"
+  };
+
+  var map = {
+    'foo.bar': {
+      key: 'bar\\.baz\\.duz',
+      transform: function (value, fromObject, toObject, fromKey, toKey) {
+        return value;
+      }
+    }
+  };
+
+  var result = om(obj, map);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+
+test('Mapping destination property with backslash itself escaped', function (t) {
+  var obj = {
+    "foo": {
+      "bar": "baz"
+    }
+  };
+
+  var expect = {
+    "bar\\\\": { "baz": "baz" }
+  };
+  var map = {
+    'foo.bar': {
+      key: 'bar\\\\.baz',
+      transform: function (value, fromObject, toObject, fromKey, toKey) {
+        return value;
+      }
+    }
+  };
+
+  var result = om(obj, map);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
 
 
