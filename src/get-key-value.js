@@ -8,15 +8,38 @@
  * @returns {*}
  */
 function GetKeyValue(fromObject, fromKey) {
-  var regDot = /\./g
-    , regFinishArray = /.+(\[\])/g
+  var regFinishArray = /.+(\[\])/g
     , keys
     , key
     , result
     , lastValue
+    , merged = []
     ;
 
-  keys = fromKey.split(regDot);
+  // matches only unescaped dots
+  var regDot = /([^\\])(\\\\)*\./g;
+  var keys = fromKey.split(regDot);
+  for (var i = 0; i < keys.length; i++) {
+    if ((i - 1) % 3 === 0) {
+      // Every third match is the character of
+      // the first group [^\\] which
+      // is the last character of the key.
+      // Merge it in again.
+      var tmpKey = keys[i - 1] + keys[i];
+      if (keys[i + 1]) {
+        // If second group is found, this means
+        // that the backslash itself is escaped.
+        // Retain unchanged as well.
+        tmpKey += keys[i + 1];
+      }
+      merged.push(tmpKey.replace(/\\\./g, "."));
+    }
+    // Add part after last dot
+    if (i === keys.length - 1) {
+      merged.push(keys[i].replace(/\\\./g, "."));
+    }
+  }
+  keys = merged;
   key = keys.splice(0, 1);
   lastValue = fromKey.match(regFinishArray);
   if(lastValue != null && lastValue[0] === fromKey){
