@@ -1,5 +1,6 @@
 'use strict';
-var getKeyValue = require('./get-key-value')
+var utils = require('./utils')
+  , getKeyValue = require('./get-key-value')
   , setKeyValue = require('./set-key-value')
   , _undefined
   ;
@@ -76,7 +77,7 @@ function _map(fromObject, toObject, propertyMap, propertyKeys) {
 function _mapKey(fromObject, fromKey, toObject, toKey) {
   var fromValue
     , restToKeys
-    , _default = null
+    , _default // = null
     , transform
     ;
 
@@ -87,14 +88,14 @@ function _mapKey(fromObject, fromKey, toObject, toKey) {
   }
 
   if (toKey instanceof Object && Object.getPrototypeOf(toKey) === Object.prototype) {
-    _default = toKey.default || null;
+    _default = toKey.default; // || null;
     transform = toKey.transform;
     toKey = toKey.key;
   }
 
   if (Array.isArray(toKey)) {
     transform = toKey[1];
-    _default = toKey[2] || null;
+    _default = toKey[2]; // || null;
     toKey = toKey[0];
   }
 
@@ -103,7 +104,7 @@ function _mapKey(fromObject, fromKey, toObject, toKey) {
   }
 
   fromValue = getKeyValue(fromObject, fromKey);
-  if (typeof fromValue === 'undefined' || fromValue === null) {
+  if (typeof fromValue === 'undefined') { // || fromValue === null) {
     fromValue = _default;
   }
 

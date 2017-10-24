@@ -1,4 +1,7 @@
 'use strict';
+var utils = require('./utils')
+  ;
+
 /**
  * Make the set of a value withing the key in the passed object
  * @param baseObject
@@ -83,7 +86,7 @@ function _setValue(destinationObject, key, keys, fromValue) {
     key = key.replace(regAppendArray, '');
   }
 
-  if (_isEmpty(destinationObject)) {
+  if (utils._isEmpty(destinationObject)) {
     if (isPropertyArray) {
       arrayIndex = match[2] || 0;
       if (isValueArray) {
@@ -123,7 +126,7 @@ function _setValue(destinationObject, key, keys, fromValue) {
       if (Array.isArray(destinationObject[key]) === false) {
         destinationObject[key] = [];
       }
-      if (Array.isArray(fromValue) && _isNextArrayProperty(keys) === false) {
+      if (Array.isArray(fromValue) && utils._isNextArrayProperty(keys) === false) {
         for (valueIndex = 0; valueIndex < fromValue.length; valueIndex++) {
           value = fromValue[valueIndex];
           destinationObject[key][arrayIndex + valueIndex] = _setValue(destinationObject[key][arrayIndex + valueIndex], keys[0], keys.slice(1), value);
@@ -149,59 +152,3 @@ function _setValue(destinationObject, key, keys, fromValue) {
   return destinationObject;
 }
 
-/**
- * Check if next key is a array lookup
- * @param keys
- * @returns {boolean}
- * @private
- */
-function _isNextArrayProperty(keys) {
-  var regArray = /(\[\]|\[(.*)\])$/g
-    ;
-  return regArray.test(keys[0]);
-}
-
-/**
- * Check if passed object is empty, checking for object and array types
- * @param object
- * @returns {boolean}
- * @private
- */
-function _isEmpty(object) {
-  var empty = false;
-  if (typeof object === 'undefined' || object === null) {
-    empty = true;
-  } else if (_isEmptyObject(object)) {
-    empty = true;
-  } else if (_isEmptyArray(object)) {
-    empty = true;
-  }
-
-  return empty;
-}
-
-/**
- * Check if passed object is empty
- * @param object
- * @returns {boolean}
- * @private
- */
-function _isEmptyObject(object) {
-  return typeof object === 'object'
-    && Array.isArray(object) === false
-    && Object.keys(object).length === 0
-    ;
-}
-
-/**
- * Check if passed array is empty or with empty values only
- * @param object
- * @returns {boolean}
- * @private
- */
-function _isEmptyArray(object) {
-  return Array.isArray(object)
-    && (object.length === 0
-    || object.join('').length === 0)
-    ;
-}
