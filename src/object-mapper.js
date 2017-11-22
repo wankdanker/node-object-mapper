@@ -86,7 +86,7 @@ function _mapKey(fromObject, fromKey, toObject, toKey) {
     toKey = toKey[0];
   }
 
-  if (toKey instanceof Object && Object.getPrototypeOf(toKey) === Object.prototype) {
+  if (_isObject(toKey)) {
     _default = toKey.default || null;
     transform = toKey.transform;
     toKey = toKey.key;
@@ -122,4 +122,8 @@ function _mapKey(fromObject, fromKey, toObject, toKey) {
   }
 
   return toObject;
+}
+
+function _isObject (item) {
+  return (typeof item === "object" && !Array.isArray(item) && item !== null)
 }
