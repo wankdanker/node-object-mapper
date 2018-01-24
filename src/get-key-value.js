@@ -1,5 +1,7 @@
 'use strict';
 
+var minimatch = require('minimatch');
+
 /**
  * Make the get of a value with the key in the passed object
  * @param fromObject
@@ -159,9 +161,30 @@ function _getValue(fromObject, key, keys) {
         result = _getValue(fromObject[arrayIndex], keys[0], keys.slice(1));
       }
     } else {
-      result = _getValue(fromObject[key], keys[0], keys.slice(1));
+      if (fromObject[key] === undefined) {
+        result = _getGlobValues(fromObject, key, keys);
+      } else {
+        result = _getValue(fromObject[key], keys[0], keys.slice(1));
+      }
     }
   }
 
   return result;
+}
+
+function _getGlobValues(fromObject, key, keys) {
+  var currentKeys = Object.keys(fromObject);
+  var results = [];
+
+  for (var i = 0; i < currentKeys.length; i++) {
+    var currentKey = currentKeys[i];
+    if (minimatch(currentKey, key)) {
+      var value = _getValue(fromObject[currentKey], keys[0], keys.slice(1));
+      if (value !== undefined) {
+        results.push(value);
+      }
+    }
+  }
+
+  return results.length ? results : undefined;
 }

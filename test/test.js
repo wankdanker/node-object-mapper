@@ -1823,4 +1823,29 @@ test('Mapping destination property with backslash itself escaped', function (t) 
   t.end();
 });
 
+test('Mapping properties with glob patterns', function (t) {
+  var obj = {
+    "nodes": {
+      "db_node": {
+        "type": "db",
+        "image": "mongodb"
+      },
+      "app_node": {
+        "type": "app",
+        "image": "nginx"
+      }
+    }
+  };
 
+  var expect = {
+    "types": ["db", "app"]
+  };
+  var map = {
+    'nodes.*.type': 'types'
+  };
+
+  var result = om(obj, map);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
