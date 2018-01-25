@@ -1849,3 +1849,39 @@ test('Mapping properties with glob patterns', function (t) {
   t.deepEqual(result, expect);
   t.end();
 });
+
+test('Mapping properties with glob patterns with incomplete path', function (t) {
+  var obj = {
+    "nodes": {
+      "db_node": {
+        "type": "db",
+        "image": "mongodb"
+      },
+      "app_node": {
+        "type": "app",
+        "image": "nginx"
+      }
+    }
+  };
+
+  var expect = {
+    "types": [
+      {
+        "type": "db",
+        "image": "mongodb"
+      },
+      {
+        "type": "app",
+        "image": "nginx"
+      }
+    ]
+  };
+  var map = {
+    'nodes.*': 'types'
+  };
+
+  var result = om(obj, map);
+
+  t.deepEqual(result, expect);
+  t.end();
+});

@@ -121,7 +121,11 @@ function _getValue(fromObject, key, keys) {
         })
       }
     } else {
-      result = fromObject[key];
+      if (fromObject[key] === undefined) {
+        result = _getGlobValues(fromObject, key, keys);
+      } else {
+        result = fromObject[key];
+      }
     }
   } else {
     if (isValueArray) {
@@ -172,6 +176,14 @@ function _getValue(fromObject, key, keys) {
   return result;
 }
 
+/**
+ * Keeps recursing _getValue method with glob matching.
+ * @param fromObject
+ * @param key
+ * @param keys
+ * @returns {*}
+ * @private
+ */
 function _getGlobValues(fromObject, key, keys) {
   var currentKeys = Object.keys(fromObject);
   var results = [];
@@ -179,7 +191,7 @@ function _getGlobValues(fromObject, key, keys) {
   for (var i = 0; i < currentKeys.length; i++) {
     var currentKey = currentKeys[i];
     if (minimatch(currentKey, key)) {
-      var value = _getValue(fromObject[currentKey], keys[0], keys.slice(1));
+      var value = keys.length ? _getValue(fromObject[currentKey], keys[0], keys.slice(1)) : fromObject[currentKey];
       if (value !== undefined) {
         results.push(value);
       }
