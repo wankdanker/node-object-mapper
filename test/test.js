@@ -1928,7 +1928,7 @@ test('Should correctly map to a subelement of indexed array item.', function (t)
 
 test('Should correctly map to a subelement of indexed array item deep in the object hierarchy.', function (t) {
 
-  const obj = {
+  var obj = {
     policyNumber: "PN1",
     status: "ST1",
     productName: "PN1",
@@ -1975,7 +1975,7 @@ test('Should correctly map to a subelement of indexed array item deep in the obj
 
   };
 
-  const expect = {
+  var expect = {
     policyHeader: [
       {
         policiesList: {
