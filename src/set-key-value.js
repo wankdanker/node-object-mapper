@@ -126,16 +126,43 @@ function _setValue(destinationObject, key, keys, fromValue) {
       if (Array.isArray(fromValue) && _isNextArrayProperty(keys) === false) {
         for (valueIndex = 0; valueIndex < fromValue.length; valueIndex++) {
           value = fromValue[valueIndex];
-          destinationObject[key][arrayIndex + valueIndex] = _setValue(destinationObject[key][arrayIndex + valueIndex], keys[0], keys.slice(1), value);
+          const targetIndex = arrayIndex ? parseInt(arrayIndex) : parseInt(valueIndex);
+          destinationObject[key][targetIndex] = _setValue(destinationObject[key][targetIndex], keys[0], keys.slice(1), value);
         }
       } else {
-        destinationObject[key][arrayIndex] = _setValue(destinationObject[key][arrayIndex], keys[0], keys.slice(1), fromValue);
+        const findFirstIndexWithoutProp = function(keys, array) {
+            for(var i=0;i<array.length;i++) {
+                if(!subElementExists(keys, array[i])) {
+                    return i;
+                }
+            }
+
+            return array.length;
+        };
+
+        const subElementExists = function(keys, objectToCheck) {
+            const keyToCheck = keys[0];
+            const otherKeys = keys.slice(1);
+
+            if (objectToCheck[keyToCheck] && otherKeys.length == 0 ) {
+                return true;
+            } else if (objectToCheck[keyToCheck]) {
+                return subElementExists(otherKeys, objectToCheck[keyToCheck]);
+            }
+
+            return false;
+        };
+
+        const targetIndex = destinationObject[key][arrayIndex] && subElementExists(keys, destinationObject[key][arrayIndex]) ? findFirstIndexWithoutProp(keys, destinationObject[key]) : arrayIndex;
+        destinationObject[key][targetIndex] = _setValue(destinationObject[key][targetIndex], keys[0], keys.slice(1), fromValue);
       }
     } else if (Array.isArray(destinationObject)) {
       if (Array.isArray(fromValue)) {
         for (valueIndex = 0; valueIndex < fromValue.length; valueIndex++) {
           value = fromValue[valueIndex];
-          destinationObject[arrayIndex + valueIndex] = _setValue(destinationObject[arrayIndex + valueIndex], keys[0], keys.slice(1), value);
+          const arrayIndexInt = parseInt(arrayIndex);
+          const valueIndexInt = parseInt(valueIndex);
+          destinationObject[arrayIndexInt + valueIndexInt] = _setValue(destinationObject[arrayIndexInt + valueIndexInt], keys[0], keys.slice(1), value);
         }
       } else {
         destinationObject[arrayIndex] = _setValue(destinationObject[arrayIndex], keys[0], keys.slice(1), fromValue);

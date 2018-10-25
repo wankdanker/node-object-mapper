@@ -1885,3 +1885,223 @@ test('Mapping properties with glob patterns with incomplete path', function (t) 
   t.deepEqual(result, expect);
   t.end();
 });
+
+test('Should correctly map to a subelement of indexed array item.', function (t) {
+  var obj = {
+    "nodes": [
+      {
+        "type": "db",
+        "image": "mongodb"
+      },
+      {
+        "type": "app",
+        "image": "nginx"
+      }
+    ]
+  };
+
+  var expect = {
+    "result": [ {
+      "env": {
+        "nodes": [
+          {
+            "type": "db",
+            "image": "mongodb"
+          },
+          {
+            "type": "app",
+            "image": "nginx"
+          }]
+      }
+    }]
+  };
+  var map = {
+    'nodes[].type': 'result[0].env.nodes[].type',
+    'nodes[].image': 'result[0].env.nodes[].image'
+  };
+
+  var result = om(obj, map);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+
+test('Should correctly map to a subelement of indexed array item deep in the object hierarchy.', function (t) {
+
+  const obj = {
+    policyNumber: "PN1",
+    status: "ST1",
+    productName: "PN1",
+    productVersion: "PV1",
+    productType: "PT1",
+    startDate: "SD1",
+    endDate: "ED1",
+    policyContacts: [
+      {
+        contactType: "CT11",
+        contactId: "CI11"
+      },
+      {
+        contactType: "CT12",
+        contactId: "CI12"
+      }
+    ],
+    currency: "CUR1",
+    covers: [
+      {
+        coverName: "CN11",
+        coverId: "CID11",
+        startDate: "SD11",
+        endDate: "ED11",
+        excess: "EX11",
+        insuredAmount: "IA11",
+        yearlyPremium: "YP11",
+        status: "ST11"
+      }
+    ],
+    riskObjects: [
+      {
+        assetId: "AID11",
+        type: "T11",
+        assetDescription: "AD11",
+        address: {
+          city: "C11",
+          houseNumber: "HN11",
+          country: "CN11",
+          zipCode: "ZC11",
+        }
+      }
+    ]
+
+  };
+
+  const expect = {
+    policyHeader: [
+      {
+        policiesList: {
+          policies: {
+            externalPolicyNr: "PN1",
+            policyLobsList: {
+              policyLobs: {
+                lobRef: {
+                  value: "PT1"
+                },
+                policyLobAssetsList: {
+                  policyLobAssets: [
+                    {
+                      coversList: {
+                        covers: [
+                          {
+                            coverPerilsList: {
+                              coverPerils: [
+                                {
+                                  perilRef: {
+                                    value: "CN11"
+                                  }
+                                }
+                              ]
+                            },
+                            externalNumber: "CID11",
+                            startDate: "SD11",
+                            endDate: "ED11",
+                            excessAmount: "EX11",
+                            insuranceAmount: "IA11",
+                            basicYearlyPremiumAmount: "YP11",
+                            coverStatusRef: {
+                              value: "ST11"
+                            }
+                          }
+                        ]
+                      },
+                      originalLobAssetId: "AID11",
+                      asset: {
+                        assetTypeRef: {
+                          value: "T11"
+                        },
+                        propertyOccupationTypeRef: "AD11",
+                        address: {
+                          cityName: "C11",
+                          houseNr: "HN11",
+                          countryRef: {
+                            value: "CN11"
+                          },
+                          zipCode: "ZC11"
+
+                        }
+
+                      }
+                    }
+                  ]
+
+                }
+              }
+            },
+            policyContactsList: {
+              policyContacts: [
+                {
+                  policyContactRoleRef: {
+                    value: "CT11"
+                  },
+                  contactExtNum: "CI11"
+                },
+                {
+                  policyContactRoleRef: {
+                    value: "CT12"
+                  },
+                  contactExtNum: "CI12"
+                },
+              ]
+            }
+          }
+        },
+        statusCodeRef: {
+          value: "ST1"
+        },
+        productRef: {
+          value: "PN1"
+        },
+        productVersionRef: {
+          value: "PV1"
+        },
+        policyStartDate: "SD1",
+        policyEndDate: "ED1",
+        currencyRef: {
+          value: "CUR1"
+        }
+      }
+    ]
+  };
+
+  var map = {
+    "covers[].coverId": "policyHeader[0].policiesList.policies.policyLobsList.policyLobs.policyLobAssetsList.policyLobAssets[].coversList.covers[].externalNumber",
+    "covers[].coverName": "policyHeader[0].policiesList.policies.policyLobsList.policyLobs.policyLobAssetsList.policyLobAssets[].coversList.covers[].coverPerilsList.coverPerils[0].perilRef.value",
+    "covers[].endDate": "policyHeader[0].policiesList.policies.policyLobsList.policyLobs.policyLobAssetsList.policyLobAssets[].coversList.covers[].endDate",
+    "covers[].excess": "policyHeader[0].policiesList.policies.policyLobsList.policyLobs.policyLobAssetsList.policyLobAssets[].coversList.covers[].excessAmount",
+    "covers[].insuredAmount": "policyHeader[0].policiesList.policies.policyLobsList.policyLobs.policyLobAssetsList.policyLobAssets[].coversList.covers[].insuranceAmount",
+    "covers[].startDate": "policyHeader[0].policiesList.policies.policyLobsList.policyLobs.policyLobAssetsList.policyLobAssets[].coversList.covers[].startDate",
+    "covers[].status": "policyHeader[0].policiesList.policies.policyLobsList.policyLobs.policyLobAssetsList.policyLobAssets[].coversList.covers[].coverStatusRef.value",
+    "covers[].yearlyPremium": "policyHeader[0].policiesList.policies.policyLobsList.policyLobs.policyLobAssetsList.policyLobAssets[].coversList.covers[].basicYearlyPremiumAmount",
+    "currency": "policyHeader[0].currencyRef.value",
+    "endDate": "policyHeader[0].policyEndDate",
+    "policyContacts[].contactId": "policyHeader[0].policiesList.policies.policyContactsList.policyContacts[].contactExtNum",
+    "policyContacts[].contactType": "policyHeader[0].policiesList.policies.policyContactsList.policyContacts[].policyContactRoleRef.value",
+    "policyNumber": "policyHeader[0].policiesList.policies.externalPolicyNr",
+    "productName": "policyHeader[0].productRef.value",
+    "productType": "policyHeader[0].policiesList.policies.policyLobsList.policyLobs.lobRef.value",
+    "productVersion": "policyHeader[0].productVersionRef.value",
+    "riskObjects[].address.city": "policyHeader[0].policiesList.policies.policyLobsList.policyLobs.policyLobAssetsList.policyLobAssets[].asset.address.cityName",
+    "riskObjects[].address.country": "policyHeader[0].policiesList.policies.policyLobsList.policyLobs.policyLobAssetsList.policyLobAssets[].asset.address.countryRef.value",
+    "riskObjects[].address.houseNumber": "policyHeader[0].policiesList.policies.policyLobsList.policyLobs.policyLobAssetsList.policyLobAssets[].asset.address.houseNr",
+    "riskObjects[].address.zipCode": "policyHeader[0].policiesList.policies.policyLobsList.policyLobs.policyLobAssetsList.policyLobAssets[].asset.address.zipCode",
+    "riskObjects[].assetDescription": "policyHeader[0].policiesList.policies.policyLobsList.policyLobs.policyLobAssetsList.policyLobAssets[].asset.propertyOccupationTypeRef",
+    "riskObjects[].assetId": "policyHeader[0].policiesList.policies.policyLobsList.policyLobs.policyLobAssetsList.policyLobAssets[].originalLobAssetId",
+    "riskObjects[].type": "policyHeader[0].policiesList.policies.policyLobsList.policyLobs.policyLobAssetsList.policyLobAssets[].asset.assetTypeRef.value",
+    "startDate": "policyHeader[0].policyStartDate",
+    "status": "policyHeader[0].statusCodeRef.value"
+  };
+
+  var result = om(obj, map);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
