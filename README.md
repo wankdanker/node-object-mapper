@@ -243,7 +243,7 @@ var map = {
   "inventory.onHandQty": "Envelope.Request.Item.Inventory"
 };
 
-var dest = objectMapper(obj, map);
+var dest = objectMapper(src, map);
 
 /*
 {
