@@ -52,10 +52,10 @@ module.exports = SetKeyValue;
 function _setValue(destinationObject, key, keys, fromValue) {
   var regArray = /(\[\]|\[(.*)\])$/g
     , regAppendArray = /(\[\]|\[(.*)\]\+)$/g
-    // , regCanBeNull = /(\?)$/g
+    , regCanBeNull = /(\?)$/g
     , match
     , appendToArray
-    // , canBeNull
+    , canBeNull
     , arrayIndex = 0
     , valueIndex
     , isPropertyArray = false
@@ -63,10 +63,10 @@ function _setValue(destinationObject, key, keys, fromValue) {
     , value
     ;
 
-  // canBeNull = regCanBeNull.test(key);
-  // if(canBeNull){
-  //   key = key.replace(regCanBeNull, '');
-  // }
+  canBeNull = regCanBeNull.test(key);
+  if(false && canBeNull){
+    key = key.replace(regCanBeNull, '');
+  }
 
   match = regArray.exec(key);
   appendToArray = regAppendArray.exec(key);
@@ -101,9 +101,9 @@ function _setValue(destinationObject, key, keys, fromValue) {
     }
   }
   if (keys.length === 0) {
-    // if(!canBeNull && (fromValue === null || fromValue === undefined)){
-    //   return destinationObject;
-    // }
+    if(!canBeNull && (fromValue === null || fromValue === undefined)){
+      return destinationObject;
+    }
     if (isValueArray) {
       if (Array.isArray(destinationObject[key]) === false) {
         destinationObject[key] = [];
