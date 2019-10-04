@@ -4,60 +4,112 @@ var om = require('../')
   , test = require('tape')
   ;
 
-test('get value - simple', function (t) {
-  var key = 'foo';
-
-  var obj = {
-    "foo": "bar"
-  };
-
-  var expect = "bar";
-
-  var result = om.getKeyValue(obj, key);
-
+test('process with simple key', function (t) {
+  var k = 'abc'
+  var expect = ['abc', null]
+  var result = om.process(k)
   t.deepEqual(result, expect);
   t.end();
 });
+test('process with simple empty array key', function (t) {
+  var k = 'abc[]'
+  var expect = ['abc', '']
+  var result = om.process(k)
+  t.deepEqual(result, expect);
+  t.end();
+});
+test('process with no key empty array key', function (t) {
+  var k = '[]'
+  var expect = ['', '']
+  var result = om.process(k)
+  t.deepEqual(result, expect);
+  t.end();
+});
+test('process with nothing', function (t) {
+  var k = ''
+  var expect = ['', null]
+  var result = om.process(k)
+  t.deepEqual(result, expect);
+  t.end();
+});
+test('parse with simple key', function (t) {
+  var k = 'abc'
+  var expect = ['abc']
+  var result = om.parse(k)
+  t.deepEqual(result, expect);
+  t.end();
+});
+test('parse with simple dot notation key', function (t) {
+  var k = 'abc.def'
+  var expect = ['abc','def']
+  var result = om.parse(k)
+  t.deepEqual(result, expect);
+  t.end();
+});
+test('parse with deep dot notation key', function (t) {
+  var k = 'a.b.c.d.e.f.g.h.i.j.k.l.m.n.o.p.q.r.s.t.u.v.w.x.y.z'
+  var expect = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
+  var result = om.parse(k)
+  t.deepEqual(result, expect);
+  t.end();
+});
+test('parse with deep brackets', function (t) {
+  var k = 'abc[].def'
+  var expect = ['abc[]','def']
+  var result = om.parse(k)
+  t.deepEqual(result, expect);
+  t.end();
+});
+test('parse with deep brackets', function (t) {
+  var k = '[].def'
+  var expect = ['[]','def']
+  var result = om.parse(k)
+  t.deepEqual(result, expect);
+  t.end();
+});
+// todo: fix a test with an escaped dot
+// test('parse with a slashed dot', function (t) {
+//   var k = 'abc\.def'
+//   var expect = ['[abc.def']
+//   var result = om.parse(k)
+//   t.deepEqual(result, expect);
+//   t.end();
+// });
+
+
 test('get value - one level deep', function (t) {
-  var key = 'foo.bar';
 
-  var obj = {
-    "foo": {
-      "bar": "baz"
-    }
-  };
+  var obj = { foo: { bar: "baz"} }
+  var map = 'foo.bar'
+  var expect = "baz"
+  var result = om.getKeyValue(obj, map)
 
-  var expect = "baz";
-
-  var result = om.getKeyValue(obj, key);
-
-  t.deepEqual(result, expect);
-  t.end();
+  t.deepEqual(result, expect)
+  t.end()
 });
-test('get value - simple array', function (t) {
-  var key = '[]';
+
+test('get value - starting with simple array', function (t) {
 
   var obj = ["bar"];
-
+  var map = '[]';
   var expect = ["bar"];
-
-  var result = om.getKeyValue(obj, key);
+  var result = om.getKeyValue(obj, map);
 
   t.deepEqual(result, expect);
   t.end();
 });
+
 test('get value - simple array defined index', function (t) {
-  var key = '[1]';
 
-  var obj = ["foo", "bar"];
-
-  var expect = "bar";
-
-  var result = om.getKeyValue(obj, key);
+  var obj = ["foo", "bar"]
+  var map = '[1]'
+  var expect = "bar"
+  var result = om.getKeyValue(obj, map)
 
   t.deepEqual(result, expect);
   t.end();
 });
+
 test('get value - two levels deep', function (t) {
   var key = 'foo.baz.fog';
 
@@ -76,6 +128,7 @@ test('get value - two levels deep', function (t) {
   t.deepEqual(result, expect);
   t.end();
 });
+
 test('get value - one level deep and item is a array', function (t) {
   var key = 'foo.baz[]';
 
@@ -92,6 +145,7 @@ test('get value - one level deep and item is a array', function (t) {
   t.deepEqual(result, expect);
   t.end();
 });
+
 test('get value - one level deep and first item of array', function (t) {
   var key = 'foo.baz[1]';
 
@@ -108,6 +162,7 @@ test('get value - one level deep and first item of array', function (t) {
   t.deepEqual(result, expect);
   t.end();
 });
+
 test('get value - one level deep and array and one level', function (t) {
   var key = 'foo.baz[].fog';
 
@@ -193,21 +248,19 @@ test('get value - one level array', function (t) {
 test('get value - two level deep array', function (t) {
   var key = 'foo[].baz[].fog.baz';
 
-  var obj = {
-    "foo": [{
-      "baz": [{
-        "fog": {
-          "baz": "bar"
-        }
-      }, {
-        "fog": {
-          "baz": "var"
-        }
-      }]
-    }]
+  var obj =
+  { "foo":
+    [
+      { "baz":
+        [
+          { "fog": { "baz": "bar" } },
+          { "fog": { "baz": "var" } }
+        ]
+      }
+    ]
   };
 
-  var expect = ["bar", "var"];
+  var expect = [["bar", "var"]];
 
   var result = om.getKeyValue(obj, key);
 
@@ -235,10 +288,35 @@ test('get value - crazy', function (t) {
   t.end();
 });
 
+test('select with array object where map is not an array 1', function (t) {
+  var obj = { foo: [{bar: 'a'}, {bar: 'b'}, {bar: 'c'}] }
+  var map = 'foo.bar'
+  var expect = 'a'
+  var result = om.getKeyValue(obj, map)
+  t.deepEqual(result, expect)
+  t.end()
+})
+
+test('select with array object where map is not an array 2', function (t) {
+  var obj = { foo: [{bar: 'a'}, {bar: 'b'}, {bar: 'c'}] }
+  var map = 'foo[].bar'
+  var expect = ['a','b','c']
+  var result = om.getKeyValue(obj, map)
+  t.deepEqual(result, expect);
+  t.end();
+});
+test('select with array object where map is not an array 3', function (t) {
+  var obj = { foo: [{bar: 'a'}, {bar: 'b'}, {bar: 'c'}] }
+  var map = 'foo.bar[]'
+  var expect = 'a'
+  var result = om.getKeyValue(obj, map)
+  t.deepEqual(result, expect);
+  t.end();
+});
+
 test('set value - simple', function (t) {
   var key = 'foo';
   var value = 'bar';
-
   var expect = {
     foo: "bar"
   };
@@ -290,12 +368,12 @@ test('set value - simple array with base array', function (t) {
   t.end();
 });
 test('set value - simple array in index 0', function (t) {
-  var key = '[0]';
-  var value = 'bar';
+  var map = '[0]';
+  var data = 'bar';
 
   var expect = ['bar'];
 
-  var result = om.setKeyValue(null, key, value);
+  var result = om.setKeyValue(null, map, data);
 
   t.deepEqual(result, expect);
   t.end();
@@ -313,12 +391,12 @@ test('set value - simple array in index 0 with base array', function (t) {
   t.end();
 });
 test('set value - simple array in index 1', function (t) {
-  var key = '[1]';
-  var value = 'bar';
+  var map = '[1]';
+  var data = 'bar';
 
   var expect = [, 'bar'];
 
-  var result = om.setKeyValue(null, key, value);
+  var result = om.setKeyValue(null, map, data);
 
   t.deepEqual(result, expect);
   t.end();
@@ -1879,6 +1957,734 @@ test('Mapping properties with glob patterns with incomplete path', function (t) 
   var map = {
     'nodes.*': 'types'
   };
+
+  var result = om(obj, map);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+
+test('Mapping multiple levels of array indexes on both the from and to arrays', function (t) {
+  var obj =
+  { '$attributes': { TID: '09a3a2ce-8fcb-469a-82a1-eddd60f160b9' },
+  OTA_VehAvailRateRS:
+   { '$attributes':
+      { schemaLocation: 'http://www.opentravel.org/OTA/2008/05 OTA_VehAvailRateRS',
+        Target: 'Production',
+        Version: '1.0',
+        SequenceNmbr: '0' },
+     Success: undefined,
+     VehAvailRSCore:
+      { VehRentalCore:
+         { '$attributes':
+            { PickUpDateTime: '2019-10-06T23:42:00',
+              ReturnDateTime: '2019-10-13T23:42:00' },
+           PickUpLocation:
+            { '$attributes': { LocationCode: 'JFK', CodeContext: 'IATA' } },
+           ReturnLocation:
+            { '$attributes': { LocationCode: 'JFK', CodeContext: 'IATA' } } },
+        VehVendorAvails:
+         { VehVendorAvail:
+            { Vendor: 'Avis',
+              VehAvails:
+               { VehAvail:
+                  [ { VehAvailCore:
+                       { '$attributes': { Status: 'Available' },
+                         Vehicle:
+                          { '$attributes': { AirConditionInd: 'true', TransmissionType: 'Automatic' },
+                            VehType: { '$attributes': { VehicleCategory: '1' } },
+                            VehClass: { '$attributes': { Size: '10' } },
+                            VehMakeModel:
+                             { '$attributes':
+                                { Name: 'Group G - Chevrolet Impala or similar', Code: 'PCAR' } },
+                            PictureURL: '2019-chevrolet-impala-1lt-sedan-grey.png' },
+                         RentalRate:
+                          { RateDistance:
+                             { '$attributes':
+                                { Unlimited: 'true',
+                                  DistUnitName: 'Mile',
+                                  VehiclePeriodUnitName: 'RentalPeriod' } },
+                            VehicleCharges:
+                             { VehicleCharge:
+                                { '$attributes':
+                                   { TaxInclusive: 'false',
+                                     Description: 'Vehicle Rental',
+                                     GuaranteedInd: 'false',
+                                     IncludedInRate: 'true',
+                                     Amount: '439.00',
+                                     CurrencyCode: 'USD',
+                                     Purpose: '1' },
+                                  TaxAmounts:
+                                   { TaxAmount:
+                                      { '$attributes':
+                                         { Total: '296.87',
+                                           CurrencyCode: 'USD',
+                                           Description: 'Taxes and surcharges' } } } } },
+                            RateQualifier:
+                             { '$attributes': { RateCategory: '3', RateQualifier: '2K' } } },
+                         TotalCharge:
+                          { '$attributes':
+                             { RateTotalAmount: '439.00',
+                               EstimatedTotalAmount: '735.87',
+                               CurrencyCode: 'USD' } },
+                         TPA_Extensions:
+                          { Reference: { '$attributes': { Type: 'OrderByIndex', ID: '1' } } } } },
+                    { VehAvailCore:
+                       { '$attributes': { Status: 'Available' },
+                         Vehicle:
+                          { '$attributes': { AirConditionInd: 'true', TransmissionType: 'Automatic' },
+                            VehType: { '$attributes': { VehicleCategory: '1' } },
+                            VehClass: { '$attributes': { Size: '8' } },
+                            VehMakeModel:
+                             { '$attributes': { Name: 'Group E - Ford Fusion or similar', Code: 'FCAR' } },
+                            PictureURL: '2019-ford-fusion-se-sedan-silver.png' },
+                         RentalRate:
+                          { RateDistance:
+                             { '$attributes':
+                                { Unlimited: 'true',
+                                  DistUnitName: 'Mile',
+                                  VehiclePeriodUnitName: 'RentalPeriod' } },
+                            VehicleCharges:
+                             { VehicleCharge:
+                                { '$attributes':
+                                   { TaxInclusive: 'false',
+                                     Description: 'Vehicle Rental',
+                                     GuaranteedInd: 'false',
+                                     IncludedInRate: 'true',
+                                     Amount: '649.00',
+                                     CurrencyCode: 'USD',
+                                     Purpose: '1' },
+                                  TaxAmounts:
+                                   { TaxAmount:
+                                      { '$attributes':
+                                         { Total: '366.57',
+                                           CurrencyCode: 'USD',
+                                           Description: 'Taxes and surcharges' } } } } },
+                            RateQualifier:
+                             { '$attributes': { RateCategory: '3', RateQualifier: '2K' } } },
+                         TotalCharge:
+                          { '$attributes':
+                             { RateTotalAmount: '649.00',
+                               EstimatedTotalAmount: '1015.57',
+                               CurrencyCode: 'USD' } },
+                         TPA_Extensions:
+                          { Reference: { '$attributes': { Type: 'OrderByIndex', ID: '3' } } } } },
+                    { VehAvailCore:
+                       { '$attributes': { Status: 'Available' },
+                         Vehicle:
+                          { '$attributes': { AirConditionInd: 'true', TransmissionType: 'Automatic' },
+                            VehType: { '$attributes': { VehicleCategory: '1' } },
+                            VehClass: { '$attributes': { Size: '6' } },
+                            VehMakeModel:
+                             { '$attributes':
+                                { Name: 'Group C - Toyota Corolla or similar', Code: 'ICAR' } },
+                            PictureURL: '2020-toyota-corolla-le-sedan-grey.png' },
+                         RentalRate:
+                          { RateDistance:
+                             { '$attributes':
+                                { Unlimited: 'true',
+                                  DistUnitName: 'Mile',
+                                  VehiclePeriodUnitName: 'RentalPeriod' } },
+                            VehicleCharges:
+                             { VehicleCharge:
+                                { '$attributes':
+                                   { TaxInclusive: 'false',
+                                     Description: 'Vehicle Rental',
+                                     GuaranteedInd: 'false',
+                                     IncludedInRate: 'true',
+                                     Amount: '527.00',
+                                     CurrencyCode: 'USD',
+                                     Purpose: '1' },
+                                  TaxAmounts:
+                                   { TaxAmount:
+                                      { '$attributes':
+                                         { Total: '326.08',
+                                           CurrencyCode: 'USD',
+                                           Description: 'Taxes and surcharges' } } } } },
+                            RateQualifier:
+                             { '$attributes': { RateCategory: '3', RateQualifier: '76' } } },
+                         TotalCharge:
+                          { '$attributes':
+                             { RateTotalAmount: '527.00',
+                               EstimatedTotalAmount: '853.08',
+                               CurrencyCode: 'USD' } },
+                         TPA_Extensions:
+                          { Reference: { '$attributes': { Type: 'OrderByIndex', ID: '5' } } } } },
+                    { VehAvailCore:
+                       { '$attributes': { Status: 'Available' },
+                         Vehicle:
+                          { '$attributes': { AirConditionInd: 'true', TransmissionType: 'Automatic' },
+                            VehType: { '$attributes': { VehicleCategory: '1' } },
+                            VehClass: { '$attributes': { Size: '7' } },
+                            VehMakeModel:
+                             { '$attributes':
+                                { Name: 'Group D - Volkswagen Jetta or similar', Code: 'SCAR' } },
+                            PictureURL: '2019-volkswagen-jetta-s-sedan-grey.png' },
+                         RentalRate:
+                          { RateDistance:
+                             { '$attributes':
+                                { Unlimited: 'true',
+                                  DistUnitName: 'Mile',
+                                  VehiclePeriodUnitName: 'RentalPeriod' } },
+                            VehicleCharges:
+                             { VehicleCharge:
+                                { '$attributes':
+                                   { TaxInclusive: 'false',
+                                     Description: 'Vehicle Rental',
+                                     GuaranteedInd: 'false',
+                                     IncludedInRate: 'true',
+                                     Amount: '606.00',
+                                     CurrencyCode: 'USD',
+                                     Purpose: '1' },
+                                  TaxAmounts:
+                                   { TaxAmount:
+                                      { '$attributes':
+                                         { Total: '352.31',
+                                           CurrencyCode: 'USD',
+                                           Description: 'Taxes and surcharges' } } } } },
+                            RateQualifier:
+                             { '$attributes': { RateCategory: '3', RateQualifier: '76' } } },
+                         TotalCharge:
+                          { '$attributes':
+                             { RateTotalAmount: '606.00',
+                               EstimatedTotalAmount: '958.31',
+                               CurrencyCode: 'USD' } },
+                         TPA_Extensions:
+                          { Reference: { '$attributes': { Type: 'OrderByIndex', ID: '7' } } } } },
+                    { VehAvailCore:
+                       { '$attributes': { Status: 'Available' },
+                         Vehicle:
+                          { '$attributes': { AirConditionInd: 'true', TransmissionType: 'Automatic' },
+                            VehType: { '$attributes': { VehicleCategory: '1' } },
+                            VehClass: { '$attributes': { Size: '4' } },
+                            VehMakeModel:
+                             { '$attributes': { Name: 'Group B - Ford Focus or similar', Code: 'CCAR' } },
+                            PictureURL: '2019-ford-focus-se-sedan-black.png' },
+                         RentalRate:
+                          { RateDistance:
+                             { '$attributes':
+                                { Unlimited: 'true',
+                                  DistUnitName: 'Mile',
+                                  VehiclePeriodUnitName: 'RentalPeriod' } },
+                            VehicleCharges:
+                             { VehicleCharge:
+                                { '$attributes':
+                                   { TaxInclusive: 'false',
+                                     Description: 'Vehicle Rental',
+                                     GuaranteedInd: 'false',
+                                     IncludedInRate: 'true',
+                                     Amount: '599.00',
+                                     CurrencyCode: 'USD',
+                                     Purpose: '1' },
+                                  TaxAmounts:
+                                   { TaxAmount:
+                                      { '$attributes':
+                                         { Total: '349.98',
+                                           CurrencyCode: 'USD',
+                                           Description: 'Taxes and surcharges' } } } } },
+                            RateQualifier:
+                             { '$attributes': { RateCategory: '3', RateQualifier: '2K' } } },
+                         TotalCharge:
+                          { '$attributes':
+                             { RateTotalAmount: '599.00',
+                               EstimatedTotalAmount: '948.98',
+                               CurrencyCode: 'USD' } },
+                         TPA_Extensions:
+                          { Reference: { '$attributes': { Type: 'OrderByIndex', ID: '9' } } } } },
+                    { VehAvailCore:
+                       { '$attributes': { Status: 'Available' },
+                         Vehicle:
+                          { '$attributes': { AirConditionInd: 'true', TransmissionType: 'Automatic' },
+                            VehType: { '$attributes': { VehicleCategory: '3' } },
+                            VehClass: { '$attributes': { Size: '37' } },
+                            VehMakeModel:
+                             { '$attributes':
+                                { Name: 'Group S - Ford Explorer AWD or similar', Code: 'RFAR' } },
+                            PictureURL: '2019-ford-explorer-sport-suv-black.png' },
+                         RentalRate:
+                          { RateDistance:
+                             { '$attributes':
+                                { Unlimited: 'true',
+                                  DistUnitName: 'Mile',
+                                  VehiclePeriodUnitName: 'RentalPeriod' } },
+                            VehicleCharges:
+                             { VehicleCharge:
+                                { '$attributes':
+                                   { TaxInclusive: 'false',
+                                     Description: 'Vehicle Rental',
+                                     GuaranteedInd: 'false',
+                                     IncludedInRate: 'true',
+                                     Amount: '522.00',
+                                     CurrencyCode: 'USD',
+                                     Purpose: '1' },
+                                  TaxAmounts:
+                                   { TaxAmount:
+                                      { '$attributes':
+                                         { Total: '324.41',
+                                           CurrencyCode: 'USD',
+                                           Description: 'Taxes and surcharges' } } } } },
+                            RateQualifier:
+                             { '$attributes': { RateCategory: '3', RateQualifier: '2K' } } },
+                         TotalCharge:
+                          { '$attributes':
+                             { RateTotalAmount: '522.00',
+                               EstimatedTotalAmount: '846.41',
+                               CurrencyCode: 'USD' } },
+                         TPA_Extensions:
+                          { Reference: { '$attributes': { Type: 'OrderByIndex', ID: '11' } } } } },
+                    { VehAvailCore:
+                       { '$attributes': { Status: 'Available' },
+                         Vehicle:
+                          { '$attributes': { AirConditionInd: 'true', TransmissionType: 'Automatic' },
+                            VehType: { '$attributes': { VehicleCategory: '2' } },
+                            VehClass: { '$attributes': { Size: '8' } },
+                            VehMakeModel:
+                             { '$attributes':
+                                { Name: 'Group P - Ford Transit 12 Passenger or similar',
+                                  Code: 'FVAR' } },
+                            PictureURL: '2017-ford-transit-150-xlt-low-roof-passenger-van-white.png' },
+                         RentalRate:
+                          { RateDistance:
+                             { '$attributes':
+                                { Unlimited: 'true',
+                                  DistUnitName: 'Mile',
+                                  VehiclePeriodUnitName: 'RentalPeriod' } },
+                            VehicleCharges:
+                             { VehicleCharge:
+                                { '$attributes':
+                                   { TaxInclusive: 'false',
+                                     Description: 'Vehicle Rental',
+                                     GuaranteedInd: 'false',
+                                     IncludedInRate: 'true',
+                                     Amount: '1575.00',
+                                     CurrencyCode: 'USD',
+                                     Purpose: '1' },
+                                  TaxAmounts:
+                                   { TaxAmount:
+                                      { '$attributes':
+                                         { Total: '673.94',
+                                           CurrencyCode: 'USD',
+                                           Description: 'Taxes and surcharges' } } } } },
+                            RateQualifier:
+                             { '$attributes': { RateCategory: '3', RateQualifier: '2K' } } },
+                         TotalCharge:
+                          { '$attributes':
+                             { RateTotalAmount: '1575.00',
+                               EstimatedTotalAmount: '2248.94',
+                               CurrencyCode: 'USD' } },
+                         TPA_Extensions:
+                          { Reference: { '$attributes': { Type: 'OrderByIndex', ID: '13' } } } } },
+                    { VehAvailCore:
+                       { '$attributes': { Status: 'Available' },
+                         Vehicle:
+                          { '$attributes': { AirConditionInd: 'true', TransmissionType: 'Automatic' },
+                            VehType: { '$attributes': { VehicleCategory: '1' } },
+                            VehClass: { '$attributes': { Size: '9' } },
+                            VehMakeModel:
+                             { '$attributes': { Name: 'Group H - Chrysler 300 or similar', Code: 'LCAR' } },
+                            PictureURL: '2019-chrysler-300-limited-sedan-black.png' },
+                         RentalRate:
+                          { RateDistance:
+                             { '$attributes':
+                                { Unlimited: 'true',
+                                  DistUnitName: 'Mile',
+                                  VehiclePeriodUnitName: 'RentalPeriod' } },
+                            VehicleCharges:
+                             { VehicleCharge:
+                                { '$attributes':
+                                   { TaxInclusive: 'false',
+                                     Description: 'Vehicle Rental',
+                                     GuaranteedInd: 'false',
+                                     IncludedInRate: 'true',
+                                     Amount: '400.00',
+                                     CurrencyCode: 'USD',
+                                     Purpose: '1' },
+                                  TaxAmounts:
+                                   { TaxAmount:
+                                      { '$attributes':
+                                         { Total: '283.92',
+                                           CurrencyCode: 'USD',
+                                           Description: 'Taxes and surcharges' } } } } },
+                            RateQualifier:
+                             { '$attributes': { RateCategory: '3', RateQualifier: '76' } } },
+                         TotalCharge:
+                          { '$attributes':
+                             { RateTotalAmount: '400.00',
+                               EstimatedTotalAmount: '683.92',
+                               CurrencyCode: 'USD' } },
+                         TPA_Extensions:
+                          { Reference: { '$attributes': { Type: 'OrderByIndex', ID: '15' } } } } },
+                    { VehAvailCore:
+                       { '$attributes': { Status: 'Available' },
+                         Vehicle:
+                          { '$attributes': { AirConditionInd: 'true', TransmissionType: 'Automatic' },
+                            VehType: { '$attributes': { VehicleCategory: '3' } },
+                            VehClass: { '$attributes': { Size: '10' } },
+                            VehMakeModel:
+                             { '$attributes':
+                                { Name: 'Group L - Chevrolet Suburban or similar',
+                                  Code: 'PFAR' } },
+                            PictureURL: '2019-chevrolet-suburban-1500-ls-suv-black.png' },
+                         RentalRate:
+                          { RateDistance:
+                             { '$attributes':
+                                { Unlimited: 'true',
+                                  DistUnitName: 'Mile',
+                                  VehiclePeriodUnitName: 'RentalPeriod' } },
+                            VehicleCharges:
+                             { VehicleCharge:
+                                { '$attributes':
+                                   { TaxInclusive: 'false',
+                                     Description: 'Vehicle Rental',
+                                     GuaranteedInd: 'false',
+                                     IncludedInRate: 'true',
+                                     Amount: '720.00',
+                                     CurrencyCode: 'USD',
+                                     Purpose: '1' },
+                                  TaxAmounts:
+                                   { TaxAmount:
+                                      { '$attributes':
+                                         { Total: '390.14',
+                                           CurrencyCode: 'USD',
+                                           Description: 'Taxes and surcharges' } } } } },
+                            RateQualifier:
+                             { '$attributes': { RateCategory: '3', RateQualifier: '2K' } } },
+                         TotalCharge:
+                          { '$attributes':
+                             { RateTotalAmount: '720.00',
+                               EstimatedTotalAmount: '1110.14',
+                               CurrencyCode: 'USD' } },
+                         TPA_Extensions:
+                          { Reference: { '$attributes': { Type: 'OrderByIndex', ID: '17' } } } } },
+                    { VehAvailCore:
+                       { '$attributes': { Status: 'Available' },
+                         Vehicle:
+                          { '$attributes': { AirConditionInd: 'true', TransmissionType: 'Automatic' },
+                            VehType: { '$attributes': { VehicleCategory: '4' } },
+                            VehClass: { '$attributes': { Size: '7' } },
+                            VehMakeModel:
+                             { '$attributes':
+                                { Name: 'Group K - Ford Mustang Convertible or similar',
+                                  Code: 'STAR' } },
+                            PictureURL: '2019-ford-mustang-ecoboost-convertible-black.png' },
+                         RentalRate:
+                          { RateDistance:
+                             { '$attributes':
+                                { Unlimited: 'true',
+                                  DistUnitName: 'Mile',
+                                  VehiclePeriodUnitName: 'RentalPeriod' } },
+                            VehicleCharges:
+                             { VehicleCharge:
+                                { '$attributes':
+                                   { TaxInclusive: 'false',
+                                     Description: 'Vehicle Rental',
+                                     GuaranteedInd: 'false',
+                                     IncludedInRate: 'true',
+                                     Amount: '700.00',
+                                     CurrencyCode: 'USD',
+                                     Purpose: '1' },
+                                  TaxAmounts:
+                                   { TaxAmount:
+                                      { '$attributes':
+                                         { Total: '383.50',
+                                           CurrencyCode: 'USD',
+                                           Description: 'Taxes and surcharges' } } } } },
+                            RateQualifier:
+                             { '$attributes': { RateCategory: '3', RateQualifier: '76' } } },
+                         TotalCharge:
+                          { '$attributes':
+                             { RateTotalAmount: '700.00',
+                               EstimatedTotalAmount: '1083.50',
+                               CurrencyCode: 'USD' } },
+                         TPA_Extensions:
+                          { Reference: { '$attributes': { Type: 'OrderByIndex', ID: '19' } } } } },
+                    { VehAvailCore:
+                       { '$attributes': { Status: 'Available' },
+                         Vehicle:
+                          { '$attributes': { AirConditionInd: 'true', TransmissionType: 'Automatic' },
+                            VehType: { '$attributes': { VehicleCategory: '3' } },
+                            VehClass: { '$attributes': { Size: '7' } },
+                            VehMakeModel:
+                             { '$attributes': { Name: 'Group W - Ford Edge or similar', Code: 'SFAR' } },
+                            PictureURL: '2019-ford-edge-titanium-suv-grey.png' },
+                         RentalRate:
+                          { RateDistance:
+                             { '$attributes':
+                                { Unlimited: 'true',
+                                  DistUnitName: 'Mile',
+                                  VehiclePeriodUnitName: 'RentalPeriod' } },
+                            VehicleCharges:
+                             { VehicleCharge:
+                                { '$attributes':
+                                   { TaxInclusive: 'false',
+                                     Description: 'Vehicle Rental',
+                                     GuaranteedInd: 'false',
+                                     IncludedInRate: 'true',
+                                     Amount: '492.00',
+                                     CurrencyCode: 'USD',
+                                     Purpose: '1' },
+                                  TaxAmounts:
+                                   { TaxAmount:
+                                      { '$attributes':
+                                         { Total: '314.46',
+                                           CurrencyCode: 'USD',
+                                           Description: 'Taxes and surcharges' } } } } },
+                            RateQualifier:
+                             { '$attributes': { RateCategory: '3', RateQualifier: '76' } } },
+                         TotalCharge:
+                          { '$attributes':
+                             { RateTotalAmount: '492.00',
+                               EstimatedTotalAmount: '806.46',
+                               CurrencyCode: 'USD' } },
+                         TPA_Extensions:
+                          { Reference: { '$attributes': { Type: 'OrderByIndex', ID: '21' } } } } },
+                    { VehAvailCore:
+                       { '$attributes': { Status: 'Available' },
+                         Vehicle:
+                          { '$attributes': { AirConditionInd: 'true', TransmissionType: 'Automatic' },
+                            VehType: { '$attributes': { VehicleCategory: '2' } },
+                            VehClass: { '$attributes': { Size: '1' } },
+                            VehMakeModel:
+                             { '$attributes':
+                                { Name: 'Group V - Chrysler Pacifica or similar', Code: 'MVAR' } },
+                            PictureURL: '2019-chrysler-pacifica-lx-minivan-silver.png' },
+                         RentalRate:
+                          { RateDistance:
+                             { '$attributes':
+                                { Unlimited: 'true',
+                                  DistUnitName: 'Mile',
+                                  VehiclePeriodUnitName: 'RentalPeriod' } },
+                            VehicleCharges:
+                             { VehicleCharge:
+                                { '$attributes':
+                                   { TaxInclusive: 'false',
+                                     Description: 'Vehicle Rental',
+                                     GuaranteedInd: 'false',
+                                     IncludedInRate: 'true',
+                                     Amount: '654.00',
+                                     CurrencyCode: 'USD',
+                                     Purpose: '1' },
+                                  TaxAmounts:
+                                   { TaxAmount:
+                                      { '$attributes':
+                                         { Total: '368.24',
+                                           CurrencyCode: 'USD',
+                                           Description: 'Taxes and surcharges' } } } } },
+                            RateQualifier:
+                             { '$attributes': { RateCategory: '3', RateQualifier: '2K' } } },
+                         TotalCharge:
+                          { '$attributes':
+                             { RateTotalAmount: '654.00',
+                               EstimatedTotalAmount: '1022.24',
+                               CurrencyCode: 'USD' } },
+                         TPA_Extensions:
+                          { Reference: { '$attributes': { Type: 'OrderByIndex', ID: '23' } } } } },
+                    { VehAvailCore:
+                       { '$attributes': { Status: 'Available' },
+                         Vehicle:
+                          { '$attributes': { AirConditionInd: 'true', TransmissionType: 'Automatic' },
+                            VehType: { '$attributes': { VehicleCategory: '3' } },
+                            VehClass: { '$attributes': { Size: '6' } },
+                            VehMakeModel:
+                             { '$attributes': { Name: 'Group F - Ford Escape or similar', Code: 'IFAR' } },
+                            PictureURL: '2017-ford-escape-se-suv-white.png' },
+                         RentalRate:
+                          { RateDistance:
+                             { '$attributes':
+                                { Unlimited: 'true',
+                                  DistUnitName: 'Mile',
+                                  VehiclePeriodUnitName: 'RentalPeriod' } },
+                            VehicleCharges:
+                             { VehicleCharge:
+                                { '$attributes':
+                                   { TaxInclusive: 'false',
+                                     Description: 'Vehicle Rental',
+                                     GuaranteedInd: 'false',
+                                     IncludedInRate: 'true',
+                                     Amount: '607.00',
+                                     CurrencyCode: 'USD',
+                                     Purpose: '1' },
+                                  TaxAmounts:
+                                   { TaxAmount:
+                                      { '$attributes':
+                                         { Total: '352.64',
+                                           CurrencyCode: 'USD',
+                                           Description: 'Taxes and surcharges' } } } } },
+                            RateQualifier:
+                             { '$attributes': { RateCategory: '3', RateQualifier: '76' } } },
+                         TotalCharge:
+                          { '$attributes':
+                             { RateTotalAmount: '607.00',
+                               EstimatedTotalAmount: '959.64',
+                               CurrencyCode: 'USD' } },
+                         TPA_Extensions:
+                          { Reference: { '$attributes': { Type: 'OrderByIndex', ID: '25' } } } } },
+                    { VehAvailCore:
+                       { '$attributes': { Status: 'Available' },
+                         Vehicle:
+                          { '$attributes': { AirConditionInd: 'true', TransmissionType: 'Automatic' },
+                            VehType: { '$attributes': { VehicleCategory: '3' } },
+                            VehClass: { '$attributes': { Size: '8' } },
+                            VehMakeModel:
+                             { '$attributes':
+                                { Name: 'Group Z - Chevrolet Tahoe or similar', Code: 'FFAR' } },
+                            PictureURL: '2019-chevrolet-tahoe-lt-suv-black.png' },
+                         RentalRate:
+                          { RateDistance:
+                             { '$attributes':
+                                { Unlimited: 'true',
+                                  DistUnitName: 'Mile',
+                                  VehiclePeriodUnitName: 'RentalPeriod' } },
+                            VehicleCharges:
+                             { VehicleCharge:
+                                { '$attributes':
+                                   { TaxInclusive: 'false',
+                                     Description: 'Vehicle Rental',
+                                     GuaranteedInd: 'false',
+                                     IncludedInRate: 'true',
+                                     Amount: '654.00',
+                                     CurrencyCode: 'USD',
+                                     Purpose: '1' },
+                                  TaxAmounts:
+                                   { TaxAmount:
+                                      { '$attributes':
+                                         { Total: '368.24',
+                                           CurrencyCode: 'USD',
+                                           Description: 'Taxes and surcharges' } } } } },
+                            RateQualifier:
+                             { '$attributes': { RateCategory: '3', RateQualifier: '76' } } },
+                         TotalCharge:
+                          { '$attributes':
+                             { RateTotalAmount: '654.00',
+                               EstimatedTotalAmount: '1022.24',
+                               CurrencyCode: 'USD' } },
+                         TPA_Extensions:
+                          { Reference: { '$attributes': { Type: 'OrderByIndex', ID: '27' } } } } } ] },
+              Info:
+               { LocationDetails:
+                  { '$attributes':
+                     { AtAirport: 'true',
+                       Code: 'JFK',
+                       Name: 'John F Kennedy Intl Airport',
+                       CodeContext: 'Rental Location',
+                       ExtendedLocationCode: 'JFKT01' },
+                    Address:
+                     { StreetNmbr: '305 Federal Circle',
+                       CityName: 'Jamaica',
+                       PostalCode: '11430',
+                       StateProv: { '$attributes': { StateCode: 'NY' }, '$value': 'New York' },
+                       CountryName: { '$attributes': { Code: 'US' }, '$value': 'U S A' } },
+                    Telephone: { '$attributes': { PhoneNumber: '(1) 718-244-5400' } } } } } } } } }
+var expect =
+{ items:
+    [
+        { subitems:
+            [
+                { subkey: 'item 1 id a' },
+                { subkey: 'item 1 id b' },
+            ]
+        },
+        { subitems:
+            [
+                { subkey: 'item 2 id a' },
+                { subkey: 'item 2 id b' },
+            ]
+        }
+    ]
+}
+var map = {
+  '$attributes.TID': 'tid',
+  'OTA_VehAvailRateRS.$attributes.EchoToken': 'echo_token',
+  'OTA_VehAvailRateRS.$attributes.TimeStamp': 'timestamp',
+  'OTA_VehAvailRateRS.$attributes.Target': 'target',
+  'OTA_VehAvailRateRS.$attributes.Version': 'version',
+  'OTA_VehAvailRateRS.$attributes.SequenceNmbr': 'sequence_number',
+  'OTA_VehAvailRateRS.Success': 'success',
+  'OTA_VehAvailRateRS.Warnings.Warning.Language': 'warning_language',
+  'OTA_VehAvailRateRS.Warnings.Warning.Type': 'warning_type',
+  'OTA_VehAvailRateRS.Warnings.Warning.RecordID': 'warning_id',
+  'OTA_VehAvailRateRS.VehAvailRSCore.VehRentalCore.$attributes.PickUpDateTime': 'pickup_datetime',
+  'OTA_VehAvailRateRS.VehAvailRSCore.VehRentalCore.$attributes.ReturnDateTime': 'return_datetime',
+  'OTA_VehAvailRateRS.VehAvailRSCore.VehRentalCore.PickUpLocation.$attributes.LocationCode': 'pickup_location',
+  // 'OTA_VehAvailRateRS.VehAvailRSCore.VehRentalCore.PickUpLocation.$attributes.CodeContext': 'pickup_location_context',
+  'OTA_VehAvailRateRS.VehAvailRSCore.VehRentalCore.ReturnLocation.$attributes.LocationCode': 'return_location',
+  // 'OTA_VehAvailRateRS.VehAvailRSCore.VehRentalCore.ReturnLocation.$attributes.CodeContext': 'return_location_context',
+  'OTA_VehAvailRateRS.VehAvailRSCore.VehVendorAvails.VehVendorAvail[].Vendor': 'vendor',
+  'OTA_VehAvailRateRS.VehAvailRSCore.VehVendorAvails.VehVendorAvail[].VehAvails.VehAvail[].VehAvailCore.Status': 'vehicles[].status', // 0 (Available), 2 (On Request)
+  'OTA_VehAvailRateRS.VehAvailRSCore.VehVendorAvails.VehVendorAvail[].VehAvails.VehAvail[].VehAvailCore.Vehicle.VehType.$attributes.VehicleCategory': 'vehicles[].type',
+  'OTA_VehAvailRateRS.VehAvailRSCore.VehVendorAvails.VehVendorAvail[].VehAvails.VehAvail[].VehAvailCore.Vehicle.$attributes.AirConditionInd': 'vehicles[].aircon',
+  'OTA_VehAvailRateRS.VehAvailRSCore.VehVendorAvails.VehVendorAvail[].VehAvails.VehAvail[].VehAvailCore.Vehicle.$attributes.TransmissionType': 'vehicles[].transmission',
+  'OTA_VehAvailRateRS.VehAvailRSCore.VehVendorAvails.VehVendorAvail[].VehAvails.VehAvail[].VehAvailCore.Vehicle.VehType.$attributes.VehicleCategory': 'vehicles[].type',
+  'OTA_VehAvailRateRS.VehAvailRSCore.VehVendorAvails.VehVendorAvail[].VehAvails.VehAvail[].VehAvailCore.Vehicle.VehType.$attributes.DoorCount': 'vehicles[].door_count',
+  'OTA_VehAvailRateRS.VehAvailRSCore.VehVendorAvails.VehVendorAvail[].VehAvails.VehAvail[].VehAvailCore.Vehicle.VehClass.$attributes.Size': 'vehicles[].class',
+  'OTA_VehAvailRateRS.VehAvailRSCore.VehVendorAvails.VehVendorAvail[].VehAvails.VehAvail[].VehAvailCore.Vehicle.VehGroup.$attributes.GroupType': 'vehicles[].group_type',
+  'OTA_VehAvailRateRS.VehAvailRSCore.VehVendorAvails.VehVendorAvail[].VehAvails.VehAvail[].VehAvailCore.Vehicle.VehGroup.$attributes.GroupValue': 'vehicles[].group',
+  'OTA_VehAvailRateRS.VehAvailRSCore.VehVendorAvails.VehVendorAvail[].VehAvails.VehAvail[].VehAvailCore.Vehicle.VehMakeModel.$attributes.Name': 'vehicles[].make_model',
+  'OTA_VehAvailRateRS.VehAvailRSCore.VehVendorAvails.VehVendorAvail[].VehAvails.VehAvail[].VehAvailCore.Vehicle.VehMakeModel.$attributes.Code': 'vehicles[].make_model_code',
+  'OTA_VehAvailRateRS.VehAvailRSCore.VehVendorAvails.VehVendorAvail[].VehAvails.VehAvail[].VehAvailCore.Vehicle.PictureURL': 'vehicles[].picture_url',
+  'OTA_VehAvailRateRS.VehAvailRSCore.VehVendorAvails.VehVendorAvail[].VehAvails.VehAvail[].VehAvailCore.RentalRate.RateDistance.$attributes.Unlimited': 'vehicles[].rate_distance_unlimited',
+  'OTA_VehAvailRateRS.VehAvailRSCore.VehVendorAvails.VehVendorAvail[].VehAvails.VehAvail[].VehAvailCore.RentalRate.RateDistance.$attributes.Quantity': 'vehicles[].rate_distance_quantity',
+  'OTA_VehAvailRateRS.VehAvailRSCore.VehVendorAvails.VehVendorAvail[].VehAvails.VehAvail[].VehAvailCore.RentalRate.RateDistance.$attributes.DistUnitName': 'vehicles[].rate_distance_units', // Km or Mile
+  'OTA_VehAvailRateRS.VehAvailRSCore.VehVendorAvails.VehVendorAvail[].VehAvails.VehAvail[].VehAvailCore.RentalRate.RateDistance.$attributes.VehiclePeriodUnitName': 'vehicles[].rate_distance_period', // Rental Period, Day, Hour
+  'OTA_VehAvailRateRS.VehAvailRSCore.VehVendorAvails.VehVendorAvail[].VehAvails.VehAvail[].VehAvailCore.RentalRate.VehicleCharges.VehicleCharge[].$attributes.Amount': 'vehicles[].rate_amount',
+  'OTA_VehAvailRateRS.VehAvailRSCore.VehVendorAvails.VehVendorAvail[].VehAvails.VehAvail[].VehAvailCore.RentalRate.VehicleCharges.VehicleCharge[].$attributes.CurrencyCode': 'vehicles[].rate_currency_code',
+  'OTA_VehAvailRateRS.VehAvailRSCore.VehVendorAvails.VehVendorAvail[].VehAvails.VehAvail[].VehAvailCore.RentalRate.VehicleCharges.VehicleCharge[].$attributes.TaxInclusive': 'vehicles[].rate_tax_inclusive',
+  'OTA_VehAvailRateRS.VehAvailRSCore.VehVendorAvails.VehVendorAvail[].VehAvails.VehAvail[].VehAvailCore.RentalRate.VehicleCharges.VehicleCharge[].$attributes.amount_description': 'vehicles[].rate_description',
+  'OTA_VehAvailRateRS.VehAvailRSCore.VehVendorAvails.VehVendorAvail[].VehAvails.VehAvail[].VehAvailCore.RentalRate.VehicleCharges.VehicleCharge[].$attributes.GuaranteedInd': 'vehicles[].rate_guaranteed_ind',
+  'OTA_VehAvailRateRS.VehAvailRSCore.VehVendorAvails.VehVendorAvail[].VehAvails.VehAvail[].VehAvailCore.RentalRate.VehicleCharges.VehicleCharge[].$attributes.IncludedInRate': 'vehicles[].rate_included_in_rate',
+  'OTA_VehAvailRateRS.VehAvailRSCore.VehVendorAvails.VehVendorAvail[].VehAvails.VehAvail[].VehAvailCore.RentalRate.VehicleCharges.VehicleCharge[].$attributes.Purpose': 'vehicles[].rate_purpose', // 1 (Vehicle rental), 2 (One way fee), 5 (Upgrade), 5 (Airport/City/Other Surcharge), 5 (Airport Concession Fee), ...
+  'OTA_VehAvailRateRS.VehAvailRSCore.VehVendorAvails.VehVendorAvail[].VehAvails.VehAvail[].VehAvailCore.RentalRate.VehicleCharges.VehicleCharge[].TaxAmounts.TaxAmount.$attributes.Total': 'vehicles[].tax_amount',
+  'OTA_VehAvailRateRS.VehAvailRSCore.VehVendorAvails.VehVendorAvail[].VehAvails.VehAvail[].VehAvailCore.RentalRate.VehicleCharges.VehicleCharge[].TaxAmounts.TaxAmount.$attributes.CurrencyCode': 'vehicles[].tax_currency_code',
+  'OTA_VehAvailRateRS.VehAvailRSCore.VehVendorAvails.VehVendorAvail[].VehAvails.VehAvail[].VehAvailCore.RentalRate.VehicleCharges.VehicleCharge[].TaxAmounts.TaxAmount.$attributes.Description': 'vehicles[].tax_description',
+  'OTA_VehAvailRateRS.VehAvailRSCore.VehVendorAvails.VehVendorAvail[].VehAvails.VehAvail[].VehAvailCore.RentalRate.VehicleCharges.VehicleCharge[].Calculation.$attributes.UnitCharge': 'vehicles[].tax_description',
+}
+  var result = om(obj, map);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+
+test('Mapping multiple levels of array indexes on both the from and to arrays', function (t) {
+  var obj =
+{ Items:
+    [
+        { SubItems:
+            [
+                { SubKey: 'item 1 id a' },
+                { SubKey: 'item 1 id b' }
+            ]
+        },
+        { SubItems:
+            [
+                { SubKey: 'item 2 id a' },
+                { SubKey: 'item 2 id b' }
+            ]
+        }
+    ]
+}
+var expect =
+{ items:
+    [
+        { subitems:
+            [
+                { subkey: 'item 1 id a' },
+                { subkey: 'item 1 id b' },
+            ]
+        },
+        { subitems:
+            [
+                { subkey: 'item 2 id a' },
+                { subkey: 'item 2 id b' },
+            ]
+        }
+    ]
+}
+  var map = {
+    'Items[].SubItems[].SubKey': 'items[].subitems[].subkey',
+    'Items[][].SubItems[]': 'items[]'
+  };
+
+
 
   var result = om(obj, map);
 
