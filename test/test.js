@@ -4,6 +4,61 @@ var om = require('../')
   , test = require('tape')
   ;
 
+test("PROCESS - key array is not working for some reason", function(t) {
+  var key = 'items[].subitems[].subkey'
+  var expect = ['items', '[]', 'subitems','[]','subkey']
+  var result = om.parse(key)
+  t.deepEqual(result, expect);
+  t.end();
+
+})
+test('MAP - multiple levels of array indexes on both the from and to arrays', function (t) {
+  var obj =
+{ Items:
+    [
+        { SubItems:
+            [
+                { SubKey: 'item 1 id a' },
+                { SubKey: 'item 1 id b' }
+            ]
+        },
+        { SubItems:
+            [
+                { SubKey: 'item 2 id a' },
+                { SubKey: 'item 2 id b' }
+            ]
+        }
+    ]
+}
+var expect =
+{ items:
+    [
+        { subitems:
+            [
+                { subkey: 'item 1 id a' },
+                { subkey: 'item 1 id b' },
+            ]
+        },
+        { subitems:
+            [
+                { subkey: 'item 2 id a' },
+                { subkey: 'item 2 id b' },
+            ]
+        }
+    ]
+}
+  var map = {
+    'Items[].SubItems[].SubKey': 'items[].subitems[].subkey'
+  };
+
+
+
+  var result = om(obj, map);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+  
 test('process with simple key', function (t) {
   var k = 'abc'
   var expect = ['abc', null]
@@ -113,6 +168,23 @@ test('get value - simple array defined index', function (t) {
 test('get value - two levels deep', function (t) {
   var key = 'foo.baz.fog';
 
+  var obj = {
+    "foo": {
+      "baz": {
+        "fog": "bar"
+      }
+    }
+  };
+
+  var expect = "bar";
+
+  var result = om.getKeyValue(obj, key);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+test('get value - two levels deep', function (t) {
+  var key = 'foo.baz.fog[].abc.def[].ghi';
   var obj = {
     "foo": {
       "baz": {
@@ -2644,50 +2716,3 @@ var map = {
   t.end();
 });
 
-test('Mapping multiple levels of array indexes on both the from and to arrays', function (t) {
-  var obj =
-{ Items:
-    [
-        { SubItems:
-            [
-                { SubKey: 'item 1 id a' },
-                { SubKey: 'item 1 id b' }
-            ]
-        },
-        { SubItems:
-            [
-                { SubKey: 'item 2 id a' },
-                { SubKey: 'item 2 id b' }
-            ]
-        }
-    ]
-}
-var expect =
-{ items:
-    [
-        { subitems:
-            [
-                { subkey: 'item 1 id a' },
-                { subkey: 'item 1 id b' },
-            ]
-        },
-        { subitems:
-            [
-                { subkey: 'item 2 id a' },
-                { subkey: 'item 2 id b' },
-            ]
-        }
-    ]
-}
-  var map = {
-    'Items[].SubItems[].SubKey': 'items[].subitems[].subkey',
-    'Items[][].SubItems[]': 'items[]'
-  };
-
-
-
-  var result = om(obj, map);
-
-  t.deepEqual(result, expect);
-  t.end();
-});

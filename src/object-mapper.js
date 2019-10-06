@@ -9,29 +9,16 @@ function ObjectMapper(from_object, to_object, property_map)
     property_map = to_object;
     to_object = _undefined
   }
-  if (typeof to_object === 'undefined')
-    to_object = {}
-
-  var property_keys = Object.keys(property_map);
-  return map(from_object, to_object, property_map, property_keys)
+  return map(from_object, to_object, property_map)
 }
 
-function map(from_object, to_object, property_map, property_keys)
+function map(from_object, to_object, property_map)
 {
   // loop through the property map key array, and place the contents in the from Object into the to Object
-  if (property_keys.length > 0) {
-    for (var i=0; i< property_keys.length; i++) {
-      var k = property_keys[i]
-      var from_key_arr = parse(k)
-      var from_data = select(from_object, from_key_arr)
-      // if we successfully extracted data, then place it into the new object
-      if (from_data != null) {
-        var to_key_arr = parse(property_map[k])
-        to_object = update(from_data, to_object, to_key_arr)
-      }
-    }
+  for (const [from_key, to_key] of Object.entries(property_map)) {
+    var from_data = select(from_object, from_key)
+    to_object = update(to_object, to_key, from_data)
   }
-
   return to_object
 }
 
@@ -50,8 +37,8 @@ function update(obj, key_arr, data)
   if (!Array.isArray(key_arr))
     key_arr = parse(key_arr)
 
-  // If we are at the end of the key array stack, return the leaf data either as an object property or in an array
-  if (key_arr.length == 0) return Array.isArray(obj) ? [data] : data
+  // // If we are at the end of the key array stack, return the leaf data either as an object property or in an array
+  // if (key_arr.length == 0) return Array.isArray(obj) ? [data] : data
 
   // Get the object key and index that needs to be parsed
   var [key, ix] = process(key_arr.shift())
@@ -60,15 +47,8 @@ function update(obj, key_arr, data)
   if (key) {
     // If the object is undefined, we need to create a new object
     if (obj == null) obj = {}
-    // Either grab the child key if it is defined, or create a new array or index
-    var o = obj.hasOwnProperty(key) ? obj[key] : (ix == null ? {} : [])
-    // Update the object with downstream data and keys
-    o = update(o, key_arr, data)
-    // either add the subobject onto an array...
-    if (Array.isArray(obj))
-      obj.push({[key]: o})
-    // ...or add as a key to the object
-    else obj[key] = o
+    // Set the key of the object equal to the recursive, or if at the end, the data
+    obj[key] = (key_arr.length > 0) ? update(obj[key], key_arr, data) : data
     // return the newly created object to the top
     return obj
   }
@@ -76,15 +56,20 @@ function update(obj, key_arr, data)
   if (ix !== null) {
     // If the top level object is undefined, we need to create a new array
     if (obj == null) obj = []
-    // If ix is specified, make sure that it is present
-    if (ix && !obj[ix]) obj[ix] = null
-    // Make sure that if the data element is a string that we put it into an array
-    if (typeof(data) == 'string') data = build_array(data, ix)
     // Make sure that there is an array item for each item in the data array
-    obj = data.reduce(function(o,d,i) {
-      o[i] = update(o[i], key_arr.slice(), d)
-      return o
-    }, obj)
+    if (Array.isArray(data)) {
+      obj = data.reduce(function(o,d,i) {
+        if (i == '' || i == i)
+          o[i] = update(o[i], key_arr.slice(), d)
+        return o
+      }, obj)
+      return obj
+    }
+    // If there is more work to be done, push an object onto the array
+    else {
+      var x = (ix) ? ix : 0
+      obj[x] = data
+    }
   }
 
   return obj
@@ -100,7 +85,7 @@ function select(obj, key_arr)
   // If we are at the end of the key array stack, return the object
   if (key_arr.length == 0) return obj
 
-  // Get the object key and index that needs to be parsed
+  // Get the object key or index that needs to be parsed
   var [key, ix] = process(key_arr.shift())
 
   // If there is an object key, grab the object property
@@ -108,7 +93,8 @@ function select(obj, key_arr)
     // If there is no object property associated with this key, return null
     if (!obj.hasOwnProperty(key)) return null
     // Otherwise, set the object to the object property
-    obj = obj[key]
+    var o = select(obj[key], key_arr)
+    return o
   }
 
   // If we need to deal with an array, then loop through and return recursive select for each
@@ -122,8 +108,6 @@ function select(obj, key_arr)
     // Otherwise, return the results in the first array element
     return o.shift()
   }
-  // Recuse until we get to the bottom
-  return select(obj, key_arr)
 }
 
 function process(k)
@@ -145,9 +129,17 @@ function build_array(data, ix=0)
   return arr
 }
 
-// Turns a key string (like key1.key2[].key3 into ['key1','key2[]','key3'])
+// Turns a key string (like key1.key2[].key3 into ['key1','key2','[]','key3']...)
 function parse(key, delimiter = '.') {
-  return key.split(delimiter)
+  var key_array = key.split(delimiter)
+  
+  var keys = key_array.reduce(function(keys,current_key) {
+    var [k,ix] = process(current_key)
+    if (k) keys.push(k)
+    if (ix !== null) keys.push('[' + ix + ']')
+    return keys
+  }, [])
+  return keys
 }
 
 
