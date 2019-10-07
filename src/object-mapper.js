@@ -4,6 +4,7 @@ var getKeyValue = require('./get-key-value')
   , _undefined
   ;
 
+const transforms = require('./transformations')
 
 /**
  * Map a object to another using the passed map
@@ -107,7 +108,13 @@ function _mapKey(fromObject, fromKey, toObject, toKey) {
     fromValue = _default;
   }
 
-  if (typeof fromValue !== 'undefined' && typeof transform === 'function') {
+  if (typeof fromValue !== 'undefined' && transform && typeof transform.function === 'string') {
+    const functionKey = transform.function
+    if (transforms[functionKey]) {
+      transform = transforms[functionKey]
+    } else {
+      throw new Error(`No function exists for key "${functionKey}"`)
+    }
     fromValue = transform(fromValue, fromObject, toObject, fromKey, toKey);
   }
 
