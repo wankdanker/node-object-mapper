@@ -1,17 +1,14 @@
 {
-  "author": "Dan VerWeire <dverweire@gmail.com>",
+  "author": "Scott Switzer <scott@switzer.org>",
   "name": "object-mapper",
   "description": "Copy properties from one object to another.",
-  "version": "5.0.0",
+  "version": "5.1.0",
   "repository": {
     "type": "git",
-    "url": "git://github.com/wankdanker/node-object-mapper.git"
+    "url": "git://github.com/switzer/node-object-mapper.git"
   },
   "scripts": {
     "test": "node test/test.js"
-  },
-  "dependencies": {
-    "minimatch": "^3.0.4"
   },
   "devDependencies": {
     "debug": "^2.2.0",
@@ -34,6 +31,10 @@
     },
     {
       "name": "scotthogan"
+    },
+    {
+      "name": "Scott Switzer",
+      "email": "scott@switzer.org"
     }
   ]
 }
