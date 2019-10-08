@@ -975,8 +975,8 @@ test('map object to another - with key object notation with transform', function
   var map = {
     'foo.bar': {
       key: 'bar.foo[].baz',
-      transform: function (value, fromObject, toObject, fromKey, toKey) {
-        return value + '-foo'
+      'transform': {
+        'function': 'test-foo'
       }
     }
   };
@@ -986,7 +986,6 @@ test('map object to another - with key object notation with transform', function
   t.deepEqual(result, expect);
   t.end();
 });
-
 
 test('map object to another - with two destinations for same value one string and one object', function (t) {
   var baseObject = {
@@ -1012,8 +1011,8 @@ test('map object to another - with two destinations for same value one string an
   var map = {
     'foo.bar': ['bar.foo[].baz', {
       key: 'bar.foo[].foo',
-      transform: function (value, fromObject, toObject, fromKey, toKey) {
-        return value + '-foo'
+      'transform': {
+        'function': 'test-foo'
       }
     }]
   };
@@ -1136,9 +1135,7 @@ test('map object to another - with key array notation with transform function', 
   };
 
   var map = {
-    'foo.bar': [['bar.foo[].baz', function (value, fromObject, toObject, fromKey, toKey) {
-      return value + '-foo';
-    }]]
+    'foo.bar': [['bar.foo[].baz', {'function': 'test-foo'}]]
   };
 
   var result = om(obj, baseObject, map);
@@ -1160,9 +1157,7 @@ test('map object to another - map object without destination key via transform',
   };
 
   var map = {
-    'thing.thing2.thing3' : [[ null, function (val, src, dst) {
-        dst.manual = val.a + val.b;
-      }
+    'thing.thing2.thing3' : [[ null, {'function': 'test-destination'}
     , null ]]
   };
 
@@ -1321,21 +1316,8 @@ test('array mapping - fromObject empty array property ignored', function (t) {
   var map = {
     'phone_numbers': {
       key: 'questionnaire.initial.cellPhoneNumber',
-      transform: function (sourceValue) {
-        var i;
-
-        if (!Array.isArray(sourceValue)) {
-          return null;
-        }
-
-        for (i = 0; i < sourceValue.length; i++) {
-          if (sourceValue[i].primary) {
-            return {
-              code: sourceValue[i].country_code,
-              phone: sourceValue[i].number
-            };
-          }
-        }
+      transform: {
+        'function': 'test-empty-array'
       }
     }
   };
@@ -1356,8 +1338,6 @@ test('array mapping - fromObject empty array property ignored', function (t) {
 
   t.deepEqual(result, expected);
   t.end();
-
-
 });
 
 test('mapping - map full array to single value via transform', function (t) {
@@ -1370,13 +1350,7 @@ test('mapping - map full array to single value via transform', function (t) {
   };
 
   var map = {
-    'thing' : [[ 'thing2', function (val, src, dst) {
-        var a = val.reduce(function (i, obj) {
-          return i += obj.a;
-        }, '');
-
-        return a;
-      }
+    'thing' : [[ 'thing2', {'function': 'test-array-to-single'}
     , null ]]
   };
 
@@ -1404,13 +1378,7 @@ test('mapping - map full array without destination key via transform', function 
   };
 
   var map = {
-    'thing.thing2.thing3' : [[ null, function (val, src, dst) {
-        var a = val.reduce(function (i, obj) {
-          return i += obj.a;
-        }, '');
-
-        dst.manual = a
-      }
+    'thing.thing2.thing3' : [[ null, {'function': 'test-array-without-dest'}
     , null ]]
   };
 
@@ -1567,7 +1535,6 @@ test('map object to another - allow null values', function (t) {
   t.end();
 });
 
-
 test('original various tests', function (t) {
   var merge = require('../').merge;
 
@@ -1641,8 +1608,8 @@ test('original various tests', function (t) {
 
   map.sku = {
     key: "Envelope.Request.Item.SKU"
-    , transform: function (val, objFrom, objTo) {
-      return "over-ridden-sku";
+    , transform: {
+      'function': 'test-override'
     }
   };
 
