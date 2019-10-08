@@ -164,7 +164,7 @@ function parse(key_str, delimiter = '.')
     }
   }
 
-  return [keys, _default, _transpose]
+  return keys
 } 
 
 // A string of how to navigate through the incoming array is sent.
