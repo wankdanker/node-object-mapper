@@ -1,20 +1,20 @@
 'use strict'
 
 var transforms = {
-  'dateTimeToDate': (stringISODateTime) => {
+  'dateTimeToDate': function (stringISODateTime) {
     if (!stringISODateTime) {
       return null
     }
 
     return stringISODateTime.split('T')[0]
   },
-  'test-foo': (value) => {
+  'test-foo': function (value) {
     return value + '-foo';
   },
-  'test-destination': (val, _src, dst) => {
+  'test-destination': function (val, _src, dst) {
     dst.manual = val.a + val.b;
   },
-  'test-empty-array': (sourceValue) => {
+  'test-empty-array': function (sourceValue) {
     var i;
 
     if (!Array.isArray(sourceValue)) {
@@ -30,21 +30,21 @@ var transforms = {
       }
     }
   },
-  'test-array-to-single': (val, _src, _dst) => {
+  'test-array-to-single': function (val, _src, _dst) {
     var a = val.reduce(function (i, obj) {
       return i += obj.a;
     }, '');
 
     return a;
   },
-  'test-array-without-dest': (val, _src, dst) => {
+  'test-array-without-dest': function (val, _src, dst) {
     var a = val.reduce(function (i, obj) {
       return i += obj.a;
     }, '');
 
     dst.manual = a
   },
-  'test-override': () => {
+  'test-override': function () {
     return 'over-ridden-sku'
   }
 }

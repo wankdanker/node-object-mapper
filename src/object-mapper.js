@@ -113,7 +113,7 @@ function _mapKey(fromObject, fromKey, toObject, toKey) {
     if (transforms[functionKey]) {
       transform = transforms[functionKey]
     } else {
-      throw new Error(`No function exists for key "${functionKey}"`)
+      throw new Error('No function exists for key: ' + functionKey)
     }
     fromValue = transform(fromValue, fromObject, toObject, fromKey, toKey);
   }
