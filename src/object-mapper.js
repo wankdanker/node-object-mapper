@@ -241,19 +241,22 @@ function setKeyValue(obj,key_str,data)
 {
   global.elapsed['setKeyValue'].n++ // performance monitoring
 
-  // String
-  if (Array.isArray(key_str)) {
-    key_str.forEach(function(k) {
-      obj = update(obj, parse(k), data)
-    })
-    return obj
-  }
-  // Key_str is written in object notation form
-  if (typeof(key_str) == 'object')
-    return update(obj, data, parse(key_str.key))
   // Key_str is written as a simple string
   if (typeof(key_str) == 'string')
     return update(obj, data, parse(key_str))
+
+  // Key_str is an array of values
+  if (Array.isArray(key_str)) {
+    for (var i=0, len = key_str.length; i < len; i++) {
+      obj = update(obj, data, parse(key_str[i]))
+    }
+    return obj
+  }
+
+  // Key_str is written in object notation form
+  if (typeof(key_str) == 'object')
+    return update(obj, data, parse(key_str.key))
+
   // Nothing else is valid
 }
 
