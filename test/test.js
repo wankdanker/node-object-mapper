@@ -5,15 +5,6 @@ const om = require('../')
   , test = require('tape')
   , performance = require('perf_hooks').performance
 
-// test("PROCESS - key array is not working for some reason", function(t) {
-//   var key = 'items[].subitems[].subkey'
-//   var expect = ['items', '[]', 'subitems','[]','subkey']
-//   var result = om.parse(key)
-//   t.deepEqual(result, expect);
-//   t.end();
-
-// })
-
 global.elapsed = []
 global.elapsed['ObjectMapper'] = {n:0,ms:0}
 global.elapsed['update'] = {n:0,ms:0}
@@ -26,6 +17,74 @@ global.elapsed['parse'] = {n:0,ms:0}
 global.elapsed['process'] = {n:0,ms:0}
 global.elapsed['getKeyValue'] = {n:0,ms:0}
 global.elapsed['setKeyValue'] = {n:0,ms:0}
+
+test('PARSE with simple key', function (t) {
+  var k = 'abc'
+  var expect = [['abc', null]]
+  var result = om.parse(k)
+  t.deepEqual(result, expect);
+  t.end();
+});
+
+test('PARSE with simple empty array key', function (t) {
+  var k = 'abc[]'
+  var expect = [['abc', null], [null, '']]
+  var result = om.parse(k)
+  t.deepEqual(result, expect);
+  t.end();
+});
+test('PARSE with no key empty array key', function (t) {
+  var k = '[]'
+  var expect = [[null, '']]
+  var result = om.parse(k)
+  t.deepEqual(result, expect);
+  t.end();
+});
+test('process with nothing', function (t) {
+  var k = ''
+  var expect = [[null, null]]
+  var result = om.parse(k)
+  t.deepEqual(result, expect);
+  t.end();
+});
+test('parse with simple dot notation key', function (t) {
+  var k = 'abc.def'
+  var expect = [['abc', null],['def', null]]
+  var result = om.parse(k)
+  t.deepEqual(result, expect);
+  t.end();
+});
+test('parse with deep dot notation key', function (t) {
+  var k = 'a.b.c.d.e.f'
+  var expect = [['a', null],['b', null],['c', null],['d', null],['e', null],['f', null]]
+  var result = om.parse(k)
+  t.deepEqual(result, expect);
+  t.end();
+});
+test('parse with deep brackets', function (t) {
+  var k = 'abc[].def'
+  var expect = [['abc', null],[null, ''],['def', null]]
+  var result = om.parse(k)
+  t.deepEqual(result, expect);
+  t.end();
+});
+test('parse with deep brackets', function (t) {
+  var k = '[].def'
+  var expect = [[null, ''],['def', null]]
+  var result = om.parse(k)
+  t.deepEqual(result, expect);
+  t.end();
+});
+// todo: fix a test with an escaped dot
+// test('parse with a slashed dot', function (t) {
+//   var k = 'abc\.def'
+//   var expect = ['[abc.def']
+//   var result = om.parse(k)
+//   t.deepEqual(result, expect);
+//   t.end();
+// });
+
+
 
 test('MAP - real world case multiple levels of array indexes on both the from and to arrays', function (t) {
   var obj =
@@ -905,78 +964,6 @@ console.log('setKeyValue:  ' + global.elapsed['setKeyValue'].ms + " iterated " +
 //   t.end();
 // });
   
-// test('process with simple key', function (t) {
-//   var k = 'abc'
-//   var expect = ['abc', null]
-//   var result = om.process(k)
-//   t.deepEqual(result, expect);
-//   t.end();
-// });
-// test('process with simple empty array key', function (t) {
-//   var k = 'abc[]'
-//   var expect = ['abc', '']
-//   var result = om.process(k)
-//   t.deepEqual(result, expect);
-//   t.end();
-// });
-// test('process with no key empty array key', function (t) {
-//   var k = '[]'
-//   var expect = ['', '']
-//   var result = om.process(k)
-//   t.deepEqual(result, expect);
-//   t.end();
-// });
-// test('process with nothing', function (t) {
-//   var k = ''
-//   var expect = ['', null]
-//   var result = om.process(k)
-//   t.deepEqual(result, expect);
-//   t.end();
-// });
-// test('parse with simple key', function (t) {
-//   var k = 'abc'
-//   var expect = ['abc']
-//   var result = om.parse(k)
-//   t.deepEqual(result, expect);
-//   t.end();
-// });
-// test('parse with simple dot notation key', function (t) {
-//   var k = 'abc.def'
-//   var expect = ['abc','def']
-//   var result = om.parse(k)
-//   t.deepEqual(result, expect);
-//   t.end();
-// });
-// test('parse with deep dot notation key', function (t) {
-//   var k = 'a.b.c.d.e.f.g.h.i.j.k.l.m.n.o.p.q.r.s.t.u.v.w.x.y.z'
-//   var expect = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
-//   var result = om.parse(k)
-//   t.deepEqual(result, expect);
-//   t.end();
-// });
-// test('parse with deep brackets', function (t) {
-//   var k = 'abc[].def'
-//   var expect = ['abc','[]','def']
-//   var result = om.parse(k)
-//   t.deepEqual(result, expect);
-//   t.end();
-// });
-// test('parse with deep brackets', function (t) {
-//   var k = '[].def'
-//   var expect = ['[]','def']
-//   var result = om.parse(k)
-//   t.deepEqual(result, expect);
-//   t.end();
-// });
-// // todo: fix a test with an escaped dot
-// // test('parse with a slashed dot', function (t) {
-// //   var k = 'abc\.def'
-// //   var expect = ['[abc.def']
-// //   var result = om.parse(k)
-// //   t.deepEqual(result, expect);
-// //   t.end();
-// // });
-
 
 // test('get value - one level deep', function (t) {
 
