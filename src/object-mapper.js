@@ -26,7 +26,7 @@ function ObjectMapper(from_object, to_object, property_map)
 }
 
 // if the data is an array, walk down the obj path and build until there is an array key
-function update(obj, key_arr, data)
+function update(obj, data, key_arr)
 {
   global.elapsed['update'].n++ // performance monitoring
   let timer = performance.now()
@@ -39,13 +39,13 @@ function update(obj, key_arr, data)
   // If there is a key, we need to traverse down to this part of the object
   if (key) {
     global.elapsed['update'].ms += (performance.now() - timer)
-    o = update_obj(obj, key, key_arr, data)
+    o = update_obj(obj, key, data, key_arr)
     timer = performance.now()
   }
 
   if (ix !== null) {
     global.elapsed['update'].ms += (performance.now() - timer)
-    o = update_arr(obj, key, ix, key_arr, data)
+    o = update_arr(obj, key, ix, data, key_arr)
     timer = performance.now()
   }
 
@@ -53,7 +53,7 @@ function update(obj, key_arr, data)
   return o
 }
 
-function update_obj(obj, key, key_arr, data)
+function update_obj(obj, key, data, key_arr)
 {
   global.elapsed['update_obj'].n++ // performance monitoring
   let timer = performance.now()
@@ -63,7 +63,7 @@ function update_obj(obj, key, key_arr, data)
   // Set the key of the object equal to the recursive, or if at the end, the data
   if (key_arr.length > 0) {
     global.elapsed['update_obj'].ms += (performance.now() - timer)
-    obj[key] = update(obj[key], key_arr, data)
+    obj[key] = update(obj[key], data, key_arr)
     timer = performance.now()
   } else {
     // This is a leaf.
@@ -73,7 +73,7 @@ function update_obj(obj, key, key_arr, data)
   return obj
 }
 
-function update_arr(obj, key, ix, key_arr, data)
+function update_arr(obj, key, ix, data, key_arr)
 {
   global.elapsed['update_arr'].n++ // performance monitoring
   let timer = performance.now()
@@ -85,7 +85,7 @@ function update_arr(obj, key, ix, key_arr, data)
     obj = data.reduce(function(o,d,i) {
       if (i == '' || i == i) {
         global.elapsed['update_arr'].ms += (performance.now() - timer)
-        o[i] = update(o[i], key_arr.slice(), d)
+        o[i] = update(o[i], d, key_arr.slice())
         timer = performance.now()
         return o
       }
@@ -97,7 +97,7 @@ function update_arr(obj, key, ix, key_arr, data)
     var x = (ix) ? ix : 0
     if (key_arr.length > 0) {
       global.elapsed['update_arr'].ms += (performance.now() - timer)
-      obj[x] = update(obj[x], key_arr, data)
+      obj[x] = update(obj[x], data, key_arr)
       timer = performance.now()
     } else {
       global.elapsed['update_arr'].ms += (performance.now() - timer)
@@ -250,10 +250,10 @@ function setKeyValue(obj,key_str,data)
   }
   // Key_str is written in object notation form
   if (typeof(key_str) == 'object')
-    return update(obj, parse(key_str.key), data, key_str.default, key_str.transpose)
+    return update(obj, data, parse(key_str.key))
   // Key_str is written as a simple string
   if (typeof(key_str) == 'string')
-    return update(obj, parse(key_str), data)
+    return update(obj, data, parse(key_str))
   // Nothing else is valid
 }
 
