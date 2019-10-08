@@ -1,6 +1,6 @@
 'use strict'
 
-const transforms = {
+var transforms = {
   'dateTimeToDate': (stringISODateTime) => {
     if (!stringISODateTime) {
       return null
