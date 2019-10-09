@@ -23,16 +23,16 @@ function ObjectMapper(from_obj, to_obj, property_map)
 function select(obj, key_arr)
 {
   // Get the object key or index that needs to be parsed
-  const [key, ix] = key_arr.shift()
+  const key = key_arr.shift()
 
   // If there is an object key, grab the object property
-  if (key) {
+  if (key.name) {
     return select_obj(obj, key, key_arr)
   }
 
   // If we need to deal with an array, then loop through and return recursive select for each
   if (Array.isArray(obj)) {
-    return select_arr(obj, ix, key_arr)
+    return select_arr(obj, key, key_arr)
   }
 }
 
@@ -42,23 +42,23 @@ function select_obj(obj, key, key_arr)
   // This should be in the map definition, but this is a solution for wonky APIs
   if (Array.isArray(obj)) obj = obj[0]
 
-  if (key in obj) {
+  if (key.name && key.name in obj) {
     if (key_arr.length > 0)
-      return select(obj[key], key_arr)
-    return obj[key]
+      return select(obj[key.name], key_arr)
+    return obj[key.name]
   }
 }
 
-function select_arr(arr, ix, key_arr)
+function select_arr(arr, key, key_arr)
 {
   // Recursively loop through the array and grab the data
   arr = arr.map( function(o) {
     return (key_arr.length > 0) ? select(o, key_arr.slice()) : o
   })
   // If we are expecting an array, just return what we did
-  if (ix == '') return arr
+  if (key.ix == '') return arr
   // If we are looking for a specific array element, just return that
-  if (ix) return arr[ix]
+  if (key.ix) return arr[key.ix]
   // Otherwise, return the results in the first array element
   return arr[0]
 }
@@ -68,15 +68,15 @@ function update(obj, data, key_arr, context)
 {
   if (key_arr) {
     // Get the object key and index that needs to be parsed
-    const [key, ix] = key_arr.shift()
+    const key = key_arr.shift()
 
     // If there is a key, we need to traverse down to this part of the object
-    if (key)
+    if (key.name)
       return update_obj(obj, key, data, key_arr, context)
 
     // If there is an array index, we need to traverse through the array
-    if (ix !== null)
-      return update_arr(obj, ix, data, key_arr, context)
+    if (typeof key.ix !== 'undefined')
+      return update_arr(obj, key, data, key_arr, context)
   }
 
   // If there is neither an array or index, we need to see if there is data to set
@@ -91,7 +91,7 @@ function update_obj(obj, key, data, key_arr, context)
   
   // Set the key of the object equal to the recursive, or if at the end, the data
   if (key_arr.length > 0)
-    obj[key] = update(obj[key], data, key_arr, context)
+    obj[key.name] = update(obj[key.name], data, key_arr, context)
   // This is a leaf.  Set to the value, or if it is missing, the default value
   else
     obj = set_data(obj, key, data, context)
@@ -99,6 +99,34 @@ function update_obj(obj, key, data, key_arr, context)
   return obj
 }
 
+function update_arr(arr, key, data, key_arr, context)
+{
+  // If the top level object is undefined, we need to create a new array
+  if (arr == null) arr = []
+
+  // Make sure that there is an array item for each item in the data array
+  if (Array.isArray(data)) {
+    arr = data.reduce(function(o,d,i) {
+      if (i == '' || i == i) {
+        o[i] = update(o[i], d, key_arr.slice(), context)
+        return o
+      }
+    }, arr)
+
+    return arr
+  }
+  // If there is more work to be done, push an object onto the array
+  else {
+    const x = (key.ix) ? key.ix : 0
+    if (key_arr.length > 0)
+      arr[x] = update(arr[x], data, key_arr, context)
+    else
+      arr[x] = data
+  }
+
+  return arr
+}
+  
 function set_data(obj, key, data, context)
 {
   // Initialize the object if it does not exist
@@ -118,40 +146,12 @@ function set_data(obj, key, data, context)
   }
 
   // Set the object to the data if it is not undefined
-  if (typeof data !== 'undefined')
-    obj[key] = data
+  if (typeof data !== 'undefined' && data !== null)
+    obj[key.name] = data
 
   return obj
 }
 
-function update_arr(arr, ix, data, key_arr, context)
-{
-  // If the top level object is undefined, we need to create a new array
-  if (arr == null) arr = []
-
-  // Make sure that there is an array item for each item in the data array
-  if (Array.isArray(data)) {
-    arr = data.reduce(function(o,d,i) {
-      if (i == '' || i == i) {
-        o[i] = update(o[i], d, key_arr.slice(), context)
-        return o
-      }
-    }, arr)
-
-    return arr
-  }
-  // If there is more work to be done, push an object onto the array
-  else {
-    const x = (ix) ? ix : 0
-    if (key_arr.length > 0)
-      arr[x] = update(arr[x], data, key_arr, context)
-    else
-      arr[x] = data
-  }
-
-  return arr
-}
-  
 // Turns a key string (like key1.key2[].key3 into ['key1','key2','[]','key3']...)
 // 
 function parse(key_str, delimiter = '.')
@@ -166,26 +166,34 @@ function parse(key_str, delimiter = '.')
   for (let i=0, len1=key_arr.length; i<len1; i++) {
     // Build a object which is either an object key or an array
     //  Note that this is not the most readable, but it is fastest way to parse the string (at this point in time)
-    let begin=-1, end=-1, key=key_arr[i]
+    let begin=-1, end=-1, add=null, nulls=null, key=key_arr[i]
     for (let j=0, len2=key.length; j<len2; j++) {
       if (key[j] == '[') begin = j
-      if (key[j] == ']' && begin > -1) {
-        end = j
-        break
-      }
+      if (key[j] == ']' && begin > -1) end = j
+      if (key[j] == '+' && end == (j-1) ) add = true
+      if (key[j] == '?' && end == -1) nulls = true
     }
     // No array - just add object key
     if (begin == -1) {
-      keys[n++] = [key_arr[i] || null, null]
+      let k = {}
+      if (key_arr[i]) k.name = key_arr[i]
+      if (nulls) k.nulls = nulls
+      keys[n++] = k
     }
     // No key - just add array index
     else if (begin == 0 && end > 0) {
-      keys[n++] = [null, key_arr[i].substring(begin+1,end)]
+      let k = {ix: key_arr[i].substring(begin+1,end) }
+      if (add) k.add = add
+      keys[n++] = k
     }
     // Both object and array key
     else if (begin > 0 && end > 0) {
-      keys[n++] = [key.substring(0,begin), null]
-      keys[n++] = [null, key.substring(begin+1,end)]
+      let k = {name: key.substring(0,begin)}
+      if (nulls) k.nulls = nulls
+      keys[n++] = k
+      k = {ix: key.substring(begin+1,end)}
+      if (add) k.add = add
+      keys[n++] = k
     }
   }
 

@@ -7,7 +7,7 @@ const om = require('../')
 
 test('PARSE with simple key', function (t) {
   var k = 'abc'
-  var expect = [['abc', null]]
+  var expect = [{name: 'abc'}]
   var result = om.parse(k)
   t.deepEqual(result, expect);
   t.end();
@@ -15,49 +15,56 @@ test('PARSE with simple key', function (t) {
 
 test('PARSE with simple empty array key', function (t) {
   var k = 'abc[]'
-  var expect = [['abc', null], [null, '']]
+  var expect = [{name: 'abc'}, {ix: ''}]
   var result = om.parse(k)
   t.deepEqual(result, expect);
   t.end();
 });
 test('PARSE with no key empty array key', function (t) {
   var k = '[]'
-  var expect = [[null, '']]
+  var expect = [{ix: ''}]
   var result = om.parse(k)
   t.deepEqual(result, expect);
   t.end();
 });
 test('PARSE with nothing', function (t) {
   var k = ''
-  var expect = [[null, null]]
+  var expect = [{}]
   var result = om.parse(k)
   t.deepEqual(result, expect);
   t.end();
 });
 test('PARSE with simple dot notation key', function (t) {
   var k = 'abc.def'
-  var expect = [['abc', null],['def', null]]
+  var expect = [{name: 'abc'}, {name: 'def'}]
   var result = om.parse(k)
   t.deepEqual(result, expect);
   t.end();
 });
 test('PARSE with deep dot notation key', function (t) {
   var k = 'a.b.c.d.e.f'
-  var expect = [['a', null],['b', null],['c', null],['d', null],['e', null],['f', null]]
+  var expect = [{name: 'a'},{name: 'b'},{name: 'c'},{name: 'd'},{name: 'e'},{name: 'f'}]
   var result = om.parse(k)
   t.deepEqual(result, expect);
   t.end();
 });
 test('PARSE with deep brackets', function (t) {
   var k = 'abc[].def'
-  var expect = [['abc', null],[null, ''],['def', null]]
+  var expect = [{name: 'abc'},{ix: ''},{name: 'def'}]
+  var result = om.parse(k)
+  t.deepEqual(result, expect);
+  t.end();
+});
+test('PARSE with deep brackets and instruction to add together', function (t) {
+  var k = 'abc[]+.def'
+  var expect = [{name: 'abc'},{ix: '', add: true},{name: 'def'}]
   var result = om.parse(k)
   t.deepEqual(result, expect);
   t.end();
 });
 test('PARSE with deep brackets', function (t) {
   var k = '[].def'
-  var expect = [[null, ''],['def', null]]
+  var expect = [{ix: ''},{name: 'def'}]
   var result = om.parse(k)
   t.deepEqual(result, expect);
   t.end();
@@ -1562,39 +1569,39 @@ test('mapping - map full array to same array on destination side', function (t) 
   t.end();
 });
 
-test('mapping - map and append full array to existing mapped array', function (t) {
-  var obj = {
-    thing : [
-      {a: 'a1', b: 'b1'}
-      , {a: 'a2', b: 'b2'}
-      , {a: 'a3', b: 'b3'}
-    ],
-    thingOther:[{a: 'a4', b: 'b4'}
-    , {a: 'a5', b: 'b5'}
-    , {a: 'a6', b: 'b6'}]
-  };
+// test('mapping - map and append full array to existing mapped array', function (t) {
+//   var obj = {
+//     thing : [
+//       {a: 'a1', b: 'b1'}
+//       , {a: 'a2', b: 'b2'}
+//       , {a: 'a3', b: 'b3'}
+//     ],
+//     thingOther:[{a: 'a4', b: 'b4'}
+//     , {a: 'a5', b: 'b5'}
+//     , {a: 'a6', b: 'b6'}]
+//   };
 
-  var map = {
-    'thing' : 'thing2[]+',
-    'thingOther' : 'thing2[]+',
-  };
+//   var map = {
+//     'thing' : 'thing2[]+',
+//     'thingOther' : 'thing2[]+',
+//   };
 
-  var expect = {
-    'thing2' : [
-      [{a: 'a1', b: 'b1'}
-      , {a: 'a2', b: 'b2'}
-      , {a: 'a3', b: 'b3'}],
-      [{a: 'a4', b: 'b4'}
-      , {a: 'a5', b: 'b5'}
-      , {a: 'a6', b: 'b6'}]
-    ]
-  };
+//   var expect = {
+//     'thing2' : [
+//       [{a: 'a1', b: 'b1'}
+//       , {a: 'a2', b: 'b2'}
+//       , {a: 'a3', b: 'b3'}],
+//       [{a: 'a4', b: 'b4'}
+//       , {a: 'a5', b: 'b5'}
+//       , {a: 'a6', b: 'b6'}]
+//     ]
+//   };
 
-  var result = om(obj, map);
+//   var result = om(obj, map);
 
-  t.deepEqual(result, expect);
-  t.end();
-});
+//   t.deepEqual(result, expect);
+//   t.end();
+// });
 
 test('map object to another - prevent null values from being mapped', function (t) {
   var obj = {
