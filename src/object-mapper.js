@@ -2,82 +2,24 @@
 
 var _undefined
 
-function ObjectMapper(from_object, to_object, property_map)
+function ObjectMapper(from_obj, to_obj, property_map)
 {
   // There are a few different constructors - move around properties if needed
   if (typeof property_map === 'undefined') {
-    property_map = to_object
-    to_object = _undefined
+    property_map = to_obj
+    to_obj = _undefined
   }
 
   // Loop through the map to process individual mapping instructions
   for (const [from_key_str, to_key_str] of Object.entries(property_map)) {
-    const from_data = getKeyValue(from_object, from_key_str)
-    to_object = setKeyValue(to_object, to_key_str, from_data)
+    const from_data = getKeyValue(from_obj, from_key_str)
+    let context = {from_obj: from_obj, from_key: from_key_str, to_key: to_key_str}
+    to_obj = setKeyValue(to_obj, to_key_str, from_data, context)
   }
 
-  return to_object
+  return to_obj
 }
 
-// if the data is an array, walk down the obj path and build until there is an array key
-function update(obj, data, key_arr)
-{
-  // Get the object key and index that needs to be parsed
-  const [key, ix] = key_arr.shift()
-
-  // If there is a key, we need to traverse down to this part of the object
-  if (key)
-    return update_obj(obj, key, data, key_arr)
-
-  // If there is an array index, we need to traverse through the array
-  if (ix !== null)
-    return update_arr(obj, ix, data, key_arr)
-}
-
-function update_obj(obj, key, data, key_arr)
-{
-  // If the object is undefined, we need to create a new object
-  obj = obj || {}
-  
-    // Set the key of the object equal to the recursive, or if at the end, the data
-  if (key_arr.length > 0) {
-    obj[key] = update(obj[key], data, key_arr)
-  } else {
-    // This is a leaf.
-    if (data) obj[key] = data
-  }
-
-  return obj
-}
-
-function update_arr(arr, ix, data, key_arr)
-{
-  // If the top level object is undefined, we need to create a new array
-  if (arr == null) arr = []
-
-  // Make sure that there is an array item for each item in the data array
-  if (Array.isArray(data)) {
-    arr = data.reduce(function(o,d,i) {
-      if (i == '' || i == i) {
-        o[i] = update(o[i], d, key_arr.slice())
-        return o
-      }
-    }, arr)
-
-    return arr
-  }
-  // If there is more work to be done, push an object onto the array
-  else {
-    const x = (ix) ? ix : 0
-    if (key_arr.length > 0)
-      arr[x] = update(arr[x], data, key_arr)
-    else
-      arr[x] = data
-  }
-
-  return arr
-}
-  
 function select(obj, key_arr)
 {
   // Get the object key or index that needs to be parsed
@@ -121,19 +63,102 @@ function select_arr(arr, ix, key_arr)
   return arr[0]
 }
 
+// if the data is an array, walk down the obj path and build until there is an array key
+function update(obj, data, key_arr, context)
+{
+  if (key_arr) {
+    // Get the object key and index that needs to be parsed
+    const [key, ix] = key_arr.shift()
+
+    // If there is a key, we need to traverse down to this part of the object
+    if (key)
+      return update_obj(obj, key, data, key_arr, context)
+
+    // If there is an array index, we need to traverse through the array
+    if (ix !== null)
+      return update_arr(obj, ix, data, key_arr, context)
+  }
+
+  // If there is neither an array or index, we need to see if there is data to set
+  return set_data(obj, key_arr, data, context)
+
+}
+
+function update_obj(obj, key, data, key_arr, context)
+{
+  // If the object is undefined, we need to create a new object
+  obj = obj || {}
+  
+  // Set the key of the object equal to the recursive, or if at the end, the data
+  if (key_arr.length > 0)
+    obj[key] = update(obj[key], data, key_arr, context)
+  // This is a leaf.  Set to the value, or if it is missing, the default value
+  else
+    obj = set_data(obj, key, data, context)
+
+  return obj
+}
+
+function set_data(obj, key, data, context)
+{
+  // Initialize the object if it does not exist
+  if (obj == null || typeof obj == 'undefined')
+    obj = {}
+
+  // See if there is a transform function and run it
+  if (typeof context.transform == 'function')
+    data = context.transform(data, context.from_obj, obj, context.from_key, context.to_key)
+
+  // See if data is null and there is a default
+  if (context.default && (data == null || typeof data == 'undefined')) {
+    if (typeof context.default == 'function')
+      data = context.default(context.from_obj, context.from_key, context.to_obj, context.to_key)
+    else
+      data = context.default
+  }
+
+  // Set the object to the data if it is not undefined
+  if (typeof data !== 'undefined')
+    obj[key] = data
+
+  return obj
+}
+
+function update_arr(arr, ix, data, key_arr, context)
+{
+  // If the top level object is undefined, we need to create a new array
+  if (arr == null) arr = []
+
+  // Make sure that there is an array item for each item in the data array
+  if (Array.isArray(data)) {
+    arr = data.reduce(function(o,d,i) {
+      if (i == '' || i == i) {
+        o[i] = update(o[i], d, key_arr.slice(), context)
+        return o
+      }
+    }, arr)
+
+    return arr
+  }
+  // If there is more work to be done, push an object onto the array
+  else {
+    const x = (ix) ? ix : 0
+    if (key_arr.length > 0)
+      arr[x] = update(arr[x], data, key_arr, context)
+    else
+      arr[x] = data
+  }
+
+  return arr
+}
+  
 // Turns a key string (like key1.key2[].key3 into ['key1','key2','[]','key3']...)
 // 
 function parse(key_str, delimiter = '.')
 {
-  let _default = null
-  let _transpose = null
-
-  // If the value was passed in object notation, grab the default and transpose values, then rewrite as a string
-  if (typeof(key_str) == 'object') {
-    _default = key_str.default
-    _transpose = key_str.transpose
-    key_str = key_str.key
-  }
+  // Return null if the key_str is null
+  if (key_str == null)
+    return null
 
   const key_arr = key_str.split(delimiter)
   let keys = []
@@ -174,14 +199,36 @@ function getKeyValue(obj, key_str)
   return select(obj, parse(key_str) )
 }
 
-function setKeyValue(obj, key_str, data)
+function setKeyValue(obj, key_str, data, context = {})
 {
+  // Deal with object notation here.  If in object notation, split out each variable.  Otherwise, just pass back key
+  const _vals = function(k) {
+    return (typeof(k) == 'object') ? [k.key, k.transform, k.default] : [k]
+  }
+
+  // Key_str is undefined - ignore
+  if (typeof key_str == 'undefined')
+    return obj
+
   // Key_str is an array of values
-  if (Array.isArray(key_str))
-    for (let i=0, len=key_str.length; i<len; i++)
-      obj = update(obj, data, parse(key_str[i]) )
-  else
-    obj = update(obj, data, parse(key_str) )
+  let k,t,d
+  if (Array.isArray(key_str)) {
+    for (let i=0, len=key_str.length; i<len; i++) {
+      // Check to see if the value is in array notation
+      if (Array.isArray(key_str[i]))
+        [k,t,d] = key_str[i]
+      else
+        [k,t,d] = _vals(key_str[i])
+      context.transform = t
+      context.default = d
+      obj = update(obj, data, parse(k), context)
+    }
+  } else {
+    [k,t,d] = _vals(key_str)
+    context.transform = t
+    context.default = d
+    obj = update(obj, data, parse(k), context)
+  }
 
   return obj
 }
