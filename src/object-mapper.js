@@ -146,8 +146,9 @@ function set_data(obj, key, data, context)
   }
 
   // Set the object to the data if it is not undefined
-  if (typeof data !== 'undefined' && data !== null)
-    obj[key.name] = data
+  if (typeof data !== 'undefined')
+    if (data !== null || key.nulls)
+      obj[key.name] = data
 
   return obj
 }
