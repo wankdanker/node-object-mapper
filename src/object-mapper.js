@@ -8,8 +8,8 @@ var getKeyValue = require('./get-key-value')
 /**
  * Map a object to another using the passed map
  * @param fromObject
- * @param toObject
- * @param propertyMap
+ * @param [toObject]
+ * @param [propertyMap]
  * @returns {*}
  * @constructor
  */
