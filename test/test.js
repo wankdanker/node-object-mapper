@@ -13,6 +13,14 @@ test('PARSE with simple key', function (t) {
   t.end();
 });
 
+test('PARSE abc? (simple key allowing nulls)', function (t) {
+  var k = 'abc?'
+  var expect = [{name: 'abc', nulls: true}]
+  var result = om.parse(k)
+  t.deepEqual(result, expect);
+  t.end();
+});
+
 test('PARSE with simple empty array key', function (t) {
   var k = 'abc[]'
   var expect = [{name: 'abc'}, {ix: ''}]
@@ -29,7 +37,7 @@ test('PARSE with no key empty array key', function (t) {
 });
 test('PARSE with nothing', function (t) {
   var k = ''
-  var expect = [{}]
+  var expect = []
   var result = om.parse(k)
   t.deepEqual(result, expect);
   t.end();
@@ -62,6 +70,13 @@ test('PARSE with deep brackets and instruction to add together', function (t) {
   t.deepEqual(result, expect);
   t.end();
 });
+test('PARSE with deep brackets and instruction to add nulls', function (t) {
+  var k = 'abc[]+.def?'
+  var expect = [{name: 'abc'},{ix: '', add: true},{name: 'def', nulls: true}]
+  var result = om.parse(k)
+  t.deepEqual(result, expect);
+  t.end();
+});
 test('PARSE with deep brackets', function (t) {
   var k = '[].def'
   var expect = [{ix: ''},{name: 'def'}]
@@ -69,7 +84,6 @@ test('PARSE with deep brackets', function (t) {
   t.deepEqual(result, expect);
   t.end();
 });
-// todo: fix a test with an escaped dot
 // test('parse with a slashed dot', function (t) {
 //   var k = 'abc\.def'
 //   var expect = ['[abc.def']
@@ -1706,19 +1720,19 @@ test('original various tests', function (t) {
 
   var map = {
     "sku": "Envelope.Request.Item.SKU"
-    , "upc": "Envelope.Request.Item.UPC"
-    , "title": "Envelope.Request.Item.ShortTitle"
-    , "length": "Envelope.Request.Item.Dimensions.Length"
-    , "width": "Envelope.Request.Item.Dimensions.Width"
-    , "height": "Envelope.Request.Item.Dimensions.Height"
-    , "weight": [["Envelope.Request.Item.Weight", null, function () {
-      return 10;
-    }]]
-    , "weightUnits": [["Envelope.Request.Item.WeightUnits", null, function () {
-      return null;
-    }]]
-    , "inventory.onHandQty": "Envelope.Request.Item.Inventory?"
-    , "inventory.replenishQty": "Envelope.Request.Item.RelpenishQuantity?"
+    // , "upc": "Envelope.Request.Item.UPC"
+    // , "title": "Envelope.Request.Item.ShortTitle"
+    // , "length": "Envelope.Request.Item.Dimensions.Length"
+    // , "width": "Envelope.Request.Item.Dimensions.Width"
+    // , "height": "Envelope.Request.Item.Dimensions.Height"
+    // , "weight": [["Envelope.Request.Item.Weight", null, function () {
+    //   return 10;
+    // }]]
+    // , "weightUnits": [["Envelope.Request.Item.WeightUnits", null, function () {
+    //   return null;
+    // }]]
+    // , "inventory.onHandQty": "Envelope.Request.Item.Inventory?"
+    // , "inventory.replenishQty": "Envelope.Request.Item.RelpenishQuantity?"
     , "inventory.isInventoryItem": {key: ["Envelope.Request.Item.OnInventory", null, "YES"]}
     , "price": ["Envelope.Request.Item.Price[].List", "Envelope.Request.Item.Price[].Value", "Test[]"]
     , "descriptions[0]": "Envelope.Request.Item.ShortDescription"

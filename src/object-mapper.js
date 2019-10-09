@@ -164,37 +164,37 @@ function parse(key_str, delimiter = '.')
   const key_arr = key_str.split(delimiter)
   let keys = []
   let n = 0
-  for (let i=0, len1=key_arr.length; i<len1; i++) {
+  for (let i=0; i<key_arr.length; i++) {
     // Build a object which is either an object key or an array
     //  Note that this is not the most readable, but it is fastest way to parse the string (at this point in time)
-    let begin=-1, end=-1, add=null, nulls=null, key=key_arr[i]
-    for (let j=0, len2=key.length; j<len2; j++) {
-      if (key[j] == '[') begin = j
-      if (key[j] == ']' && begin > -1) end = j
-      if (key[j] == '+' && end == (j-1) ) add = true
-      if (key[j] == '?' && end == -1) nulls = true
+    let name_begin=-1, name_end=-1, ix_begin=-1, ix_end=-1, o = {}, a = {}, k = key_arr[i]
+    for (let j=0; j<k.length; j++) {
+      switch (k[j]) {
+        case '[' :
+          ix_begin = j+1
+          name_end = j
+          break
+        case ']' :
+          ix_end = j
+          break
+        case '+' :
+          if (ix_end == j-1) a.add = true
+          break
+        case '?' :
+          name_end = j
+          if (ix_end == -1) o.nulls = true
+          break
+        default :
+          if (ix_begin == -1) name_end = j+1
+      }
     }
-    // No array - just add object key
-    if (begin == -1) {
-      let k = {}
-      if (key_arr[i]) k.name = key_arr[i]
-      if (nulls) k.nulls = nulls
-      keys[n++] = k
+    if (name_end > 0) {
+      o.name = k.substring(name_begin, name_end)
+      keys[n++] = o
     }
-    // No key - just add array index
-    else if (begin == 0 && end > 0) {
-      let k = {ix: key_arr[i].substring(begin+1,end) }
-      if (add) k.add = add
-      keys[n++] = k
-    }
-    // Both object and array key
-    else if (begin > 0 && end > 0) {
-      let k = {name: key.substring(0,begin)}
-      if (nulls) k.nulls = nulls
-      keys[n++] = k
-      k = {ix: key.substring(begin+1,end)}
-      if (add) k.add = add
-      keys[n++] = k
+    if (ix_end > 0) {
+      a.ix = k.substring(ix_begin, ix_end)
+      keys[n++] = a
     }
   }
 
@@ -243,6 +243,7 @@ function setKeyValue(obj, key_str, data, context = {})
 }
 
 module.exports = ObjectMapper
+module.exports.merge = ObjectMapper
 module.exports.getKeyValue = getKeyValue
 module.exports.setKeyValue = setKeyValue
 module.exports.parse = parse
