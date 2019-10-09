@@ -1720,19 +1720,19 @@ test('original various tests', function (t) {
 
   var map = {
     "sku": "Envelope.Request.Item.SKU"
-    // , "upc": "Envelope.Request.Item.UPC"
-    // , "title": "Envelope.Request.Item.ShortTitle"
-    // , "length": "Envelope.Request.Item.Dimensions.Length"
-    // , "width": "Envelope.Request.Item.Dimensions.Width"
-    // , "height": "Envelope.Request.Item.Dimensions.Height"
-    // , "weight": [["Envelope.Request.Item.Weight", null, function () {
-    //   return 10;
-    // }]]
-    // , "weightUnits": [["Envelope.Request.Item.WeightUnits", null, function () {
-    //   return null;
-    // }]]
-    // , "inventory.onHandQty": "Envelope.Request.Item.Inventory?"
-    // , "inventory.replenishQty": "Envelope.Request.Item.RelpenishQuantity?"
+    , "upc": "Envelope.Request.Item.UPC"
+    , "title": "Envelope.Request.Item.ShortTitle"
+    , "length": "Envelope.Request.Item.Dimensions.Length"
+    , "width": "Envelope.Request.Item.Dimensions.Width"
+    , "height": "Envelope.Request.Item.Dimensions.Height"
+    , "weight": [["Envelope.Request.Item.Weight", null, function () {
+      return 10;
+    }]]
+    , "weightUnits": [["Envelope.Request.Item.WeightUnits", null, function () {
+      return null;
+    }]]
+    , "inventory.onHandQty": "Envelope.Request.Item.Inventory?"
+    , "inventory.replenishQty": "Envelope.Request.Item.RelpenishQuantity?"
     , "inventory.isInventoryItem": {key: ["Envelope.Request.Item.OnInventory", null, "YES"]}
     , "price": ["Envelope.Request.Item.Price[].List", "Envelope.Request.Item.Price[].Value", "Test[]"]
     , "descriptions[0]": "Envelope.Request.Item.ShortDescription"
