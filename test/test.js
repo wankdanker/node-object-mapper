@@ -2827,7 +2827,11 @@ var map = {
   'OTA_VehAvailRateRS.VehAvailRSCore.VehVendorAvails.VehVendorAvail.VehAvails.VehAvail[].VehAvailCore.RentalRate.VehicleCharges.VehicleCharge[].Calculation.$attributes.UnitCharge': 'vehicles[].tax_description',
 }
 
-  var result = om(obj, map);
+  var result
+  var timer = performance.now()
+  for (let i=0; i<1000; i++)
+    result = om(obj, map)
+  console.log('100 requests took ' + (performance.now() - timer) + 'ms')
   t.deepEqual(result, expect);
   t.end();
 });

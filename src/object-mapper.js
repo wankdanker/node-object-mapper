@@ -43,10 +43,22 @@ function select_obj(obj, key, key_arr)
   // This should be in the map definition, but this is a solution for wonky APIs
   if (Array.isArray(obj)) obj = obj[0]
 
-  if (key.name && obj && key.name in obj) {
-    if (key_arr.length > 0)
-      return select(obj[key.name], key_arr)
+  if (key.name && obj) {
+    // Match all keys in the object
+    if (key.name == '*') {
+      let arr = [], n=0
+      for(let k in obj) {
+        let o = (key_arr.length > 0) ? select(obj[k], key_arr.slice()) : obj[k]
+        if (o !== null && typeof o != 'undefined')
+          arr[n++] = o
+      }
+      if (arr.length > 0)
+        return arr
+    } else if (key.name in obj) {
+      if (key_arr.length > 0)
+        return select(obj[key.name], key_arr)
     return obj[key.name]
+    }
   }
   return null
 }
@@ -163,7 +175,9 @@ function parse(key_str, delimiter = '.')
   if (key_str == null)
     return null
 
-  const key_arr = key_str.split(delimiter)
+  // Split the key_array and allowing escapes
+  const key_arr = split(key_str, delimiter)
+  //const key_arr = key_str.split(delimiter)
   let keys = []
   let n = 0
   for (let i=0; i<key_arr.length; i++) {
@@ -202,6 +216,39 @@ function parse(key_str, delimiter = '.')
 
   return keys
 } 
+
+// Perform the same function as split(), but keep track of escaped delimiters
+function split(str, delimiter)
+{
+  let arr = [], n = 0
+  , esc = -99
+  , s = ''
+
+  for (let i=0; i<str.length; i++) {
+    switch(str[i]) {
+      case delimiter :
+        if (esc !== (i-1)) {
+          arr[n++] = s
+          s = ''
+        } else s += str[i]
+        break
+      case '\\' :
+        // Escaping a backslash
+        if (esc == (i-1)) {
+          esc = -99
+          s += str[i-1] + str[i]
+        } else 
+          esc = i
+        break
+      default :
+        if (esc == (i-1))
+          s += str[i-1]
+        s += str[i]
+    }
+  }
+  arr[n++] = s
+  return arr
+}
 
 // A string of how to navigate through the incoming array is sent.
 // This is translated into an array of instructions for the recursive object
