@@ -12,8 +12,8 @@ function ObjectMapper(from_obj, to_obj, property_map)
 
   // Loop through the map to process individual mapping instructions
   for (const from_key_str in property_map) {
-    const from_data = getKeyValue(from_obj, from_key_str)
     const to_key_str = property_map[from_key_str]
+    const from_data = getKeyValue(from_obj, from_key_str)
     let context = {from_obj: from_obj, from_key: from_key_str, to_key: to_key_str}
     to_obj = setKeyValue(to_obj, to_key_str, from_data, context)
   }
@@ -27,14 +27,12 @@ function select(obj, key_arr)
   const key = key_arr.shift()
 
   // If there is an object key, grab the object property
-  if (key.name) {
+  if (key.name)
     return select_obj(obj, key, key_arr)
-  }
 
   // If we need to deal with an array, then loop through and return recursive select for each
-  if (Array.isArray(obj)) {
+  if (Array.isArray(obj))
     return select_arr(obj, key, key_arr)
-  }
 }
 
 function select_obj(obj, key, key_arr)
@@ -54,10 +52,11 @@ function select_obj(obj, key, key_arr)
       }
       if (arr.length > 0)
         return arr
+    // The object has the given key
     } else if (key.name in obj) {
       if (key_arr.length > 0)
         return select(obj[key.name], key_arr)
-    return obj[key.name]
+      return obj[key.name]
     }
   }
   return null
@@ -126,16 +125,12 @@ function update_arr(arr, key, data, key_arr, context)
         return o
       }
     }, arr)
-
     return arr
   }
   // If there is more work to be done, push an object onto the array
   else {
     const x = (key.ix) ? key.ix : 0
-    if (key_arr.length > 0)
-      arr[x] = update(arr[x], data, key_arr, context)
-    else
-      arr[x] = data
+    arr[x] = (key_arr.length > 0) ? update(arr[x], data, key_arr, context) : data
   }
 
   return arr
@@ -143,9 +138,8 @@ function update_arr(arr, key, data, key_arr, context)
   
 function set_data(obj, key, data, context)
 {
-  // Initialize the object if it does not exist
-  if (obj == null || typeof obj == 'undefined')
-    obj = {}
+  // If the object is undefined, we need to create a new object
+  obj = obj || {}
 
   // See if there is a transform function and run it
   if (typeof context.transform == 'function')
@@ -160,10 +154,72 @@ function set_data(obj, key, data, context)
   }
 
   // Set the object to the data if it is not undefined
-  if (typeof data !== 'undefined' && key && key.name)
+  if (typeof data !== 'undefined' && key && key.name) {
     if (data !== null || key.nulls)
       obj[key.name] = data
+  }
 
+  return obj
+}
+
+// A string of how to navigate through the incoming array is sent.
+// This is translated into an array of instructions for the recursive object
+function getKeyValue(obj, key_str)
+{
+  return select(obj, parse(key_str) )
+}
+
+function setKeyValue(obj, key_str, data, context = {})
+{
+  // Key_str is undefined - call set_data in case there is a default or transformation to deal with
+  if (typeof key_str == 'undefined' || key_str == null)
+    return set_data(obj, key_str, data, context)
+
+  // Key_str is an array of values.  Loop through each and try individually
+  if (Array.isArray(key_str)) {
+    for (let i=0; i<key_str.length; i++) {
+      // There are an array of strings.  Loop through each one and set the value.
+      if (typeof key_str[i] == 'string') {
+        // The value is in string notation - recurse
+        obj = setKeyValue(obj, key_str[i], data, context)
+      } else if (Array.isArray(key_str[i])) {
+        // The value is in array notation - recurse
+        let [k,t,d] = key_str[i]
+        if (typeof t !== 'undefined') context.transform = t
+        if (typeof d !== 'undefined') context.default = d
+        obj = setKeyValue(obj, k, data, context)
+      } else {
+        // The value is in object notation - recurse
+        if (typeof key_str[i].transform !== 'undefined') context.transform = key_str[i].transform
+        if (typeof key_str[i].default !== 'undefined') context.default = key_str[i].default
+        // If the value of the key is an array, parse the array.  If this is parsed in a recursion, it is confused with arrays containing multiple values
+        if (Array.isArray(key_str[i].key)) {
+          let [k,t,d] = key_str[i].key
+          if (typeof t !== 'undefined') context.transform = t
+          if (typeof d !== 'undefined') context.default = d
+          obj = setKeyValue(obj, k, data, context)
+        } else
+          obj = setKeyValue(obj, key_str[i].key, data, context)
+      }
+    }
+  } else {
+    if (typeof key_str == 'string')
+        // The value is in string notation - ready for update!
+        obj = update(obj, data, parse(key_str), context)
+    else {
+        // The value is in object notation - recurse
+        if (typeof key_str.transform !== 'undefined') context.transform = key_str.transform
+        if (typeof key_str.default !== 'undefined') context.default = key_str.default
+        // If the value of the key is an array, parse the array.  If this is parsed in a recursion, it is confused with arrays containing multiple values
+        if (Array.isArray(key_str.key)) {
+          let [k,t,d] = key_str.key
+          if (typeof t !== 'undefined') context.transform = t
+          if (typeof d !== 'undefined') context.default = d
+          obj = setKeyValue(obj, k, data, context)
+        } else
+          obj = setKeyValue(obj, key_str.key, data, context)
+    }
+  }
   return obj
 }
 
@@ -248,67 +304,6 @@ function split(str, delimiter)
   }
   arr[n++] = s
   return arr
-}
-
-// A string of how to navigate through the incoming array is sent.
-// This is translated into an array of instructions for the recursive object
-function getKeyValue(obj, key_str)
-{
-  return select(obj, parse(key_str) )
-}
-
-function setKeyValue(obj, key_str, data, context = {})
-{
-  // Key_str is undefined - call set_data in case there is a default or transformation to deal with
-  if (typeof key_str == 'undefined' || key_str == null)
-    return set_data(obj, key_str, data, context)
-
-  // Key_str is an array of values.  Loop through each and try individually
-  if (Array.isArray(key_str)) {
-    for (let i=0; i<key_str.length; i++) {
-      // There are an array of strings.  Loop through each one and set the value.
-      if (typeof key_str[i] == 'string') {
-        // The value is in string notation - recurse
-        obj = setKeyValue(obj, key_str[i], data, context)
-      } else if (Array.isArray(key_str[i])) {
-        // The value is in array notation - recurse
-        let [k,t,d] = key_str[i]
-        if (typeof t !== 'undefined') context.transform = t
-        if (typeof d !== 'undefined') context.default = d
-        obj = setKeyValue(obj, k, data, context)
-      } else {
-        // The value is in object notation - recurse
-        if (typeof key_str[i].transform !== 'undefined') context.transform = key_str[i].transform
-        if (typeof key_str[i].default !== 'undefined') context.default = key_str[i].default
-        // If the value of the key is an array, parse the array.  If this is parsed in a recursion, it is confused with arrays containing multiple values
-        if (Array.isArray(key_str[i].key)) {
-          let [k,t,d] = key_str[i].key
-          if (typeof t !== 'undefined') context.transform = t
-          if (typeof d !== 'undefined') context.default = d
-          obj = setKeyValue(obj, k, data, context)
-        } else
-          obj = setKeyValue(obj, key_str[i].key, data, context)
-      }
-    }
-  } else {
-    if (typeof key_str == 'string')
-        // The value is in string notation - ready for update!
-        obj = update(obj, data, parse(key_str), context)
-    else {
-        // The value is in object notation - recurse
-        if (typeof key_str.transform !== 'undefined') context.transform = key_str.transform
-        if (typeof key_str.default !== 'undefined') context.default = key_str.default
-        // If the value of the key is an array, parse the array.  If this is parsed in a recursion, it is confused with arrays containing multiple values
-        if (Array.isArray(key_str.key)) {
-          let [k,t,d] = key_str.key
-          if (typeof t !== 'undefined') context.transform = t
-          if (typeof d !== 'undefined') context.default = d
-          obj = setKeyValue(obj, k, data, context)
-        } else
-          obj = setKeyValue(obj, key_str.key, data, context)
-    }
-  }
-  return obj
 }
 
 module.exports = ObjectMapper
