@@ -120,8 +120,8 @@ function update_arr(arr, key, data, key_arr, context)
   // Make sure that there is an array item for each item in the data array
   if (Array.isArray(data)) {
     arr = data.reduce(function(o,d,i) {
-      if (i == '' || i == i) {
-        o[i] = update(o[i], d, key_arr.slice(), context)
+      if (key.ix == '' || key.ix == i) {
+        o[i] = (key_arr.length > 0) ? update(o[i], d, key_arr.slice(), context) : d
         return o
       }
     }, arr)

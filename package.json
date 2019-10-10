@@ -1,11 +1,11 @@
 {
-  "author": "Scott Switzer <scott@switzer.org>",
+  "author": "Dan VerWeire <dverweire@gmail.com>",
   "name": "object-mapper",
   "description": "Copy properties from one object to another.",
   "version": "5.1.0",
   "repository": {
     "type": "git",
-    "url": "git://github.com/switzer/node-object-mapper.git"
+    "url": "git://github.com/wankdanker/node-object-mapper.git"
   },
   "scripts": {
     "test": "node test/test.js"
@@ -20,6 +20,10 @@
   },
   "contributors": [
     {
+      "name": "Scott Switzer",
+      "email": "scott@switzer.org"
+    },
+    {
       "name": "Dan VerWeire",
       "email": "dverweire@gmail.com"
     },
@@ -31,10 +35,6 @@
     },
     {
       "name": "scotthogan"
-    },
-    {
-      "name": "Scott Switzer",
-      "email": "scott@switzer.org"
     }
   ]
 }
