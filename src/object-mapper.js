@@ -88,8 +88,15 @@ function update(obj, data, key_arr, context)
       return update_obj(obj, key, data, key_arr, context)
 
     // If there is an array index, we need to traverse through the array
-    if (typeof key.ix !== 'undefined')
+    if (typeof key.ix !== 'undefined') {
       return update_arr(obj, key, data, key_arr, context)
+      // If the 'add' direction is made, add the response to an array.  If the object is already there, ignore
+      // if (key.add) {
+      //   if (Array.isArray(obj)) return obj.push(a)
+      //   if (obj == null || typeof obj == 'undefined') return [a]
+      // }
+      // return a
+    }
   }
 
   // If there is neither an array or index, we need to see if there is data to set
@@ -116,6 +123,12 @@ function update_arr(arr, key, data, key_arr, context)
 {
   // If the top level object is undefined, we need to create a new array
   if (arr == null) arr = []
+
+  // If the instruction is to add any subsequent data onto the array, then do it
+  if (key.add) {
+    arr.push(data)
+    return arr
+  }
 
   // Make sure that there is an array item for each item in the data array
   if (Array.isArray(data)) {
@@ -311,4 +324,5 @@ module.exports.merge = ObjectMapper
 module.exports.getKeyValue = getKeyValue
 module.exports.setKeyValue = setKeyValue
 module.exports.parse = parse
+module.exports.split = split
 // module.exports.merge = ObjectMapper;
