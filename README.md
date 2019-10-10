@@ -4,8 +4,8 @@
 
 ## About
 
-Copy properties from one `Object` to another based
-on a separate `Object`, which defines how the properties should be mapped.
+Utility to copy properties from one `Object` to another based
+on instructions given in a map `Object`, which defines which properties should be mapped.
 
 ## Installation
 
