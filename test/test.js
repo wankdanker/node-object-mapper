@@ -2077,3 +2077,32 @@ test('Multi-level array issue #29', function (t) {
 });
 
 
+test('Ensure that boolean values work for both arrays and objects #37', function (t) {
+  var to_obj = {
+    test: 1
+  };
+
+  var from_obj = {
+    "foo": {
+      "bar": false,
+      "baz": [1,2,'three',false]
+    }
+  };
+
+  var map = {
+    'foo.bar': { key: 'baz' },
+    'foo.baz': 'biff'
+  };
+
+  var expect = {
+    test: 1,
+    baz: false,
+    biff: [1,2,'three',false]
+  };
+
+
+  var result = om(from_obj, to_obj, map);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
