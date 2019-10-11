@@ -2039,7 +2039,7 @@ test('Mapping properties with glob patterns with incomplete path', function (t) 
   t.end();
 });
 
-test('Mapping destination property with backslash itself escaped', function (t) {
+test('Object is created when it should not be #57', function (t) {
   var obj = {}
   var expect
   const map = { key1: "a.b.c" }
@@ -2049,3 +2049,31 @@ test('Mapping destination property with backslash itself escaped', function (t) 
   t.deepEqual(result, expect);
   t.end();
 });
+test('Multi-level array issue #29', function (t) {
+  var orig = {
+    foo: [
+        {"name": "a", "things": ["a1", "a2"]},
+        {"name": "b", "things": ["b1", "b2"]}
+    ]
+  }
+  var map = {
+    "foo[].name": "bar[].label",
+    "foo[].things[]": "bar[].values[]"
+  };
+    
+  var expect = {bar: [{
+    label: "a",
+    values: ["a1", "a2"]
+    },
+    {
+    label: "b",
+    values: ["b1", "b2"]
+  }]}
+  
+  var result = om(orig, map);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+
+
