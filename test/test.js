@@ -2147,4 +2147,31 @@ test('Ensure that multi-dimentional arrays work #41', function (t) {
   t.end();
 });
 
+test('Make sure no objects are created without data #48', function (t) {
+  var obj = {
+    "a" : 1234,
+    "foo": {
+      "bar": null
+    }
+  };
+  
+  var expect = {
+    foo:{
+      a:1234
+    }
+  };
+  
+  var map = {
+    'foo.bar' : 'bar.bar',
+    'a': 'foo.a'
+   };
+  
+
+  var result = om(obj, map);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+
+
 
