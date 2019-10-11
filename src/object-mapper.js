@@ -251,12 +251,13 @@ function update_arr(dest, key, data, keys, context)
   if (key.add) {
     if (data !== null && typeof data !== 'undefined') {
       dest = dest || []
-      dest.push(data)
+      //dest.push(data)
+      dest = dest.concat(data)
     }
     return dest
   }
 
-  // Make sure that there is an array item for each item in the data array
+  // If the data is in an array format then make sure that there is a dest index for each data index
   if (Array.isArray(data)) {
     dest = dest || []
     // Loop through each index in the data array and update the destination object with the data
