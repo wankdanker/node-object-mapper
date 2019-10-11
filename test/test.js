@@ -2106,3 +2106,45 @@ test('Ensure that boolean values work for both arrays and objects #37', function
   t.deepEqual(result, expect);
   t.end();
 });
+
+test('Ensure that multi-dimentional arrays work #41', function (t) {
+  var src = {
+    "arr": [
+        {
+            "id": 1
+        }
+    ]
+  };
+  
+  var expect = null
+  var result = om.getKeyValue(src, "arr[].arr[].id");
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+
+test('Ensure that multi-dimentional arrays work #41', function (t) {
+  var src = {
+    "arr": [
+        {
+            "id": 1
+        }
+    ]
+  };
+  
+  var map = {
+    "arr[].id": "arr[].id",
+    "arr[].arr[].id": "arr[].arr[].id",
+    "arr[].arr[].arr[].id": "arr[].arr[].arr[].id"
+  };
+  
+  var expect = {"arr":[{"id":1}]};
+
+
+  var result = om(src, map);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+
+
