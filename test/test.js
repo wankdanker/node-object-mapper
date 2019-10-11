@@ -1652,9 +1652,6 @@ test('map object to another - prevent null values from being mapped', function (
   var expect = {
     foo:{
       a:1234
-    },
-    bar:{
-
     }
   };
 
@@ -2035,6 +2032,17 @@ test('Mapping properties with glob patterns with incomplete path', function (t) 
   var map = {
     'nodes.*': 'types'
   };
+
+  var result = om(obj, map);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+
+test('Mapping destination property with backslash itself escaped', function (t) {
+  var obj = {}
+  var expect
+  const map = { key1: "a.b.c" }
 
   var result = om(obj, map);
 

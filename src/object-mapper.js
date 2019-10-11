@@ -106,12 +106,19 @@ function update(obj, data, key_arr, context)
 
 function update_obj(obj, key, data, key_arr, context)
 {
-  // If the object is undefined, we need to create a new object
-  obj = obj || {}
-  
   // Set the key of the object equal to the recursive, or if at the end, the data
-  if (key_arr.length > 0)
-    obj[key.name] = update(obj[key.name], data, key_arr, context)
+  if (key_arr.length > 0) {
+    if (obj)
+      obj[key.name] = update(obj[key.name], data, key_arr, context)
+    else {
+      // Check to see if there is a value before creating an object to store it
+      let o = update(_undefined, data, key_arr, context)
+      if (o !== null && typeof o !== 'undefined') {
+        obj = {}
+        obj[key.name] = o
+      }
+    }
+  }
   // This is a leaf.  Set to the value, or if it is missing, the default value
   else
     obj = set_data(obj, key, data, context)
@@ -121,17 +128,16 @@ function update_obj(obj, key, data, key_arr, context)
 
 function update_arr(arr, key, data, key_arr, context)
 {
-  // If the top level object is undefined, we need to create a new array
-  if (arr == null) arr = []
-
   // If the instruction is to add any subsequent data onto the array, then do it
-  if (key.add) {
+  if (key.add && data !== null && typeof data !== 'undefined') {
+    if (arr == null) arr = []
     arr.push(data)
     return arr
   }
 
   // Make sure that there is an array item for each item in the data array
   if (Array.isArray(data)) {
+    if (arr == null) arr = []
     arr = data.reduce(function(o,d,i) {
       if (key.ix == '' || key.ix == i) {
         o[i] = (key_arr.length > 0) ? update(o[i], d, key_arr.slice(), context) : d
@@ -142,8 +148,10 @@ function update_arr(arr, key, data, key_arr, context)
   }
   // If there is more work to be done, push an object onto the array
   else {
+    if (arr == null) arr = []
     const x = (key.ix) ? key.ix : 0
-    arr[x] = (key_arr.length > 0) ? update(arr[x], data, key_arr, context) : data
+    let d = (key_arr.length > 0) ? update(arr[x], data, key_arr, context) : data
+    arr[x] = d
   }
 
   return arr
@@ -151,25 +159,28 @@ function update_arr(arr, key, data, key_arr, context)
   
 function set_data(obj, key, data, context)
 {
-  // If the object is undefined, we need to create a new object
-  obj = obj || {}
-
   // See if there is a transform function and run it
-  if (typeof context.transform == 'function')
+  if (typeof context.transform == 'function') {
+    obj = obj || {}
     data = context.transform(data, context.from_obj, obj, context.from_key, context.to_key)
+  }
 
   // See if data is null and there is a default
   if (context.default && (data == null || typeof data == 'undefined')) {
-    if (typeof context.default == 'function')
+    if (typeof context.default == 'function') {
+      obj = obj || {}
       data = context.default(context.from_obj, context.from_key, context.to_obj, context.to_key)
+    }
     else
       data = context.default
   }
 
   // Set the object to the data if it is not undefined
   if (typeof data !== 'undefined' && key && key.name) {
-    if (data !== null || key.nulls)
+    if (data !== null || key.nulls) {
+      obj = obj || {}
       obj[key.name] = data
+    }
   }
 
   return obj
