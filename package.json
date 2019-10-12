@@ -12,7 +12,8 @@
   },
   "devDependencies": {
     "debug": "^2.2.0",
-    "tape": "^4.0.1"
+    "tape": "^4.0.1",
+    "perf_hooks": "0.0.1"
   },
   "optionalDependencies": {},
   "engines": {
@@ -36,8 +37,5 @@
     {
       "name": "scotthogan"
     }
-  ],
-  "dependencies": {
-    "perf_hooks": "0.0.1"
-  }
+  ]
 }
