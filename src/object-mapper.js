@@ -259,29 +259,17 @@ function update_arr(dest, key, data, keys, context)
 
   // Just update a single array node
   if (key.ix !== '') {
-    let o
-    if (dest !== null && typeof dest !== 'undefined' && typeof dest[key.ix] !== 'undefined')
-      o = (keys.length) ? update(dest[key.ix], data, keys, context) : data
-    else
-      o = (keys.length) ? update(null, data, keys, context) : data
-
-    // Only update (and create if needed) dest if there is data to be saved
-    if (o !== null) {
-      dest = dest || []
-      dest[key.ix] = o
-    }
-    return dest
+    return update_arr_ix(dest, key.ix, data, keys, context)
   }
 
   // If the data is in an array format then make sure that there is a dest index for each data index
   if (Array.isArray(data)) {
     dest = dest || []
     // Loop through each index in the data array and update the destination object with the data
-    dest = data.reduce(function(o,d,i) {
+    dest = data.reduce(function(dest,d,i) {
       // If the instruction is to update all array indices ('') or the current index, update the child data element.  Otherwise, don't bother
       if (key.ix == '' || key.ix == i) {
-        o[i] = (keys.length) ? update(o[i], d, keys.slice(), context) : d
-        return o
+        return update_arr_ix(dest, i, d, keys.slice(), context)
       }
     }, dest)
 
@@ -289,23 +277,29 @@ function update_arr(dest, key, data, keys, context)
   }
 
   // Set the specific array index with the data
-  else {
-    const x = (key.ix) ? key.ix : 0
-    let o
-    if (dest !== null && typeof dest !== 'undefined' && typeof dest[x] !== 'undefined')
-      o = (keys.length) ? update(dest[x], data, keys, context) : data
-    else
-      o = (keys.length) ? update(null, data, keys, context) : data
-    
-    if (o !== null) {
-      dest = dest || []
-      dest[x] = o
-    }
+  else 
+    return update_arr_ix(dest, '0', data, keys, context)
+
+  return dest
+}
+
+function update_arr_ix(dest, ix, data, keys, context)
+{
+  let o
+  if (dest !== null && typeof dest !== 'undefined' && typeof dest[ix] !== 'undefined')
+    o = (keys.length) ? update(dest[ix], data, keys, context) : data
+  else
+    o = (keys.length) ? update(null, data, keys, context) : data
+
+  // Only update (and create if needed) dest if there is data to be saved
+  if (o !== null) {
+    dest = dest || []
+    dest[ix] = o
   }
 
   return dest
 }
-  
+
 // Set the given data into the given destination object
 function set_data(dest, key, data, context)
 {
