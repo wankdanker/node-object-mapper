@@ -90,6 +90,7 @@ function select_obj(src, key, keys)
 {
   // Make sure that there is data where we are looking
   if (src && key.name) {
+    
     // Match all keys in the object
     if (key.name == '*')
       return select_obj_keys(src, keys)
@@ -279,8 +280,6 @@ function update_arr(dest, key, data, keys, context)
   // Set the specific array index with the data
   else 
     return update_arr_ix(dest, '0', data, keys, context)
-
-  return dest
 }
 
 function update_arr_ix(dest, ix, data, keys, context)
@@ -423,4 +422,3 @@ module.exports.getKeyValue = getKeyValue
 module.exports.setKeyValue = setKeyValue
 module.exports.parse = parse
 module.exports.split = split
-// module.exports.merge = ObjectMapper;
