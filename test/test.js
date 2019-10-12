@@ -3,16 +3,12 @@
 //const om = require('object-mapper')
 const om = require('../')
   , test = require('tape')
-  , performance = require('perf_hooks').performance
+  // , performance = require('perf_hooks').performance
 
 test('SPLIT with complicated key', function (t) {
   var k = 'abc.def.ghi.j..k\\.l\\\\.m.'
   var expect = ['abc','def','ghi','j','','k.l\\\\','m','']
-  var timer = performance.now()
-  var result
-  // for (let i=0; i<1000; i++)
-    result = om.split(k, '.')
-  // console.log('SPLIT performance: ' + (performance.now() - timer)/1000 + "ms")
+  var result = om.split(k, '.')
   t.deepEqual(result, expect);
   t.end();
 });
@@ -20,11 +16,7 @@ test('SPLIT with complicated key', function (t) {
 test('PARSE with complicated key', function (t) {
   var k = 'abc[].def[42]+.ghi?.j..k\\.l\\\\.m.'
   var expect = [{name: 'abc'},{ix: ''},{name: 'def'},{ix: '42', add: true},{name: 'ghi', nulls: true},{name: 'j'},{name: 'k.l\\\\'},{name: 'm'}]
-  var timer = performance.now()
-  var result
-  // for (let i=0; i<1000; i++)
-    result = om.parse(k, '.')
-  // console.log('SPLIT performance: ' + (performance.now() - timer)/1000 + "ms")
+  var result = om.parse(k, '.')
   t.deepEqual(result, expect);
   t.end();
 });
