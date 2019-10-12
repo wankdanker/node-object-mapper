@@ -257,6 +257,22 @@ function update_arr(dest, key, data, keys, context)
     return dest
   }
 
+  // Just update a single array node
+  if (key.ix !== '') {
+    let o
+    if (dest !== null && typeof dest !== 'undefined' && typeof dest[key.ix] !== 'undefined')
+      o = (keys.length) ? update(dest[key.ix], data, keys, context) : data
+    else
+      o = (keys.length) ? update(null, data, keys, context) : data
+
+    // Only update (and create if needed) dest if there is data to be saved
+    if (o !== null) {
+      dest = dest || []
+      dest[key.ix] = o
+    }
+    return dest
+  }
+
   // If the data is in an array format then make sure that there is a dest index for each data index
   if (Array.isArray(data)) {
     dest = dest || []
