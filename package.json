@@ -16,7 +16,7 @@
   },
   "optionalDependencies": {},
   "engines": {
-    "node": "*"
+    "node": ">=6.0.0"
   },
   "contributors": [
     {
