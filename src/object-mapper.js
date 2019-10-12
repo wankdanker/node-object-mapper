@@ -251,8 +251,8 @@ function update_arr(dest, key, data, keys, context)
   if (key.add) {
     if (data !== null && typeof data !== 'undefined') {
       dest = dest || []
-      //dest.push(data)
-      dest = dest.concat(data)
+      dest.push(data)
+      // dest = dest.concat(data)
     }
     return dest
   }
