@@ -2502,3 +2502,13 @@ test('Should correctly map to a subelement of indexed array item deep in the obj
   t.deepEqual(result, expect);
   t.end();
 });
+
+test('MAP Should correctly create an array and add if undlerlying data structure is object #64', function (t) {
+  var src = {foo: {bar: 'baz'}}
+  var map = { 'foo[].bar': 'abc[].def' }
+  var expect = { abc: [ {def: 'baz'} ] }
+  var result = om(src, map)
+
+  t.deepEqual(result, expect)
+  t.end()
+});

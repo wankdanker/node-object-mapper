@@ -45,7 +45,7 @@ function select(src, keys)
   const key = keys.shift()
 
   // The child entity is an array.  Traverse the array to obtain data
-  if (Array.isArray(src))
+  if (key.ix !== null && typeof key.ix !== 'undefined')
     return select_arr(src, key, keys)
 
   // The next instruction is an object key.  Try to obtain the data for the given object key
@@ -60,6 +60,17 @@ function select(src, keys)
 function select_arr(src, key, keys)
 {
   let data = []
+
+  // The source is not an array even though we specify array.  Grab the subnode and add to an array.
+  if (!Array.isArray(src)) {
+    let d = null
+    // Try to get the next value in the chain.  If possible, then add to an array
+    if (keys.length)
+      d = select(src, keys)
+    // If we found something, return it as an array
+    return (d !== null) ? [ d ] : null
+  }
+
   // Recursively loop through the array and grab the data
   for (var i=0; i<src.length; i++) {
     // Check to see if we are at a 'leaf' (no more keys to parse).  If so, return the data.  If not, recurse
@@ -94,6 +105,14 @@ function select_obj(src, key, keys)
     // Match all keys in the object
     if (key.name == '*')
       return select_obj_keys(src, keys)
+
+    // The key specifies an object.  However, the data structure is an array.  Grab the first node and continue
+    if (Array.isArray(src)) {
+      if (src.length && src[0])
+        return (keys.length) ? select(src[0][key.name], keys) : src[0][key.name]
+
+      return null
+    }
 
     // The object has the given key
     if (key.name in src) {
