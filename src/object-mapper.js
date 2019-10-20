@@ -328,7 +328,7 @@ function set_data(dest, key, data, context)
   }
 
   // See if data is null and there is a default
-  if (context.default && (data == null || typeof data == 'undefined')) {
+  if (typeof context.default !== 'undefined' && (data == null || typeof data == 'undefined')) {
     // There is a default function, call the function to set the default
     if (typeof context.default == 'function') {
       dest = dest || {}
@@ -341,7 +341,8 @@ function set_data(dest, key, data, context)
 
   // Set the object to the data if it is not undefined
   if (typeof data !== 'undefined' && key && key.name) {
-    if (data !== null || key.nulls) {
+    // Set the data if the data is not null, or if the 'allow nulls' key is set, or if there is a default (in the case of default=null, make sure to write this out)
+    if (data !== null || key.nulls || (typeof context.default !== 'undefined' && context.default == null)) {
       dest = dest || {}
       dest[key.name] = data
     }

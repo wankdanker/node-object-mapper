@@ -100,6 +100,24 @@ test('PARSE with deep brackets', function (t) {
   t.deepEqual(result, expect);
   t.end();
 });
+test('MAP with empty default on missing key', function (t) {
+  var obj = {foo: 'bar'}
+  var map = {'undefined_key': {key:'key_with_default', default:''}}
+  var expect = {key_with_default: ''}
+
+  var result = om(obj, map);
+  t.deepEqual(result, expect);
+  t.end();
+});
+test('MAP with null default on missing key', function (t) {
+  var obj = {foo: 'bar'}
+  var map = {'undefined_key': {key:'key_with_default', default: null}}
+  var expect = {key_with_default: null}
+
+  var result = om(obj, map);
+  t.deepEqual(result, expect);
+  t.end();
+});
 // test('parse with a slashed dot', function (t) {
 //   var k = 'abc\.def'
 //   var expect = ['[abc.def']
