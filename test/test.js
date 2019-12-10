@@ -2530,3 +2530,24 @@ test('MAP Should correctly create an array and add if undlerlying data structure
   t.deepEqual(result, expect)
   t.end()
 });
+
+
+
+test("MAP Should correctly apply transform in array data #68", t => {
+  var src = {
+    test: ["1234", "5678", "9101"]
+  };
+  var map = {
+    "test[]": {
+      key: "check[]",
+      transform: val => parseInt(val)
+    }
+  };
+  var expect = {
+    check: [1234, 5678, 9101]
+  };
+  var result = om(src, map);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
