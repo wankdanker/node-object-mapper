@@ -2,6 +2,15 @@
 
 var _undefined
 
+/**
+ * Map a object to another using the passed map
+ * @param src
+ * @param [dest]
+ * @param [map]
+ * @returns {*}
+ * @constructor
+ */
+
 function ObjectMapper(src, dest, map)
 {
   // There are two different constructors - move around properties if needed
