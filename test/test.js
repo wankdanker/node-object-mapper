@@ -207,6 +207,36 @@ test('get value - simple array defined index', function (t) {
   t.end();
 });
 
+test('get value - simple array negative index', function (t) {
+  var obj = ['foo', 'bar'];
+  var map = '[-1]';
+  var expect = 'bar';
+  var result = om.getKeyValue(obj, map);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+
+test('get value - simple array dot property', function (t) {
+  var obj = [{ name: 'foo' }, { name: 'bar' }];
+  var map = '[-1].name';
+  var expect = 'bar';
+  var result = om.getKeyValue(obj, map);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+
+test('get value - simple array negative index falls off array', function (t) {
+  var obj = ['foo', 'bar'];
+  var map = '[-3]';
+  var expect = null;
+  var result = om.getKeyValue(obj, map);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+
 test('get value - two levels deep', function (t) {
   var key = 'foo.baz.fog';
 
@@ -383,6 +413,28 @@ test('get value - crazy', function (t) {
   t.deepEqual(result, expect);
   t.end();
 });
+
+test('get value - crazy negative', function (t) {
+  var key = 'foo.baz[-1].fog[1].baz';
+
+  var obj = {
+    "foo": {
+      "baz": [{
+        "fog": [, {
+          "baz": "bar"
+        }]
+      }]
+    }
+  };
+
+  var expect = "bar";
+
+  var result = om.getKeyValue(obj, key);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+
 
 test('select with array object where map is not an array 1', function (t) {
   var obj = { foo: [{bar: 'a'}, {bar: 'b'}, {bar: 'c'}] }
