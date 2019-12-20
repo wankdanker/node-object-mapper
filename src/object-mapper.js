@@ -94,8 +94,8 @@ function select_arr(src, key, keys)
     return data
 
   // Return a specific node in the array if defined
-  if (key.ix && typeof data[key.ix] !== 'undefined')
-    return data[key.ix]
+  if (key.ix && typeof negative_array_access(data, key.ix) !== 'undefined')
+    return negative_array_access(data, key.ix);
 
   // If we are not expecting an array, return the first node - kinda hacky
   if (typeof data[0] !== 'undefined' && key.name && data[0][key.name])
@@ -103,6 +103,13 @@ function select_arr(src, key, keys)
   
   // Otherwise, return nothing
   return null
+}
+
+// Allows negative array indexes to count down from end of array
+function negative_array_access(arr, ix)
+{
+  var pix = parseInt(ix);
+  return pix < 0 ? arr[arr.length + pix] : arr[ix];
 }
 
 // Traverse the given object for data using the given key array
