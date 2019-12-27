@@ -1885,3 +1885,37 @@ test('Mapping properties with glob patterns with incomplete path', function (t) 
   t.deepEqual(result, expect);
   t.end();
 });
+
+test("issue #69: should create an array of values", t => {
+  var src = [
+    { identification: 1235, name: 'John Doe'},
+    { identification: 9876, name: 'Brock Doe' }];
+
+  var map = { 'identification': 'id'};
+
+  var expect = { id: [ 1235, 9876 ] };
+
+  var result = om(src, map);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+
+test("issue #71: mapping array should not fail when not defined", t => {
+  const src = {};
+
+  const map = {
+    mySizes: [{
+        key: 'sizes',
+        transform: sizes => sizes.map(data => data),
+        default: () => []
+    }]
+  };
+
+  const expect = { sizes: [] };
+
+  const result = om(src, map);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
