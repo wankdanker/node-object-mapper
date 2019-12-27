@@ -345,12 +345,6 @@ function update_arr_ix(dest, ix, data, keys, context)
 // Set the given data into the given destination object
 function set_data(dest, key, data, context)
 {
-  // If there is a transformation function, call the function.
-  if (typeof context.transform == 'function') {
-    dest = dest || {}
-    data = context.transform(data, context.src, dest, context.srckey, context.destkey)
-  }
-
   // See if data is null and there is a default
   if (typeof context.default !== 'undefined' && (data == null || typeof data == 'undefined')) {
     // There is a default function, call the function to set the default
@@ -361,6 +355,12 @@ function set_data(dest, key, data, context)
     // The default is a specific value
     else
       data = context.default
+  }
+
+  // If there is a transformation function, call the function.
+  if (typeof context.transform == 'function') {
+    dest = dest || {}
+    data = context.transform(data, context.src, dest, context.srckey, context.destkey)
   }
 
   // Set the object to the data if it is not undefined
