@@ -2637,3 +2637,22 @@ test("issue #71: mapping array should not fail when not defined", t => {
   t.deepEqual(result, expect);
   t.end();
 });
+
+test("issue #74: mapping empty array should result in empty array", t => {
+  const src = {nbMember : 5, activityList: []};
+
+  const map = {
+    'nbMember': 'maxPlayerCount'
+    , 'activityList[].id': 'activityList[].id'
+  };
+
+  const expect = {
+    activityList: []
+    , maxPlayerCount: 5
+  }
+
+  const result = om(src, map);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
