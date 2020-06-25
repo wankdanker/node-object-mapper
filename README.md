@@ -108,7 +108,7 @@ Using an `Object` as the destination:
 
 ##### Methods
 
-###### transform(sourceValue, sourceObject, destinationObject, destinationKey);
+###### transform(sourceValue, sourceObject, destinationObject, sourceKey, destinationKey);
 
 Specify the mapping of a **sourceValue** as you need;
 
