@@ -42,6 +42,7 @@ function getKeyValue(src, keystr)
   let keys = parse(keystr)
   // Select the data from the source object or array
   let data = select(src, keys)
+  data = data === null ? []: data
   // Return the data for further parsing
   return data
 }
@@ -100,7 +101,7 @@ function select_arr(src, key, keys)
   // If we are not expecting an array, return the first node - kinda hacky
   if (typeof data[0] !== 'undefined' && key.name && data[0][key.name])
     return data[0][key.name]
-  
+
   // Otherwise, return nothing
   return null
 }
@@ -117,7 +118,7 @@ function select_obj(src, key, keys)
 {
   // Make sure that there is data where we are looking
   if (src && key.name) {
-    
+
     // Match all keys in the object
     if (key.name == '*')
       return select_obj_keys(src, keys)
@@ -187,12 +188,12 @@ function setKeyValue(dest, keystr, data, context = {})
         if (typeof d !== 'undefined') context.default = d
         dest = setKeyValue(dest, k, data, context)
       }
-      
+
       // The substring value is in object notation - dig further
       else {
         if (typeof keystr[i].transform !== 'undefined') context.transform = keystr[i].transform
         if (typeof keystr[i].default !== 'undefined') context.default = keystr[i].default
-        
+
         // If the substring value of the key is an array, parse the array.  If this is parsed in a recursion, it is confused with arrays containing multiple values
         if (Array.isArray(keystr[i].key)) {
           let [k,t,d] = keystr[i].key
@@ -200,7 +201,7 @@ function setKeyValue(dest, keystr, data, context = {})
           if (typeof d !== 'undefined') context.default = d
           dest = setKeyValue(dest, k, data, context)
         }
-        
+
         // The substring value is regular object notation - recurse with the key of the substring
         else
           dest = setKeyValue(dest, keystr[i].key, data, context)
@@ -283,7 +284,7 @@ function update_obj(dest, key, data, keys, context)
 // Update the dest[] array with the data on each index
 function update_arr(dest, key, data, keys, context)
 {
-  // The 'add' instruction is set.  This means to take the data and add it onto a new array node 
+  // The 'add' instruction is set.  This means to take the data and add it onto a new array node
   if (key.add) {
     if (data !== null && typeof data !== 'undefined') {
       dest = dest || []
@@ -313,7 +314,7 @@ function update_arr(dest, key, data, keys, context)
   }
 
   // Set the specific array index with the data
-  else 
+  else
     return update_arr_ix(dest, '0', data, keys, context)
 }
 
@@ -378,7 +379,7 @@ function set_data(dest, key, data, context)
 
 
 // Turns a key string (like key1.key2[].key3 into ['key1','key2','[]','key3']...)
-// 
+//
 function parse(key_str, delimiter = '.')
 {
   // Return null if the key_str is null
@@ -425,7 +426,7 @@ function parse(key_str, delimiter = '.')
   }
 
   return keys
-} 
+}
 
 // Perform the same function as split(), but keep track of escaped delimiters
 function split(str, delimiter)
@@ -447,7 +448,7 @@ function split(str, delimiter)
         if (esc == (i-1)) {
           esc = -99
           s += str[i-1] + str[i]
-        } else 
+        } else
           esc = i
         break
       default :
