@@ -12,7 +12,7 @@ test('SPLIT with complicated key', function (t) {
   t.deepEqual(result, expect);
   t.end();
 });
-  
+
 test('PARSE with complicated key', function (t) {
   var k = 'abc[].def[42]+.ghi?.j..k\\.l\\\\.m.'
   var expect = [{name: 'abc'},{ix: ''},{name: 'def'},{ix: '42', add: true},{name: 'ghi', nulls: true},{name: 'j'},{name: 'k.l\\\\'},{name: 'm'}]
@@ -20,7 +20,7 @@ test('PARSE with complicated key', function (t) {
   t.deepEqual(result, expect);
   t.end();
 });
-  
+
 test('PARSE with simple key', function (t) {
   var k = 'abc'
   var expect = [{name: 'abc'}]
@@ -172,7 +172,7 @@ var expect =
   t.deepEqual(result, expect);
   t.end();
 });
-  
+
 
 test('get value - one level deep', function (t) {
 
@@ -2117,7 +2117,7 @@ test('Multi-level array issue #29', function (t) {
     "foo[].name": "bar[].label",
     "foo[].things[]": "bar[].values[]"
   };
-    
+
   var expect = {bar: [{
     label: "a",
     values: ["a1", "a2"]
@@ -2126,7 +2126,7 @@ test('Multi-level array issue #29', function (t) {
     label: "b",
     values: ["b1", "b2"]
   }]}
-  
+
   var result = om(orig, map);
 
   t.deepEqual(result, expect);
@@ -2172,7 +2172,7 @@ test('Ensure that multi-dimentional arrays work #41', function (t) {
         }
     ]
   };
-  
+
   var expect = null
   var result = om.getKeyValue(src, "arr[].arr[].id");
 
@@ -2188,13 +2188,13 @@ test('Ensure that multi-dimentional arrays work #41', function (t) {
         }
     ]
   };
-  
+
   var map = {
     "arr[].id": "arr[].id",
     "arr[].arr[].id": "arr[].arr[].id",
     "arr[].arr[].arr[].id": "arr[].arr[].arr[].id"
   };
-  
+
   var expect = {"arr":[{"id":1}]};
 
 
@@ -2211,18 +2211,18 @@ test('Make sure no objects are created without data #48', function (t) {
       "bar": null
     }
   };
-  
+
   var expect = {
     foo:{
       a:1234
     }
   };
-  
+
   var map = {
     'foo.bar' : 'bar.bar',
     'a': 'foo.a'
    };
-  
+
 
   var result = om(obj, map);
 
@@ -2652,6 +2652,37 @@ test("issue #74: mapping empty array should result in empty array", t => {
   }
 
   const result = om(src, map);
+
+  t.deepEqual(result, expect);
+  t.end();
+});
+
+test('map array with function', function (t) {
+  var obj = {
+    theArray: [
+      {text:"textvalue"},
+      {text:"text"}
+    ]
+  };
+
+  var expect = {
+    newArray: [
+      {textSize:9},
+      {textSize:4}
+    ]
+  };
+
+  let transformFunc = {
+    key:'newArray[].textSize',
+    transform: function (value, src, dest, srcKey, destKey){
+      return value.length
+    }
+  };
+  var map = {
+    'theArray[].text': transformFunc
+  };
+
+  var result = om(obj, map);
 
   t.deepEqual(result, expect);
   t.end();
