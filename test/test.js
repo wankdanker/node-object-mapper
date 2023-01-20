@@ -2656,3 +2656,49 @@ test("issue #74: mapping empty array should result in empty array", t => {
   t.deepEqual(result, expect);
   t.end();
 });
+
+test('Ensure that null value check is iterated correctly in arrays', function (t) {
+  const src = {
+    "source": [
+      {
+        "some": "value",
+        "empty": null
+      },
+      {
+        "some": "value",
+        "empty": null
+      },
+      {
+        "some": "value",
+        "empty": null
+      }
+    ]
+  };
+
+  const map =  {
+    "source[].some": "destination[].some",
+    "source[].empty": "destination[].empty?"
+  };
+
+  const expect = {
+    "destination": [
+      {
+        "some": "value",
+        "empty": null
+      },
+      {
+        "some": "value",
+        "empty": null
+      },
+      {
+        "some": "value",
+        "empty": null
+      }
+    ]
+  }
+
+  const result = om(src, map);
+
+  t.deepEqual(result, expect);
+  t.end();
+});

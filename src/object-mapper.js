@@ -85,7 +85,8 @@ function select_arr(src, key, keys)
     // Check to see if we are at a 'leaf' (no more keys to parse).  If so, return the data.  If not, recurse
     var d = (keys.length) ? select(src[i], keys.slice()) : src[i]
     // If the data is populated, add it to the array.  Make sure to keep the same array index so that traversing multi-level arrays work
-    if (d !== null)
+    // If data is null, the subsequent steps will take the default value if there is one, and null if null is allowed.
+    if ( typeof d !== 'undefined')
       data[i] = d
   }
 
