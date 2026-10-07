@@ -2656,3 +2656,13 @@ test("issue #74: mapping empty array should result in empty array", t => {
   t.deepEqual(result, expect);
   t.end();
 });
+test('prototype pollution: unsafe keys are ignored', function (t) {
+  const paths = ['__proto__.polluted', 'constructor.prototype.polluted', 'a.__proto__.polluted', '[__proto__].polluted']
+  paths.forEach(function (path) {
+    om.setKeyValue({}, path, 'YES')
+    t.equal(({}).polluted, undefined, path)
+  })
+  om({ x: 1 }, { x: '__proto__.polluted' })
+  t.equal(({}).polluted, undefined, 'objectMapper with unsafe dest key')
+  t.end()
+})
