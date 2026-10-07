@@ -290,6 +290,10 @@ function update_obj(dest, key, data, keys, context)
 // Update the dest[] array with the data on each index
 function update_arr(dest, key, data, keys, context)
 {
+  // Leave dest untouched (and never call the transform) when the index is one of our unsafe keys
+  if (unsafe_keys.includes(key.ix))
+    return dest
+
   // The 'add' instruction is set.  This means to take the data and add it onto a new array node 
   if (key.add) {
     if (data !== null && typeof data !== 'undefined') {
@@ -334,10 +338,6 @@ function applyTransform(data, dest, context){
 
 function update_arr_ix(dest, ix, data, keys, context)
 {
-  // Leave dest untouched when the index is one of our unsafe keys
-  if (unsafe_keys.includes(ix))
-    return dest
-
   let o
   if (dest !== null && typeof dest !== 'undefined' && typeof dest[ix] !== 'undefined')
     o = (keys.length) ? update(dest[ix], data, keys, context) : data

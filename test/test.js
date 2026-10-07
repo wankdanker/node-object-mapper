@@ -2664,5 +2664,8 @@ test('prototype pollution: unsafe keys are ignored', function (t) {
   })
   om({ x: 1 }, { x: '__proto__.polluted' })
   t.equal(({}).polluted, undefined, 'objectMapper with unsafe dest key')
+  let called = false
+  om.setKeyValue({}, { key: '[__proto__]', transform: function () { called = true; return 'YES' } }, 'x')
+  t.equal(called, false, 'transform is not called for an unsafe index')
   t.end()
 })
