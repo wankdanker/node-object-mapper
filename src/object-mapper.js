@@ -252,9 +252,16 @@ function update(dest, data, keys, context)
   return set_data(dest, keys, data, context)
 }
 
+// We never walk into or write to these keys, otherwise a key path could pollute Object.prototype
+const unsafe_keys = ['__proto__', 'constructor', 'prototype']
+
 // Update the destination object.key with the data
 function update_obj(dest, key, data, keys, context)
 {
+  // Leave dest untouched when the key is one of our unsafe keys
+  if (unsafe_keys.includes(key.name))
+    return dest
+
   // There are further instructions remaining - we will need to recurse
   if (keys.length) {
     // There is a pre-existing destination object.  Recurse through to the object key
@@ -283,6 +290,10 @@ function update_obj(dest, key, data, keys, context)
 // Update the dest[] array with the data on each index
 function update_arr(dest, key, data, keys, context)
 {
+  // Leave dest untouched (and never call the transform) when the index is one of our unsafe keys
+  if (unsafe_keys.includes(key.ix))
+    return dest
+
   // The 'add' instruction is set.  This means to take the data and add it onto a new array node 
   if (key.add) {
     if (data !== null && typeof data !== 'undefined') {
